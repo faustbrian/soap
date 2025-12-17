@@ -8,258 +8,764 @@
  */
 
 use Cline\Soap\AutoDiscover;
-use Cline\Soap\Exception\InvalidArgumentException;
+use Cline\Soap\AutoDiscover\DiscoveryStrategy\ReflectionDiscovery;
+use Cline\Soap\Exception\InvalidArgumentException as SoapInvalidArgumentException;
 use Cline\Soap\Exception\RuntimeException;
 use Cline\Soap\Wsdl;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\ArrayOfTypeComplex;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\ArrayOfTypeSequence;
-use Tests\Fixtures\TestClass;
-
+use Cline\Soap\Wsdl\ComplexTypeStrategy\ComplexTypeStrategyInterface;
+use Laminas\Uri\Uri;
+use Tests\Fixtures\AutoDiscoverTestClass2;
+use Tests\Fixtures\MyService;
+use Tests\Fixtures\MyServiceSequence;
+use Tests\Fixtures\NoReturnType;
+use Tests\Fixtures\Recursion;
+use Tests\Fixtures\Test;
+use Tests\Fixtures\TestFixingMultiplePrototypes;
 
 beforeEach(function (): void {
     skipIfSoapNotLoaded();
+
+    $this->server = new AutoDiscover();
+    $this->defaultServiceName = 'MyService';
+    $this->defaultServiceUri = 'http://localhost/MyService.php';
+    $this->server->setUri($this->defaultServiceUri);
+    $this->server->setServiceName($this->defaultServiceName);
+
+    $this->dom = null;
+    $this->xpath = null;
 });
 
-describe('AutoDiscover Construction', function (): void {
-    test('can create AutoDiscover instance', function (): void {
-        $autodiscover = new AutoDiscover();
+// Helper function to bind WSDL for XPath testing
+function bindWsdl(Wsdl $wsdl, ?string $documentNamespace = null): void {
+    test()->dom = new \DOMDocument();
+    test()->dom->formatOutput = true;
+    test()->dom->preserveWhiteSpace = false;
+    test()->dom->loadXML($wsdl->toXML());
 
-        expect($autodiscover)->toBeInstanceOf(AutoDiscover::class);
+    if (empty($documentNamespace)) {
+        $documentNamespace = test()->defaultServiceUri;
+    }
+
+    test()->xpath = registerWsdlNamespaces(test()->dom, $documentNamespace);
+}
+
+// Helper function to assert specific node number in XPath
+function assertSpecificNodeNumberInXPath(int $n, string $xpath, ?string $msg = null): \DOMNodeList {
+    $nodes = test()->xpath->query($xpath);
+
+    if (! $nodes instanceof \DOMNodeList) {
+        throw new \RuntimeException('Nodes not found. Invalid XPath expression?');
+    }
+
+    expect($nodes->length)->toBe($n, $msg . "\nXPath: " . $xpath);
+
+    return $nodes;
+}
+
+// Helper function to assert attributes of nodes
+function assertAttributesOfNodes(array $attributes, \DOMNodeList $nodeList): void {
+    $keys = array_keys($attributes);
+    $c = count($attributes);
+
+    foreach ($nodeList as $node) {
+        for ($i = 0; $i < $c; $i++) {
+            expect($node->getAttribute($keys[$i]))
+                ->toBe($attributes[$keys[$i]], 'Invalid attribute value.');
+        }
+    }
+}
+
+// Helper function to validate WSDL
+function assertValidWSDL(\DOMDocument $dom): void {
+    // Save to temporary file for validation
+    $file = fixturesPath('validate.wsdl');
+    if (file_exists($file)) {
+        unlink($file);
+    }
+
+    $dom->save($file);
+    $dom = new \DOMDocument();
+    $dom->load($file);
+
+    $result = $dom->schemaValidate(fixturesPath('schemas/wsdl.xsd'));
+    unlink($file);
+
+    expect($result)->toBeTrue('WSDL Did not validate');
+}
+
+describe('AutoDiscover', function (): void {
+    describe('Constructor', function (): void {
+        test('constructs AutoDiscover with URI as string', function (): void {
+            $server = new AutoDiscover(null, 'http://example.com/service.php');
+
+            expect($server->getUri()->toString())->toBe('http://example.com/service.php');
+        });
+
+        test('constructs AutoDiscover with URI as Uri instance', function (): void {
+            $server = new AutoDiscover(null, new Uri('http://example.com/service.php'));
+
+            expect($server->getUri()->toString())->toBe('http://example.com/service.php');
+        });
+
+        test('constructs AutoDiscover with URI containing ampersands encoded', function (): void {
+            $server = new AutoDiscover(null, 'http://example.com/?a=b&amp;b=c');
+
+            expect($server->getUri()->toString())->toBe('http://example.com/?a=b&amp;b=c');
+        });
+
+        test('constructs AutoDiscover with URI containing ampersands unencoded', function (): void {
+            $server = new AutoDiscover(null, 'http://example.com/?a=b&b=c');
+
+            expect($server->getUri()->toString())->toBe('http://example.com/?a=b&amp;b=c');
+        });
+
+        test('constructs AutoDiscover with URN namespace', function (): void {
+            $server = new AutoDiscover(null, 'urn:acme:servicenamespace');
+
+            expect($server->getUri()->toString())->toBe('urn:acme:servicenamespace');
+        });
+
+        test('constructs AutoDiscover with ArrayOfTypeComplex strategy', function (): void {
+            $strategy = new Wsdl\ComplexTypeStrategy\ArrayOfTypeComplex();
+            $server = new AutoDiscover($strategy);
+
+            $server->addFunction('\Tests\Fixtures\TestFunc');
+            $server->setServiceName('TestService');
+            $server->setUri('http://example.com');
+            $wsdl = $server->generate();
+
+            expect(get_class($wsdl->getComplexTypeStrategy()))
+                ->toBe(get_class($strategy));
+        });
+
+        test('constructs AutoDiscover with ArrayOfTypeSequence strategy', function (): void {
+            $strategy = new Wsdl\ComplexTypeStrategy\ArrayOfTypeSequence();
+            $server = new AutoDiscover($strategy);
+
+            $server->addFunction('\Tests\Fixtures\TestFunc');
+            $server->setServiceName('TestService');
+            $server->setUri('http://example.com');
+            $wsdl = $server->generate();
+
+            expect(get_class($wsdl->getComplexTypeStrategy()))
+                ->toBe(get_class($strategy));
+        });
+
+        test('constructs AutoDiscover with custom WSDL class', function (): void {
+            $server = new AutoDiscover(null, null, Wsdl::class);
+
+            $server->addFunction('\Tests\Fixtures\TestFunc');
+            $server->setServiceName('TestService');
+            $server->setUri('http://example.com');
+            $wsdl = $server->generate();
+
+            expect(trim(get_class($wsdl), '\\'))->toBe(Wsdl::class);
+            expect(trim($server->getWsdlClass(), '\\'))->toBe(Wsdl::class);
+        });
     });
 
-    test('can set service name', function (): void {
-        $autodiscover = new AutoDiscover();
-        $autodiscover->setServiceName('MyService');
+    describe('Discovery Strategy', function (): void {
+        test('returns ReflectionDiscovery as default discovery strategy', function (): void {
+            $server = new AutoDiscover();
 
-        expect($autodiscover->getServiceName())->toBe('MyService');
+            expect(get_class($server->getDiscoveryStrategy()))
+                ->toBe(ReflectionDiscovery::class);
+        });
     });
 
-    test('can set URI', function (): void {
-        $autodiscover = new AutoDiscover();
-        $autodiscover->setUri('http://localhost/myservice');
+    describe('Service Name', function (): void {
+        test('sets service name successfully with valid name', function (): void {
+            $this->server->setServiceName('MyServiceName123');
+            bindWsdl($this->server->generate());
 
-        expect($autodiscover->getUri()->toString())->toBe('http://localhost/myservice');
-    });
-});
+            assertSpecificNodeNumberInXPath(
+                1,
+                '/wsdl:definitions[@name="MyServiceName123"]'
+            );
+        });
 
-describe('Class Discovery', function (): void {
-    test('can set class for discovery', function (): void {
-        $autodiscover = new AutoDiscover();
-        $autodiscover->setClass(TestClass::class);
+        test('throws exception when service name starts with number', function (): void {
+            expect(fn() => $this->server->setServiceName('1MyServiceName123'))
+                ->toThrow(\InvalidArgumentException::class);
+        });
 
-        expect($autodiscover)->toBeInstanceOf(AutoDiscover::class);
-    });
+        test('throws exception when service name contains dollar sign', function (): void {
+            expect(fn() => $this->server->setServiceName('$MyServiceName123'))
+                ->toThrow(\InvalidArgumentException::class);
+        });
 
-    test('can generate WSDL from class', function (): void {
-        $autodiscover = new AutoDiscover();
-        $autodiscover->setServiceName('TestService');
-        $autodiscover->setUri('http://localhost/test');
-        $autodiscover->setClass(TestClass::class);
+        test('throws exception when service name contains exclamation mark', function (): void {
+            expect(fn() => $this->server->setServiceName('!MyServiceName123'))
+                ->toThrow(\InvalidArgumentException::class);
+        });
 
-        $wsdl = $autodiscover->generate();
+        test('throws exception when service name contains ampersand', function (): void {
+            expect(fn() => $this->server->setServiceName('&MyServiceName123'))
+                ->toThrow(\InvalidArgumentException::class);
+        });
 
-        expect($wsdl)->toBeInstanceOf(Wsdl::class);
+        test('throws exception when service name contains parenthesis', function (): void {
+            expect(fn() => $this->server->setServiceName('(MyServiceName123'))
+                ->toThrow(\InvalidArgumentException::class);
+        });
 
-        $dom = $wsdl->toDomDocument();
-        $xpath = registerWsdlNamespaces($dom, 'http://localhost/test');
+        test('throws exception when service name contains backslash', function (): void {
+            expect(fn() => $this->server->setServiceName('\\MyServiceName123'))
+                ->toThrow(\InvalidArgumentException::class);
+        });
 
-        // Check service name
-        expect($dom->documentElement->getAttribute('name'))->toBe('TestService');
+        test('gets service name from class when setClass is used', function (): void {
+            $server = new AutoDiscover();
+            $server->setClass(Test::class);
 
-        // Check target namespace
-        expect($dom->documentElement->getAttribute('targetNamespace'))->toBe('http://localhost/test');
-    });
-});
+            expect($server->getServiceName())->toBe('Test');
+        });
 
-describe('Function Discovery', function (): void {
-    test('can add function for discovery', function (): void {
-        $autodiscover = new AutoDiscover();
-        $autodiscover->addFunction('Tests\Fixtures\TestFunc');
+        test('throws RuntimeException when getting service name with addFunction', function (): void {
+            $server = new AutoDiscover();
+            $server->addFunction('\Tests\Fixtures\TestFunc');
 
-        expect($autodiscover)->toBeInstanceOf(AutoDiscover::class);
-    });
-
-    test('throws exception for non-existent function', function (): void {
-        $autodiscover = new AutoDiscover();
-
-        expect(fn () => $autodiscover->addFunction('NonExistentFunction'))
-            ->toThrow(InvalidArgumentException::class);
-    });
-
-    test('throws exception for invalid function argument', function (): void {
-        $autodiscover = new AutoDiscover();
-
-        expect(fn () => $autodiscover->addFunction(123))
-            ->toThrow(InvalidArgumentException::class);
-    });
-});
-
-describe('URI Validation', function (): void {
-    test('throws exception for invalid URI type', function (): void {
-        $autodiscover = new AutoDiscover();
-
-        expect(fn () => $autodiscover->setUri(123))
-            ->toThrow(InvalidArgumentException::class);
+            expect(fn() => $server->getServiceName())
+                ->toThrow(RuntimeException::class);
+        });
     });
 
-    test('throws exception for empty URI', function (): void {
-        $autodiscover = new AutoDiscover();
+    describe('URI Configuration', function (): void {
+        test('throws exception when setting URI with whitespace only', function (): void {
+            $server = new AutoDiscover();
 
-        expect(fn () => $autodiscover->setUri(''))
-            ->toThrow(InvalidArgumentException::class);
+            expect(fn() => $server->setUri(' '))
+                ->toThrow(SoapInvalidArgumentException::class);
+        });
+
+        test('throws exception when getting URI before it is set', function (): void {
+            $server = new AutoDiscover();
+
+            expect(fn() => $server->getUri())
+                ->toThrow(RuntimeException::class);
+        });
+
+        test('throws exception when setting URI with non-string non-Uri type', function (): void {
+            $server = new AutoDiscover();
+
+            expect(fn() => $server->setUri(["bogus"]))
+                ->toThrow(SoapInvalidArgumentException::class)
+                ->and(fn() => $server->setUri(["bogus"]))
+                ->toThrow(SoapInvalidArgumentException::class, 'Argument to \Cline\Soap\AutoDiscover::setUri should be string or \Laminas\Uri\Uri instance.');
+        });
     });
 
-    test('throws exception when URI not set during generate', function (): void {
-        $autodiscover = new AutoDiscover();
-        $autodiscover->setServiceName('MyService');
-        $autodiscover->setClass(TestClass::class);
+    describe('Class Map', function (): void {
+        test('sets and gets class map successfully', function (): void {
+            $classMap = [
+                'TestClass' => 'test_class',
+            ];
 
-        expect(fn () => $autodiscover->generate())
-            ->toThrow(RuntimeException::class);
-    });
-});
+            $this->server->setClassMap($classMap);
 
-describe('WSDL Class', function (): void {
-    test('can set custom WSDL class', function (): void {
-        $autodiscover = new AutoDiscover();
-        $autodiscover->setWsdlClass(Wsdl::class);
-
-        expect($autodiscover->getWsdlClass())->toBe(Wsdl::class);
-    });
-});
-
-describe('Complex Type Strategy', function (): void {
-    test('can set ArrayOfTypeComplex strategy', function (): void {
-        $autodiscover = new AutoDiscover();
-        $autodiscover->setComplexTypeStrategy(new ArrayOfTypeComplex());
-
-        expect($autodiscover)->toBeInstanceOf(AutoDiscover::class);
+            expect($this->server->getClassMap())->toBe($classMap);
+        });
     });
 
-    test('can set ArrayOfTypeSequence strategy', function (): void {
-        $autodiscover = new AutoDiscover();
-        $autodiscover->setComplexTypeStrategy(new ArrayOfTypeSequence());
+    describe('WSDL Class Configuration', function (): void {
+        test('throws exception when setting WSDL class to non-string value', function (): void {
+            $server = new AutoDiscover();
 
-        expect($autodiscover)->toBeInstanceOf(AutoDiscover::class);
-    });
-});
-
-describe('Operation Body Style', function (): void {
-    test('can set operation body style', function (): void {
-        $autodiscover = new AutoDiscover();
-        $autodiscover->setOperationBodyStyle([
-            'use' => 'literal',
-        ]);
-
-        expect($autodiscover)->toBeInstanceOf(AutoDiscover::class);
+            expect(fn() => $server->setWsdlClass(new \stdClass()))
+                ->toThrow(SoapInvalidArgumentException::class);
+        });
     });
 
-    test('throws exception when use key is missing', function (): void {
-        $autodiscover = new AutoDiscover();
+    describe('Class Discovery', function (): void {
+        test('generates WSDL from class with RPC style', function (): void {
+            $this->server->setClass(Test::class);
+            bindWsdl($this->server->generate());
 
-        expect(fn () => $autodiscover->setOperationBodyStyle([]))
-            ->toThrow(InvalidArgumentException::class);
+            // Check schema definition
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:types/xsd:schema[@targetNamespace="' . $this->defaultServiceUri . '"]',
+                'Invalid schema definition'
+            );
+
+            // Check all 4 operations
+            for ($i = 1; $i <= 4; $i++) {
+                assertSpecificNodeNumberInXPath(
+                    1,
+                    '//wsdl:portType[@name="MyServicePort"]/wsdl:operation[@name="testFunc' . $i . '"]',
+                    'Invalid func' . $i . ' operation definition'
+                );
+                assertSpecificNodeNumberInXPath(
+                    1,
+                    '//wsdl:portType[@name="MyServicePort"]/wsdl:operation[@name="testFunc' . $i . '"]/wsdl:documentation',
+                    'Invalid func' . $i . ' port definition - documentation node'
+                );
+                assertSpecificNodeNumberInXPath(
+                    1,
+                    '//wsdl:portType[@name="MyServicePort"]/wsdl:operation[@name="testFunc' . $i . '"]/wsdl:input[@message="tns:testFunc' . $i . 'In"]',
+                    'Invalid func' . $i . ' port definition - input node'
+                );
+                assertSpecificNodeNumberInXPath(
+                    1,
+                    '//wsdl:portType[@name="MyServicePort"]/wsdl:operation[@name="testFunc' . $i . '"]/wsdl:output[@message="tns:testFunc' . $i . 'Out"]',
+                    'Invalid func' . $i . ' port definition - output node'
+                );
+            }
+
+            // Check binding
+            $nodes = assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:binding[@name="MyServiceBinding"]',
+                'Invalid service binding definition'
+            );
+            expect($nodes->item(0)->getAttribute('type'))
+                ->toBe('tns:MyServicePort', 'Invalid type attribute value in service binding definition');
+
+            $nodes = assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:binding[@name="MyServiceBinding"]/soap:binding',
+                'Invalid service binding definition'
+            );
+            expect($nodes->item(0)->getAttribute('style'))
+                ->toBe('rpc', 'Invalid style attribute value in service binding definition');
+            expect($nodes->item(0)->getAttribute('transport'))
+                ->toBe('http://schemas.xmlsoap.org/soap/http', 'Invalid transport attribute value in service binding definition');
+
+            // Check service
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:service[@name="MyServiceService"]',
+                'Invalid service definition'
+            );
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:service[@name="MyServiceService"]/wsdl:port[@name="MyServicePort" and @binding="tns:MyServiceBinding"]',
+                'Invalid service port definition'
+            );
+
+            // Check messages
+            $nodes = assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:message[@name="testFunc1In"]',
+                'Invalid message definition'
+            );
+            expect($nodes->item(0)->hasChildNodes())->toBeFalse();
+
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:message[@name="testFunc2In"]/wsdl:part[@name="who" and @type="xsd:string"]',
+                'Invalid message definition'
+            );
+
+            assertValidWSDL($this->dom);
+            assertDocumentNodesHaveNamespaces($this->dom);
+        });
+
+        test('generates WSDL from class with document/literal style', function (): void {
+            $this->server->setBindingStyle([
+                'style' => 'document',
+                'transport' => $this->defaultServiceUri,
+            ]);
+            $this->server->setOperationBodyStyle([
+                'use' => 'literal',
+                'namespace' => $this->defaultServiceUri,
+            ]);
+            $this->server->setClass(Test::class);
+
+            bindWsdl($this->server->generate());
+
+            // Check element definitions for document/literal style
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:types/xsd:schema/xsd:element[@name="testFunc1"]',
+                'Missing test func1 definition'
+            );
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:types/xsd:schema/xsd:element[@name="testFunc1"]/xsd:complexType',
+                'Missing test func1 type definition'
+            );
+            assertSpecificNodeNumberInXPath(
+                0,
+                '//wsdl:types/xsd:schema/xsd:element[@name="testFunc1"]/xsd:complexType/*',
+                'Test func1 does not have children'
+            );
+
+            $nodes = assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:types/xsd:schema/xsd:element[@name="testFunc1Response"]/xsd:complexType/xsd:sequence/xsd:element',
+                'Test func1 return element is invalid'
+            );
+            assertAttributesOfNodes([
+                'name' => 'testFunc1Result',
+                'type' => 'xsd:string',
+            ], $nodes);
+
+            // Check binding style
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:binding[@name="MyServiceBinding" and @type="tns:MyServicePort"]/soap:binding[@style="document" and @transport="' . $this->defaultServiceUri . '"]',
+                'Missing service binding transport definition'
+            );
+
+            assertValidWSDL($this->dom);
+            assertDocumentNodesHaveNamespaces($this->dom);
+        });
+
+        test('generates WSDL with return part compatibility mode', function (): void {
+            $this->server->setClass(Test::class);
+            bindWsdl($this->server->generate());
+
+            for ($i = 1; $i <= 4; $i++) {
+                assertSpecificNodeNumberInXPath(
+                    1,
+                    '//wsdl:message[@name="testFunc' . $i . 'Out"]/wsdl:part[@name="return"]'
+                );
+            }
+
+            assertValidWSDL($this->dom);
+        });
     });
-});
 
-describe('Binding Style', function (): void {
-    test('can set binding style', function (): void {
-        $autodiscover = new AutoDiscover();
-        $autodiscover->setBindingStyle([
-            'style' => 'document',
-            'transport' => 'http://schemas.xmlsoap.org/soap/http',
-        ]);
+    describe('Function Discovery', function (): void {
+        test('throws exception when adding invalid function name', function (): void {
+            expect(fn() => $this->server->addFunction('InvalidFunction'))
+                ->toThrow(SoapInvalidArgumentException::class);
+        });
 
-        expect($autodiscover)->toBeInstanceOf(AutoDiscover::class);
+        test('throws exception when adding integer as function', function (): void {
+            expect(fn() => $this->server->addFunction(1))
+                ->toThrow(SoapInvalidArgumentException::class);
+        });
+
+        test('throws exception when adding array of integers as function', function (): void {
+            expect(fn() => $this->server->addFunction([1, 2]))
+                ->toThrow(SoapInvalidArgumentException::class);
+        });
+
+        test('adds single function and generates WSDL with RPC style', function (): void {
+            $this->server->addFunction('\Tests\Fixtures\TestFunc');
+            bindWsdl($this->server->generate());
+
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:portType[@name="MyServicePort"]/wsdl:operation[@name="TestFunc"]',
+                'Missing service port definition'
+            );
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:portType[@name="MyServicePort"]/wsdl:operation[@name="TestFunc"]/wsdl:documentation',
+                'Missing service port definition documentation'
+            );
+
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:binding[@name="MyServiceBinding" and @type="tns:MyServicePort"]/soap:binding[@style="rpc" and @transport="http://schemas.xmlsoap.org/soap/http"]',
+                'Missing service binding transport definition'
+            );
+
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:message[@name="TestFuncIn"]/wsdl:part[@name="who" and @type="xsd:string"]',
+                'Missing test testFunc input message definition'
+            );
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:message[@name="TestFuncOut"]/wsdl:part[@name="return" and @type="xsd:string"]',
+                'Missing test testFunc input message definition'
+            );
+
+            assertValidWSDL($this->dom);
+            assertDocumentNodesHaveNamespaces($this->dom);
+        });
+
+        test('adds single function and generates WSDL with document/literal style', function (): void {
+            $this->server->setBindingStyle([
+                'style' => 'document',
+                'transport' => $this->defaultServiceUri,
+            ]);
+            $this->server->setOperationBodyStyle([
+                'use' => 'literal',
+                'namespace' => $this->defaultServiceUri,
+            ]);
+            $this->server->addFunction('\Tests\Fixtures\TestFunc');
+            bindWsdl($this->server->generate());
+
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:types/xsd:schema[@targetNamespace="' . $this->defaultServiceUri . '"]',
+                'Missing service port definition'
+            );
+
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:types/xsd:schema[@targetNamespace="' . $this->defaultServiceUri . '"]/xsd:element[@name="TestFunc"]/xsd:complexType/xsd:sequence/xsd:element[@name="who" and @type="xsd:string"]',
+                'Missing complex type definition'
+            );
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:types/xsd:schema[@targetNamespace="' . $this->defaultServiceUri . '"]/xsd:element[@name="TestFuncResponse"]/xsd:complexType/xsd:sequence/xsd:element[@name="TestFuncResult" and @type="xsd:string"]',
+                'Missing complex type definition'
+            );
+
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:message[@name="TestFuncIn"]/wsdl:part[@name="parameters" and @element="tns:TestFunc"]',
+                'Missing test testFunc input message definition'
+            );
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:message[@name="TestFuncOut"]/wsdl:part[@name="parameters" and @element="tns:TestFuncResponse"]',
+                'Missing test testFunc input message definition'
+            );
+
+            assertValidWSDL($this->dom);
+            assertDocumentNodesHaveNamespaces($this->dom);
+        });
+
+        test('generates WSDL with return name compatibility mode for single function', function (): void {
+            $this->server->addFunction('\Tests\Fixtures\TestFunc');
+            bindWsdl($this->server->generate());
+
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:message[@name="TestFuncOut"]/wsdl:part[@name="return" and @type="xsd:string"]',
+                'Missing test testFunc input message definition'
+            );
+
+            assertValidWSDL($this->dom);
+            assertDocumentNodesHaveNamespaces($this->dom);
+        });
+
+        test('adds multiple functions and generates WSDL', function (): void {
+            $this->server->addFunction('\Tests\Fixtures\TestFunc');
+            $this->server->addFunction('\Tests\Fixtures\TestFunc2');
+            $this->server->addFunction('\Tests\Fixtures\TestFunc3');
+            $this->server->addFunction('\Tests\Fixtures\TestFunc4');
+            $this->server->addFunction('\Tests\Fixtures\TestFunc5');
+            $this->server->addFunction('\Tests\Fixtures\TestFunc6');
+            $this->server->addFunction('\Tests\Fixtures\TestFunc7');
+            $this->server->addFunction('\Tests\Fixtures\TestFunc9');
+
+            bindWsdl($this->server->generate());
+
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:types/xsd:schema[@targetNamespace="' . $this->defaultServiceUri . '"]',
+                'Missing service port definition'
+            );
+
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:binding[@name="MyServiceBinding" and @type="tns:MyServicePort"]/soap:binding[@style="rpc" and @transport="http://schemas.xmlsoap.org/soap/http"]',
+                'Missing service port definition'
+            );
+
+            foreach (['', 2, 3, 4, 5, 6, 7, 9] as $i) {
+                assertSpecificNodeNumberInXPath(
+                    1,
+                    '//wsdl:portType[@name="MyServicePort"]/wsdl:operation[@name="TestFunc' . $i . '"]',
+                    'Missing service port definition for TestFunc' . $i
+                );
+                assertSpecificNodeNumberInXPath(
+                    1,
+                    '//wsdl:portType[@name="MyServicePort"]/wsdl:operation[@name="TestFunc' . $i . '"]/wsdl:documentation',
+                    'Missing service port definition documentation for TestFunc' . $i
+                );
+            }
+
+            assertValidWSDL($this->dom);
+            assertDocumentNodesHaveNamespaces($this->dom);
+        });
     });
 
-    test('can set RPC binding style', function (): void {
-        $autodiscover = new AutoDiscover();
-        $autodiscover->setBindingStyle([
-            'style' => 'rpc',
-        ]);
+    describe('URI Changes', function (): void {
+        test('changes WSDL URI in constructor', function (): void {
+            $this->server->addFunction('\Tests\Fixtures\TestFunc');
+            $this->server->setUri('http://example.com/service.php');
+            bindWsdl($this->server->generate());
 
-        expect($autodiscover)->toBeInstanceOf(AutoDiscover::class);
-    });
-});
+            expect($this->dom->documentElement->getAttribute('targetNamespace'))
+                ->toBe('http://example.com/service.php');
+            expect($this->dom->saveXML())
+                ->not->toContain($this->defaultServiceUri);
 
-describe('WSDL Generation', function (): void {
-    test('generated WSDL contains port type', function (): void {
-        $autodiscover = new AutoDiscover();
-        $autodiscover->setServiceName('TestService');
-        $autodiscover->setUri('http://localhost/test');
-        $autodiscover->setClass(TestClass::class);
+            assertValidWSDL($this->dom);
+            assertDocumentNodesHaveNamespaces($this->dom);
+        });
 
-        $wsdl = $autodiscover->generate();
-        $dom = $wsdl->toDomDocument();
-        $xpath = registerWsdlNamespaces($dom, 'http://localhost/test');
+        test('changes WSDL URI after generation', function (): void {
+            $this->server->addFunction('\Tests\Fixtures\TestFunc');
+            $wsdl = $this->server->generate();
+            $wsdl->setUri('http://example.com/service.php');
 
-        $portTypes = $xpath->query('wsdl:portType');
-        expect($portTypes->length)->toBeGreaterThan(0);
-    });
+            expect($wsdl->toDomDocument()->documentElement->getAttribute('targetNamespace'))
+                ->toBe('http://example.com/service.php');
 
-    test('generated WSDL contains binding', function (): void {
-        $autodiscover = new AutoDiscover();
-        $autodiscover->setServiceName('TestService');
-        $autodiscover->setUri('http://localhost/test');
-        $autodiscover->setClass(TestClass::class);
-
-        $wsdl = $autodiscover->generate();
-        $dom = $wsdl->toDomDocument();
-        $xpath = registerWsdlNamespaces($dom, 'http://localhost/test');
-
-        $bindings = $xpath->query('wsdl:binding');
-        expect($bindings->length)->toBeGreaterThan(0);
+            assertValidWSDL($wsdl->toDomDocument());
+        });
     });
 
-    test('generated WSDL contains service', function (): void {
-        $autodiscover = new AutoDiscover();
-        $autodiscover->setServiceName('TestService');
-        $autodiscover->setUri('http://localhost/test');
-        $autodiscover->setClass(TestClass::class);
+    describe('Complex Types', function (): void {
+        test('generates WSDL with class having methods with multiple default parameter values', function (): void {
+            $this->server->setClass(TestFixingMultiplePrototypes::class);
+            bindWsdl($this->server->generate());
 
-        $wsdl = $autodiscover->generate();
-        $dom = $wsdl->toDomDocument();
-        $xpath = registerWsdlNamespaces($dom, 'http://localhost/test');
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:message[@name="testFuncIn"]'
+            );
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:message[@name="testFuncOut"]'
+            );
 
-        $services = $xpath->query('wsdl:service');
-        expect($services->length)->toBeGreaterThan(0);
+            assertValidWSDL($this->dom);
+            assertDocumentNodesHaveNamespaces($this->dom);
+        });
+
+        test('recognizes complex types used multiple times only once with ArrayOfTypeComplex', function (): void {
+            $this->server->setComplexTypeStrategy(new ArrayOfTypeComplex());
+            $this->server->setClass(AutoDiscoverTestClass2::class);
+            bindWsdl($this->server->generate());
+
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//xsd:attribute[@wsdl:arrayType="tns:AutoDiscoverTestClass1[]"]',
+                'Definition of TestClass1 has to occur once.'
+            );
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//xsd:complexType[@name="AutoDiscoverTestClass1"]',
+                'AutoDiscoverTestClass1 has to be defined once.'
+            );
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//xsd:complexType[@name="ArrayOfAutoDiscoverTestClass1"]',
+                'AutoDiscoverTestClass1 should be defined once.'
+            );
+
+            $nodes = assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:part[@name="test" and @type="tns:AutoDiscoverTestClass1"]',
+                'AutoDiscoverTestClass1 appears once or more than once in the message parts section.'
+            );
+            expect($nodes->length)->toBeGreaterThanOrEqual(1);
+
+            assertValidWSDL($this->dom);
+            assertDocumentNodesHaveNamespaces($this->dom);
+        });
+
+        test('returns same array of objects response on different methods when using ArrayOfTypeComplex', function (): void {
+            $this->server->setComplexTypeStrategy(new ArrayOfTypeComplex());
+            $this->server->setClass(MyService::class);
+            bindWsdl($this->server->generate());
+
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//xsd:complexType[@name="ArrayOfMyResponse"]'
+            );
+            assertSpecificNodeNumberInXPath(
+                0,
+                '//wsdl:part[@type="tns:My_Response[]"]'
+            );
+
+            assertValidWSDL($this->dom);
+            assertDocumentNodesHaveNamespaces($this->dom);
+        });
+
+        test('returns same array of objects response on different methods when using ArrayOfTypeSequence', function (): void {
+            $this->server->setComplexTypeStrategy(new ArrayOfTypeSequence());
+            $this->server->setClass(MyServiceSequence::class);
+            bindWsdl($this->server->generate());
+
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//xsd:complexType[@name="ArrayOfString"]'
+            );
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//xsd:complexType[@name="ArrayOfArrayOfString"]'
+            );
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//xsd:complexType[@name="ArrayOfArrayOfArrayOfString"]'
+            );
+
+            expect($this->dom->saveXML())->not->toContain('tns:string[]');
+
+            assertValidWSDL($this->dom);
+            assertDocumentNodesHaveNamespaces($this->dom);
+        });
     });
 
-    test('generated WSDL contains messages for operations', function (): void {
-        $autodiscover = new AutoDiscover();
-        $autodiscover->setServiceName('TestService');
-        $autodiscover->setUri('http://localhost/test');
-        $autodiscover->setClass(TestClass::class);
+    describe('One-Way Operations', function (): void {
+        test('generates one-way operation when method has no return type in class', function (): void {
+            $this->server->setClass(NoReturnType::class);
+            bindWsdl($this->server->generate());
 
-        $wsdl = $autodiscover->generate();
-        $dom = $wsdl->toDomDocument();
-        $xpath = registerWsdlNamespaces($dom, 'http://localhost/test');
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:portType/wsdl:operation[@name="pushOneWay"]/wsdl:input'
+            );
+            assertSpecificNodeNumberInXPath(
+                0,
+                '//wsdl:portType/wsdl:operation[@name="pushOneWay"]/wsdl:output'
+            );
 
-        $messages = $xpath->query('wsdl:message');
-        expect($messages->length)->toBeGreaterThan(0);
+            assertValidWSDL($this->dom);
+            assertDocumentNodesHaveNamespaces($this->dom);
+        });
+
+        test('generates one-way operation when function has no return type', function (): void {
+            $this->server->addFunction('\Tests\Fixtures\OneWay');
+            bindWsdl($this->server->generate());
+
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:portType/wsdl:operation[@name="OneWay"]/wsdl:input'
+            );
+            assertSpecificNodeNumberInXPath(
+                0,
+                '//wsdl:portType/wsdl:operation[@name="OneWay"]/wsdl:output'
+            );
+
+            assertValidWSDL($this->dom);
+            assertDocumentNodesHaveNamespaces($this->dom);
+        });
     });
-});
 
-describe('WSDL Dump', function (): void {
-    test('can dump WSDL to file', function (): void {
-        $autodiscover = new AutoDiscover();
-        $autodiscover->setServiceName('TestService');
-        $autodiscover->setUri('http://localhost/test');
-        $autodiscover->setClass(TestClass::class);
+    describe('Recursive Dependencies', function (): void {
+        test('handles recursive WSDL dependencies', function (): void {
+            $this->server->setComplexTypeStrategy(new ArrayOfTypeSequence());
+            $this->server->setClass(Recursion::class);
 
-        $wsdl = $autodiscover->generate();
-        $tempFile = sys_get_temp_dir().'/test_autodiscover_'.uniqid().'.wsdl';
+            bindWsdl($this->server->generate());
 
-        $result = $wsdl->dump($tempFile);
+            assertSpecificNodeNumberInXPath(
+                1,
+                '//wsdl:types/xsd:schema/xsd:complexType[@name="Recursion"]/xsd:all/xsd:element[@name="recursion" and @type="tns:Recursion"]'
+            );
 
-        expect($result)->toBeTrue();
-        expect(file_exists($tempFile))->toBeTrue();
+            assertValidWSDL($this->dom);
+            assertDocumentNodesHaveNamespaces($this->dom);
+        });
+    });
 
-        $content = file_get_contents($tempFile);
-        expect($content)->toContain('TestService');
-        expect($content)->toContain('definitions');
+    describe('WSDL Output', function (): void {
+        test('handles WSDL output when calling handle method', function (): void {
+            $scriptUri = 'http://localhost/MyService.php';
 
-        unlink($tempFile);
+            $this->server->setClass(Test::class);
+
+            ob_start();
+            $this->server->handle();
+            $actualWsdl = ob_get_clean();
+
+            expect($actualWsdl)->not->toBeEmpty('WSDL content was not outputted.');
+            expect($actualWsdl)->toContain($scriptUri, 'Script URL was not found in WSDL content.');
+        })->skip('Requires output buffering in separate process');
     });
 });
