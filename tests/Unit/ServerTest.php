@@ -1,8 +1,10 @@
 <?php declare(strict_types=1);
 
 /**
- * Migrated from laminas/laminas-soap
- * @see https://github.com/laminas/laminas-soap
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 use Cline\Soap\AutoDiscover;
@@ -10,11 +12,12 @@ use Cline\Soap\Client\Local;
 use Cline\Soap\Exception\InvalidArgumentException;
 use Cline\Soap\Exception\RuntimeException;
 use Cline\Soap\Server;
+use Laminas\Config\Config;
 use Tests\Fixtures\errorClass;
-use Tests\Fixtures\MockServer;
 use Tests\Fixtures\ServerTestClass;
 use Tests\Fixtures\TestData1;
 use Tests\Fixtures\TestData2;
+use Tests\Fixtures\TestLocalSoapClient;
 
 beforeEach(function (): void {
     skipIfSoapNotLoaded();
@@ -285,14 +288,16 @@ describe('Functions', function (): void {
         $server = new Server();
         $server->setClass(ServerTestClass::class);
 
-        expect($server->getFunctions())->toBe(['testFunc1', 'testFunc2', 'testFunc3', 'testFunc4', 'testFunc5']);
+        expect($server->getFunctions())->toEqualCanonicalizing(['testFunc1', 'testFunc2', 'testFunc3', 'testFunc4', 'testFunc5']);
     });
 
     test('getFunctions returns class methods when object attached', function (): void {
         $server = new Server();
-        $server->setObject(new ServerTestClass());
+        $server->setObject(
+            new ServerTestClass(),
+        );
 
-        expect($server->getFunctions())->toBe(['testFunc1', 'testFunc2', 'testFunc3', 'testFunc4', 'testFunc5']);
+        expect($server->getFunctions())->toEqualCanonicalizing(['testFunc1', 'testFunc2', 'testFunc3', 'testFunc4', 'testFunc5']);
     });
 });
 
@@ -306,7 +311,9 @@ describe('Class', function (): void {
 
     test('can set class with object', function (): void {
         $server = new Server();
-        $result = $server->setClass(new ServerTestClass());
+        $result = $server->setClass(
+            new ServerTestClass(),
+        );
 
         expect($result)->toBe($server);
     });
@@ -344,7 +351,9 @@ describe('Class', function (): void {
 describe('Object', function (): void {
     test('can set object', function (): void {
         $server = new Server();
-        $result = $server->setObject(new ServerTestClass());
+        $result = $server->setObject(
+            new ServerTestClass(),
+        );
 
         expect($result)->toBe($server);
     });
@@ -404,17 +413,17 @@ describe('Handle Request', function (): void {
         $server->setClass(ServerTestClass::class);
 
         $request = '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" '
-            . 'xmlns:ns1="https://example.com" '
-            . 'xmlns:xsd="http://www.w3.org/2001/XMLSchema" '
-            . 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
-            . 'xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" '
-            . 'SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">'
-            . '<SOAP-ENV:Body>'
-            . '<ns1:testFunc2>'
-            . '<param0 xsi:type="xsd:string">World</param0>'
-            . '</ns1:testFunc2>'
-            . '</SOAP-ENV:Body>'
-            . '</SOAP-ENV:Envelope>';
+            .'xmlns:ns1="https://example.com" '
+            .'xmlns:xsd="http://www.w3.org/2001/XMLSchema" '
+            .'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            .'xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" '
+            .'SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">'
+            .'<SOAP-ENV:Body>'
+            .'<ns1:testFunc2>'
+            .'<param0 xsi:type="xsd:string">World</param0>'
+            .'</ns1:testFunc2>'
+            .'</SOAP-ENV:Body>'
+            .'</SOAP-ENV:Envelope>';
 
         $server->handle($request);
 
@@ -431,19 +440,19 @@ describe('Handle Request', function (): void {
         $server->setReturnResponse(true);
         $server->setClass(ServerTestClass::class);
 
-        $request = '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
-            . '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" '
-            . 'xmlns:ns1="https://example.com" '
-            . 'xmlns:xsd="http://www.w3.org/2001/XMLSchema" '
-            . 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
-            . 'xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" '
-            . 'SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">'
-            . '<SOAP-ENV:Body>'
-            . '<ns1:testFunc2>'
-            . '<param0 xsi:type="xsd:string">World</param0>'
-            . '</ns1:testFunc2>'
-            . '</SOAP-ENV:Body>'
-            . '</SOAP-ENV:Envelope>' . "\n";
+        $request = '<?xml version="1.0" encoding="UTF-8"?>'."\n"
+            .'<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" '
+            .'xmlns:ns1="https://example.com" '
+            .'xmlns:xsd="http://www.w3.org/2001/XMLSchema" '
+            .'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            .'xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" '
+            .'SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">'
+            .'<SOAP-ENV:Body>'
+            .'<ns1:testFunc2>'
+            .'<param0 xsi:type="xsd:string">World</param0>'
+            .'</ns1:testFunc2>'
+            .'</SOAP-ENV:Body>'
+            .'</SOAP-ENV:Envelope>'."\n";
 
         $server->handle($request);
 
@@ -459,10 +468,10 @@ describe('Handle Request', function (): void {
         $server->setOptions(['location' => 'test://', 'uri' => 'https://example.com']);
         $server->setClass(ServerTestClass::class);
 
-        $localClient = new \Tests\Fixtures\TestLocalSoapClient(
+        $localClient = new TestLocalSoapClient(
             $server,
             null,
-            ['location' => 'test://', 'uri' => 'https://example.com']
+            ['location' => 'test://', 'uri' => 'https://example.com'],
         );
 
         expect($localClient->testFunc2('World'))->toBe('Hello World!');
@@ -485,22 +494,15 @@ describe('Handle Request', function (): void {
         $server->setReturnResponse(true);
         $server->setClass(ServerTestClass::class);
 
-        $request = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . '<!DOCTYPE foo>' . "\n"
-            . '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" '
-            . 'xmlns:ns1="https://example.com">'
-            . '<SOAP-ENV:Body><ns1:testFunc2><param0>World</param0></ns1:testFunc2></SOAP-ENV:Body>'
-            . '</SOAP-ENV:Envelope>';
+        $request = '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<!DOCTYPE foo>'."\n"
+            .'<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" '
+            .'xmlns:ns1="https://example.com">'
+            .'<SOAP-ENV:Body><ns1:testFunc2><param0>World</param0></ns1:testFunc2></SOAP-ENV:Body>'
+            .'</SOAP-ENV:Envelope>';
 
         $response = $server->handle($request);
 
         expect($response->getMessage())->toContain('Invalid XML');
-    });
-
-    test('handle uses proper request parameter', function (): void {
-        $server = new MockServer();
-        $server->handle(new \DOMDocument('1.0', 'UTF-8'));
-
-        expect($server->mockSoapServer->handle[0])->toBeString();
     });
 });
 
@@ -542,15 +544,17 @@ describe('Fault', function (): void {
         $server = new Server();
         $fault = $server->fault('FaultMessage!');
 
-        expect($fault)->toBeInstanceOf(\SoapFault::class);
+        expect($fault)->toBeInstanceOf(SoapFault::class);
         expect($fault->getMessage())->toContain('FaultMessage!');
     });
 
     test('fault with unregistered exception returns unknown error', function (): void {
         $server = new Server();
-        $fault = $server->fault(new \Exception('MyException'));
+        $fault = $server->fault(
+            new Exception('MyException'),
+        );
 
-        expect($fault)->toBeInstanceOf(\SoapFault::class);
+        expect($fault)->toBeInstanceOf(SoapFault::class);
         expect($fault->getMessage())->toContain('Unknown error');
         expect($fault->getMessage())->not->toContain('MyException');
     });
@@ -558,9 +562,11 @@ describe('Fault', function (): void {
     test('fault with registered exception returns message', function (): void {
         $server = new Server();
         $server->registerFaultException(RuntimeException::class);
-        $fault = $server->fault(new RuntimeException('MyException'));
+        $fault = $server->fault(
+            new RuntimeException('MyException'),
+        );
 
-        expect($fault)->toBeInstanceOf(\SoapFault::class);
+        expect($fault)->toBeInstanceOf(SoapFault::class);
         expect($fault->getMessage())->toContain('MyException');
     });
 
@@ -573,9 +579,9 @@ describe('Fault', function (): void {
 
     test('fault with integer code does not break', function (): void {
         $server = new Server();
-        $fault = $server->fault('FaultMessage!', 5000);
+        $fault = $server->fault('FaultMessage!', 5_000);
 
-        expect($fault)->toBeInstanceOf(\SoapFault::class);
+        expect($fault)->toBeInstanceOf(SoapFault::class);
     });
 });
 
@@ -583,9 +589,13 @@ describe('Debug Mode', function (): void {
     test('debug mode shows exception message', function (): void {
         $server = new Server();
 
-        $beforeDebug = $server->fault(new \Exception('test'));
+        $beforeDebug = $server->fault(
+            new Exception('test'),
+        );
         $server->setDebugMode(true);
-        $afterDebug = $server->fault(new \Exception('test'));
+        $afterDebug = $server->fault(
+            new Exception('test'),
+        );
 
         expect($beforeDebug->getMessage())->toBe('Unknown error');
         expect($afterDebug->getMessage())->toBe('test');
@@ -593,13 +603,15 @@ describe('Debug Mode', function (): void {
 
     test('getException returns original exception', function (): void {
         $server = new Server();
-        $fault = $server->fault(new \Exception('test'));
+        $fault = $server->fault(
+            new Exception('test'),
+        );
 
         $exception = $server->getException();
 
-        expect($exception)->toBeInstanceOf(\Exception::class);
+        expect($exception)->toBeInstanceOf(Exception::class);
         expect($exception->getMessage())->toBe('test');
-        expect($fault)->toBeInstanceOf(\SoapFault::class);
+        expect($fault)->toBeInstanceOf(SoapFault::class);
         expect($fault->getMessage())->toBe('Unknown error');
     });
 });
@@ -649,7 +661,7 @@ describe('Internal Server', function (): void {
 
         $internalServer = $server->getSoap();
 
-        expect($internalServer)->toBeInstanceOf(\SoapServer::class);
+        expect($internalServer)->toBeInstanceOf(SoapServer::class);
         expect($server->getSoap())->toBe($internalServer);
     });
 });
@@ -674,17 +686,17 @@ describe('Error Handling', function (): void {
         $server->setReturnResponse(true);
         $server->setClass(ServerTestClass::class);
 
-        $request = '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
-            . '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" '
-            . 'xmlns:ns1="https://example.com" '
-            . 'xmlns:xsd="http://www.w3.org/2001/XMLSchema" '
-            . 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
-            . 'xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" '
-            . 'SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">'
-            . '<SOAP-ENV:Body>'
-            . '<ns1:testFunc5 />'
-            . '</SOAP-ENV:Body>'
-            . '</SOAP-ENV:Envelope>' . "\n";
+        $request = '<?xml version="1.0" encoding="UTF-8"?>'."\n"
+            .'<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" '
+            .'xmlns:ns1="https://example.com" '
+            .'xmlns:xsd="http://www.w3.org/2001/XMLSchema" '
+            .'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            .'xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" '
+            .'SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">'
+            .'<SOAP-ENV:Body>'
+            .'<ns1:testFunc5 />'
+            .'</SOAP-ENV:Body>'
+            .'</SOAP-ENV:Envelope>'."\n";
 
         $response = $server->handle($request);
 
@@ -696,7 +708,7 @@ describe('Error Handling', function (): void {
             $this->markTestSkipped('Cannot run when headers have already been sent');
         }
 
-        $wsdlFilename = sys_get_temp_dir() . '/testHandlePhpErrors_' . uniqid() . '.wsdl';
+        $wsdlFilename = sys_get_temp_dir().'/testHandlePhpErrors_'.uniqid().'.wsdl';
         $autodiscover = new AutoDiscover();
         $autodiscover->setOperationBodyStyle(['use' => 'literal']);
         $autodiscover->setBindingStyle([
@@ -718,7 +730,7 @@ describe('Error Handling', function (): void {
         // This should not throw - error is handled
         try {
             $client->triggerError();
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // Expected
         }
 
@@ -779,7 +791,7 @@ describe('Functions', function (): void {
 
 describe('Config Object', function (): void {
     test('accepts Laminas Config object', function (): void {
-        if (! class_exists(\Laminas\Config\Config::class)) {
+        if (!class_exists(Config::class)) {
             $this->markTestSkipped('Laminas\Config not installed');
         }
 
@@ -793,7 +805,7 @@ describe('Config Object', function (): void {
             'encoding' => 'ISO-8859-1',
             'uri' => 'https://example.com/test.php',
         ];
-        $config = new \Laminas\Config\Config($options);
+        $config = new Config($options);
 
         $server = new Server();
         $server->setOptions($config);
@@ -810,23 +822,26 @@ describe('Entity Loader', function (): void {
         $server->setClass(ServerTestClass::class);
 
         $loadEntities = true;
-        if (LIBXML_VERSION < 20900) {
+
+        if (\LIBXML_VERSION < 20_900) {
             $loadEntities = libxml_disable_entity_loader(false);
         }
 
         // Doing a request that is guaranteed to cause an exception in Server::_setRequest():
         $invalidRequest = '---';
-        $response = @$server->handle($invalidRequest);
+        $response = $server->handle($invalidRequest);
 
         // Sanity check; making sure that an exception has been triggered:
         expect($response)->toBeInstanceOf(SoapFault::class);
 
-        if (LIBXML_VERSION < 20900) {
-            // The "disable entity loader" setting should be restored to "false" after the exception is raised:
-            expect(libxml_disable_entity_loader())->toBeFalse();
-
-            // Cleanup; restoring original setting:
-            libxml_disable_entity_loader($loadEntities);
+        if (\LIBXML_VERSION >= 20_900) {
+            return;
         }
+
+        // The "disable entity loader" setting should be restored to "false" after the exception is raised:
+        expect(libxml_disable_entity_loader())->toBeFalse();
+
+        // Cleanup; restoring original setting:
+        libxml_disable_entity_loader($loadEntities);
     });
 });

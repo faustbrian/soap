@@ -1,19 +1,25 @@
-<?php
+<?php declare(strict_types=1);
+
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Cline\Soap\Reflection;
 
 use ReflectionClass as NativeReflectionClass;
+use ReflectionMethod as NativeReflectionMethod;
 
-class ReflectionClass
+use function str_starts_with;
+
+final class ReflectionClass
 {
-    protected NativeReflectionClass $reflection;
-    protected string $namespace;
-
-    public function __construct(NativeReflectionClass $reflection, string $namespace = '')
-    {
-        $this->reflection = $reflection;
-        $this->namespace = $namespace;
-    }
+    public function __construct(
+        protected readonly NativeReflectionClass $reflection,
+        protected readonly string $namespace = '',
+    ) {}
 
     public function getName(): string
     {
@@ -26,16 +32,17 @@ class ReflectionClass
     }
 
     /**
-     * @return ReflectionMethod[]
+     * @return array<ReflectionMethod>
      */
     public function getMethods(): array
     {
         $methods = [];
 
-        foreach ($this->reflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
+        foreach ($this->reflection->getMethods(NativeReflectionMethod::IS_PUBLIC) as $method) {
             if ($method->isConstructor() || $method->isDestructor()) {
                 continue;
             }
+
             if (str_starts_with($method->getName(), '__')) {
                 continue;
             }

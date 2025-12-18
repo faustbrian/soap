@@ -1,6 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
-declare(strict_types=1);
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 use Cline\Soap\Client\DotNet;
 use Cline\Soap\Exception\RuntimeException;
@@ -20,8 +25,8 @@ describe('DotNet Client', function (): void {
     test('enables NTLM authentication when authentication option is set to ntlm', function (): void {
         $options = [
             'authentication' => 'ntlm',
-            'login'          => 'username',
-            'password'       => 'testpass',
+            'login' => 'username',
+            'password' => 'testpass',
         ];
 
         $client = new DotNet(fixturesPath('wsdl_example.wsdl'), $options);
@@ -35,7 +40,7 @@ describe('DotNet Client', function (): void {
 
     test('does not enable NTLM authentication without authentication option', function (): void {
         $options = [
-            'login'    => 'username',
+            'login' => 'username',
             'password' => 'testpass',
         ];
 
@@ -51,8 +56,8 @@ describe('DotNet Client', function (): void {
     test('stores login and password in options', function (): void {
         $options = [
             'authentication' => 'ntlm',
-            'login'          => 'testuser',
-            'password'       => 'secret123',
+            'login' => 'testuser',
+            'password' => 'secret123',
         ];
 
         $client = new DotNet(fixturesPath('wsdl_example.wsdl'), $options);
@@ -78,8 +83,8 @@ describe('DotNet Client', function (): void {
     test('throws RuntimeException when calling method with non-array arguments', function (): void {
         $client = new DotNet(fixturesPath('wsdl_example.wsdl'), [
             'authentication' => 'ntlm',
-            'login'          => 'user',
-            'password'       => 'pass',
+            'login' => 'user',
+            'password' => 'pass',
         ]);
 
         // Access protected method via reflection

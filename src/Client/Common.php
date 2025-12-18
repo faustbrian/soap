@@ -1,4 +1,11 @@
-<?php
+<?php declare(strict_types=1);
+
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Cline\Soap\Client;
 
@@ -6,9 +13,9 @@ use Cline\Soap\Exception\InvalidArgumentException;
 use SoapClient;
 
 use function is_callable;
-use function ltrim;
+use function mb_ltrim;
 
-class Common extends SoapClient
+final class Common extends SoapClient
 {
     /**
      * doRequest() pre-processing method
@@ -21,12 +28,12 @@ class Common extends SoapClient
      * Common Soap Client constructor
      *
      * @param callable $doRequestCallback
-     * @param string $wsdl
-     * @param array $options
+     * @param string   $wsdl
+     * @param array    $options
      */
     public function __construct($doRequestCallback, $wsdl, $options)
     {
-        if (! is_callable($doRequestCallback)) {
+        if (!is_callable($doRequestCallback)) {
             throw new InvalidArgumentException('$doRequestCallback argument must be callable');
         }
 
@@ -39,11 +46,7 @@ class Common extends SoapClient
      * Overridden to implement different transport layers, perform additional
      * XML processing or other purpose.
      *
-     * @param  string $request
-     * @param  string $location
-     * @param  string $action
-     * @param  int    $version
-     * @param  int    $oneWay
+     * @param  int   $oneWay
      * @return mixed
      */
     public function __doRequest(
@@ -52,10 +55,10 @@ class Common extends SoapClient
         string $action,
         int $version,
         bool $oneWay = false,
-        ?string $uriParserClass = null
+        ?string $uriParserClass = null,
     ): ?string {
         // ltrim is a workaround for https://bugs.php.net/bug.php?id=63780
-        return ($this->doRequestCallback)($this, ltrim($request), $location, $action, $version, $oneWay);
+        return ($this->doRequestCallback)($this, mb_ltrim($request), $location, $action, $version, $oneWay);
     }
 
     /**
@@ -69,7 +72,7 @@ class Common extends SoapClient
         string $location,
         string $action,
         int $version,
-        bool $oneWay = false
+        bool $oneWay = false,
     ): ?string {
         return parent::__doRequest($request, $location, $action, $version, $oneWay);
     }

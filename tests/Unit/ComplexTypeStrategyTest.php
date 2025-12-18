@@ -57,7 +57,7 @@ describe('ArrayOfTypeComplex Strategy', function (): void {
 
             // Verify array type definition
             $nodes = $xpath->query(
-                '//wsdl:types/*/xsd:complexType[@name="ArrayOfComplexTest"]/xsd:complexContent/xsd:restriction'
+                '//wsdl:types/*/xsd:complexType[@name="ArrayOfComplexTest"]/xsd:complexContent/xsd:restriction',
             );
             expect($nodes->length)->toBe(1);
             expect($nodes->item(0)->getAttribute('base'))->toBe('soap-enc:Array');
@@ -84,7 +84,7 @@ describe('ArrayOfTypeComplex Strategy', function (): void {
             $xpath = registerWsdlNamespaces($dom, 'http://localhost/MyService.php');
 
             $nodes = $xpath->query(
-                '//wsdl:types/xsd:schema/xsd:complexType[@name="ComplexObjectStructure"]/xsd:all'
+                '//wsdl:types/xsd:schema/xsd:complexType[@name="ComplexObjectStructure"]/xsd:all',
             );
             expect($nodes->item(0)->childNodes->length)->toBe(4);
 
@@ -97,7 +97,7 @@ describe('ArrayOfTypeComplex Strategy', function (): void {
             ];
 
             foreach ($expectedProperties as $name => $type) {
-                $node = $xpath->query('xsd:element[@name="' . $name . '"]', $nodes->item(0));
+                $node = $xpath->query('xsd:element[@name="'.$name.'"]', $nodes->item(0));
                 expect($node->item(0)->getAttribute('name'))->toBe($name);
                 expect($node->item(0)->getAttribute('type'))->toBe($type);
             }
@@ -127,7 +127,7 @@ describe('ArrayOfTypeComplex Strategy', function (): void {
 
             // Verify parent object structure
             $nodes = $xpath->query(
-                '//wsdl:types/*/xsd:complexType[@name="ComplexObjectWithObjectStructure"]/xsd:all/xsd:element'
+                '//wsdl:types/*/xsd:complexType[@name="ComplexObjectWithObjectStructure"]/xsd:all/xsd:element',
             );
             expect($nodes->length)->toBe(1);
             expect($nodes->item(0)->getAttribute('name'))->toBe('object');
@@ -156,7 +156,7 @@ describe('ArrayOfTypeComplex Strategy', function (): void {
             expect($nodes->item(0)->childNodes->length)->toBe(2);
 
             foreach (['bar' => 'xsd:string', 'foo' => 'xsd:string'] as $name => $type) {
-                $node = $xpath->query('xsd:element[@name="' . $name . '"]', $nodes->item(0));
+                $node = $xpath->query('xsd:element[@name="'.$name.'"]', $nodes->item(0));
                 expect($node->item(0)->getAttribute('name'))->toBe($name);
                 expect($node->item(0)->getAttribute('type'))->toBe($type);
                 expect($node->item(0)->getAttribute('nillable'))->toBe('true');
@@ -164,7 +164,7 @@ describe('ArrayOfTypeComplex Strategy', function (): void {
 
             // Verify ComplexTypeA references ArrayOfComplexTypeB
             $nodes = $xpath->query(
-                '//wsdl:types/*/xsd:complexType[@name="ComplexTypeA"]/xsd:all/xsd:element'
+                '//wsdl:types/*/xsd:complexType[@name="ComplexTypeA"]/xsd:all/xsd:element',
             );
             expect($nodes->length)->toBe(1);
             expect($nodes->item(0)->getAttribute('name'))->toBe('baz');
@@ -193,7 +193,7 @@ describe('ArrayOfTypeComplex Strategy', function (): void {
             $wsdl = new Wsdl('MyService', 'http://localhost/MyService.php', $strategy);
 
             // Act & Assert
-            expect(fn() => $wsdl->addComplexType('\Tests\Fixtures\ComplexTest[][]'))
+            expect(fn () => $wsdl->addComplexType('\Tests\Fixtures\ComplexTest[][]'))
                 ->toThrow(InvalidArgumentException::class, 'ArrayOfTypeComplex cannot return nested ArrayOfObject deeper than one level');
         });
 
@@ -203,7 +203,7 @@ describe('ArrayOfTypeComplex Strategy', function (): void {
             $wsdl = new Wsdl('MyService', 'http://localhost/MyService.php', $strategy);
 
             // Act & Assert
-            expect(fn() => $wsdl->addComplexType('\Tests\Fixtures\UnknownClass[]'))
+            expect(fn () => $wsdl->addComplexType('\Tests\Fixtures\UnknownClass[]'))
                 ->toThrow(InvalidArgumentException::class, 'Cannot add a complex type \Tests\Fixtures\UnknownClass that is not an object or where class');
         });
     });
@@ -222,8 +222,8 @@ describe('ArrayOfTypeComplex Strategy', function (): void {
             $dom = $wsdl->toDomDocument();
             $xpath = registerWsdlNamespaces($dom, 'http://localhost/MyService.php');
 
-            $nodes = $xpath->query('//*[@*[namespace-uri()="' . Wsdl::WSDL_NS_URI
-                . '" and local-name()="arrayType"]="tns:ComplexObjectWithObjectStructure[]"]');
+            $nodes = $xpath->query('//*[@*[namespace-uri()="'.Wsdl::WSDL_NS_URI
+                .'" and local-name()="arrayType"]="tns:ComplexObjectWithObjectStructure[]"]');
             expect($nodes->length)->toBe(1);
 
             $nodes = $xpath->query('//xsd:complexType[@name="ArrayOfComplexObjectWithObjectStructure"]');
@@ -248,8 +248,8 @@ describe('ArrayOfTypeComplex Strategy', function (): void {
             $dom = $wsdl->toDomDocument();
             $xpath = registerWsdlNamespaces($dom, 'http://localhost/MyService.php');
 
-            $nodes = $xpath->query('//*[@*[namespace-uri()="' . Wsdl::WSDL_NS_URI
-                . '" and local-name()="arrayType"]="tns:ComplexObjectWithObjectStructure[]"]');
+            $nodes = $xpath->query('//*[@*[namespace-uri()="'.Wsdl::WSDL_NS_URI
+                .'" and local-name()="arrayType"]="tns:ComplexObjectWithObjectStructure[]"]');
             expect($nodes->length)->toBe(1);
 
             $nodes = $xpath->query('//xsd:complexType[@name="ArrayOfComplexObjectWithObjectStructure"]');
@@ -280,20 +280,20 @@ describe('ArrayOfTypeSequence Strategy', function (): void {
 
             foreach ($testCases as [$type, $arrayTypeName]) {
                 // Act
-                $wsdl->addComplexType($type . '[]');
-                $wsdl->addComplexType($type . '[]'); // Test duplicate handling
+                $wsdl->addComplexType($type.'[]');
+                $wsdl->addComplexType($type.'[]'); // Test duplicate handling
 
                 // Assert
                 $dom = $wsdl->toDomDocument();
                 $xpath = registerWsdlNamespaces($dom, 'http://localhost/MyService.php');
 
-                $nodes = $xpath->query('//wsdl:types/xsd:schema/xsd:complexType[@name="' . $arrayTypeName . '"]');
+                $nodes = $xpath->query('//wsdl:types/xsd:schema/xsd:complexType[@name="'.$arrayTypeName.'"]');
                 expect($nodes->length)->toBe(1);
 
                 $nodes = $xpath->query('xsd:sequence/xsd:element', $nodes->item(0));
                 expect($nodes->length)->toBe(1);
                 expect($nodes->item(0)->getAttribute('name'))->toBe('item');
-                expect($nodes->item(0)->getAttribute('type'))->toBe('xsd:' . $type);
+                expect($nodes->item(0)->getAttribute('type'))->toBe('xsd:'.$type);
                 expect($nodes->item(0)->getAttribute('minOccurs'))->toBe('0');
                 expect($nodes->item(0)->getAttribute('maxOccurs'))->toBe('unbounded');
 
@@ -339,13 +339,13 @@ describe('ArrayOfTypeSequence Strategy', function (): void {
                 $return = $wsdl->addComplexType($stringDefinition);
 
                 // Assert
-                expect($return)->toBe('tns:' . $definedTypeName);
+                expect($return)->toBe('tns:'.$definedTypeName);
 
                 $dom = $wsdl->toDomDocument();
                 $xpath = registerWsdlNamespaces($dom, 'http://localhost/MyService.php');
 
                 foreach ($nestedTypeNames as $nestedTypeName => $typeName) {
-                    $nodes = $xpath->query('//wsdl:types/xsd:schema/xsd:complexType[@name="' . $nestedTypeName . '"]');
+                    $nodes = $xpath->query('//wsdl:types/xsd:schema/xsd:complexType[@name="'.$nestedTypeName.'"]');
                     expect($nodes->length)->toBe(1);
 
                     $nodes = $xpath->query('xsd:sequence/xsd:element', $nodes->item(0));
@@ -413,7 +413,7 @@ describe('ArrayOfTypeSequence Strategy', function (): void {
             expect($nodes->length)->toBe(1);
 
             foreach (['bar' => 'xsd:string', 'foo' => 'xsd:string'] as $name => $type) {
-                $node = $xpath->query('xsd:all/xsd:element[@name="' . $name . '"]', $nodes->item(0));
+                $node = $xpath->query('xsd:all/xsd:element[@name="'.$name.'"]', $nodes->item(0));
                 expect($node->item(0)->getAttribute('name'))->toBe($name);
                 expect($node->item(0)->getAttribute('type'))->toBe($type);
                 expect($node->item(0)->getAttribute('nillable'))->toBe('true');
@@ -427,14 +427,14 @@ describe('ArrayOfTypeSequence Strategy', function (): void {
                 ] as $arrayTypeName => $typeName
             ) {
                 $nodes = $xpath->query(
-                    '//wsdl:types/xsd:schema/xsd:complexType[@name="' . $arrayTypeName . '"]'
+                    '//wsdl:types/xsd:schema/xsd:complexType[@name="'.$arrayTypeName.'"]',
                 );
                 expect($nodes->length)->toBe(1);
 
                 $nodes = $xpath->query('xsd:sequence/xsd:element', $nodes->item(0));
                 expect($nodes->length)->toBe(1);
                 expect($nodes->item(0)->getAttribute('name'))->toBe('item');
-                expect($nodes->item(0)->getAttribute('type'))->toBe('tns:' . $typeName);
+                expect($nodes->item(0)->getAttribute('type'))->toBe('tns:'.$typeName);
                 expect($nodes->item(0)->getAttribute('minOccurs'))->toBe('0');
                 expect($nodes->item(0)->getAttribute('maxOccurs'))->toBe('unbounded');
             }
@@ -450,7 +450,7 @@ describe('ArrayOfTypeSequence Strategy', function (): void {
             $wsdl = new Wsdl('MyService', 'http://localhost/MyService.php', $strategy);
 
             // Act & Assert
-            expect(fn() => $wsdl->addComplexType('Tests\Fixtures\Wsdl\UnknownClass[]'))
+            expect(fn () => $wsdl->addComplexType('Tests\Fixtures\Wsdl\UnknownClass[]'))
                 ->toThrow(InvalidArgumentException::class, 'Cannot add a complex type');
         });
     });
@@ -524,7 +524,7 @@ describe('Composite Strategy', function (): void {
             $strategy = new Composite();
 
             // Act & Assert
-            expect(fn() => $strategy->connectTypeToStrategy([], 'strategy'))
+            expect(fn () => $strategy->connectTypeToStrategy([], 'strategy'))
                 ->toThrow(InvalidArgumentException::class, 'Invalid type given to Composite Type Map');
         });
 
@@ -534,7 +534,7 @@ describe('Composite Strategy', function (): void {
             $strategy->connectTypeToStrategy('Book', 'strategy');
 
             // Act & Assert
-            expect(fn() => $strategy->getStrategyOfType('Book'))
+            expect(fn () => $strategy->getStrategyOfType('Book'))
                 ->toThrow(InvalidArgumentException::class, 'Strategy for Complex Type "Book" is not a valid strategy');
         });
 
@@ -544,7 +544,7 @@ describe('Composite Strategy', function (): void {
             $strategy->connectTypeToStrategy('Book', 'strategy');
 
             // Act & Assert
-            expect(fn() => $strategy->getStrategyOfType('Anything'))
+            expect(fn () => $strategy->getStrategyOfType('Anything'))
                 ->toThrow(InvalidArgumentException::class, 'Default Strategy for Complex Types is not a valid strategy object');
         });
 
@@ -553,7 +553,7 @@ describe('Composite Strategy', function (): void {
             $strategy = new Composite();
 
             // Act & Assert
-            expect(fn() => $strategy->addComplexType('Test'))
+            expect(fn () => $strategy->addComplexType('Test'))
                 ->toThrow(InvalidArgumentException::class, 'Cannot add complex type "Test"');
         });
     });
@@ -573,10 +573,10 @@ describe('DefaultComplexType Strategy', function (): void {
             $dom = $wsdl->toDomDocument();
             $xpath = registerWsdlNamespaces($dom, 'http://localhost/MyService.php');
 
-            $protectedNodes = $xpath->query('//xsd:element[@name="' . PublicPrivateProtected::PROTECTED_VAR_NAME . '"]');
+            $protectedNodes = $xpath->query('//xsd:element[@name="'.PublicPrivateProtected::PROTECTED_VAR_NAME.'"]');
             expect($protectedNodes->length)->toBe(0);
 
-            $privateNodes = $xpath->query('//xsd:element[@name="' . PublicPrivateProtected::PRIVATE_VAR_NAME . '"]');
+            $privateNodes = $xpath->query('//xsd:element[@name="'.PublicPrivateProtected::PRIVATE_VAR_NAME.'"]');
             expect($privateNodes->length)->toBe(0);
 
             assertDocumentNodesHaveNamespaces($dom);

@@ -1,17 +1,24 @@
-<?php
+<?php declare(strict_types=1);
+
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Cline\Soap\Wsdl\ComplexTypeStrategy;
 
 use Cline\Soap\Wsdl;
 
+use function mb_strpos;
+use function mb_substr;
+use function mb_substr_count;
 use function str_repeat;
 use function str_replace;
-use function strpos;
-use function substr;
-use function substr_count;
 use function ucfirst;
 
-class ArrayOfTypeSequence extends DefaultComplexType
+final class ArrayOfTypeSequence extends DefaultComplexType
 {
     /**
      * Add an unbounded ArrayOfType based on the xsd:sequence syntax if
@@ -26,12 +33,12 @@ class ArrayOfTypeSequence extends DefaultComplexType
 
         if ($nestedCounter > 0) {
             $singularType = $this->getSingularType($type);
-            $complexType  = '';
+            $complexType = '';
 
-            for ($i = 1; $i <= $nestedCounter; $i++) {
-                $complexType    = $this->getTypeBasedOnNestingLevel($singularType, $i);
-                $complexTypePhp = $singularType . str_repeat('[]', $i);
-                $childType      = $this->getTypeBasedOnNestingLevel($singularType, $i - 1);
+            for ($i = 1; $i <= $nestedCounter; ++$i) {
+                $complexType = $this->getTypeBasedOnNestingLevel($singularType, $i);
+                $complexTypePhp = $singularType.str_repeat('[]', $i);
+                $childType = $this->getTypeBasedOnNestingLevel($singularType, $i - 1);
 
                 $this->addSequenceType($complexType, $childType, $complexTypePhp);
             }
@@ -64,9 +71,9 @@ class ArrayOfTypeSequence extends DefaultComplexType
         }
 
         return Wsdl::TYPES_NS
-            . ':'
-            . str_repeat('ArrayOf', $level)
-            . ucfirst($this->getContext()->translateType($singularType));
+            .':'
+            .str_repeat('ArrayOf', $level)
+            .ucfirst($this->getContext()->translateType($singularType));
     }
 
     /**
@@ -88,17 +95,17 @@ class ArrayOfTypeSequence extends DefaultComplexType
      */
     protected function getNestedCount($type)
     {
-        return substr_count($type, '[]');
+        return mb_substr_count($type, '[]');
     }
 
     /**
      * Append the complex type definition to the WSDL via the context access
      *
-     * @param  string $arrayType      Array type name (e.g. 'tns:ArrayOfArrayOfInt')
-     * @param  string $childType      Qualified array items type (e.g. 'xsd:int', 'tns:ArrayOfInt')
-     * @param  string $phpArrayType   PHP type (e.g. 'int[][]', '\MyNamespace\MyClassName[][][]')
+     * @param string $arrayType    Array type name (e.g. 'tns:ArrayOfArrayOfInt')
+     * @param string $childType    Qualified array items type (e.g. 'xsd:int', 'tns:ArrayOfInt')
+     * @param string $phpArrayType PHP type (e.g. 'int[][]', '\MyNamespace\MyClassName[][][]')
      */
-    protected function addSequenceType($arrayType, $childType, $phpArrayType)
+    protected function addSequenceType($arrayType, $childType, $phpArrayType): void
     {
         if ($this->scanRegisteredTypes($phpArrayType) !== null) {
             return;
@@ -109,7 +116,7 @@ class ArrayOfTypeSequence extends DefaultComplexType
 
         $dom = $this->getContext()->toDomDocument();
 
-        $arrayTypeName = substr($arrayType, strpos($arrayType, ':') + 1);
+        $arrayTypeName = mb_substr($arrayType, mb_strpos($arrayType, ':') + 1);
 
         $complexType = $dom->createElementNS(Wsdl::XSD_NS_URI, 'complexType');
         $this->getContext()->getSchema()->appendChild($complexType);

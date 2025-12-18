@@ -1,9 +1,19 @@
-<?php
+<?php declare(strict_types=1);
+
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Cline\Soap\Client;
 
 use Cline\Soap\Client as SOAPClient;
 use Cline\Soap\Server as SOAPServer;
+
+use function ob_get_clean;
+use function ob_start;
 
 /**
  * Class is intended to be used as local SOAP client which works
@@ -11,36 +21,34 @@ use Cline\Soap\Server as SOAPServer;
  *
  * Could be used for development or testing purposes.
  */
-class Local extends SOAPClient
+final class Local extends SOAPClient
 {
-    /**
-     * Server object
-     *
-     * @var SOAPServer
-     */
-    protected $server;
-
     /**
      * Local client constructor
      *
      * @param string $wsdl
-     * @param array $options
+     * @param array  $options
      */
-    public function __construct(SOAPServer $server, $wsdl, $options = null)
-    {
-        $this->server = $server;
-
+    public function __construct(
+        /**
+         * Server object
+         *
+         * @var SOAPServer
+         */
+        protected readonly SOAPServer $server,
+        $wsdl,
+        $options = null,
+    ) {
         // Use Server specified SOAP version as default
         $this->setSoapVersion($server->getSoapVersion());
 
         parent::__construct($wsdl, $options);
     }
 
-    // @codingStandardsIgnoreStart
+    /** @codingStandardsIgnoreStart */
     /**
      * Actual "do request" method.
      *
-     * @param  Common $client
      * @param  string $request
      * @param  string $location
      * @param  string $action
@@ -57,6 +65,7 @@ class Local extends SOAPClient
 
         if ($response === null || $response === '') {
             $serverResponse = $this->server->getResponse();
+
             if ($serverResponse !== null) {
                 $response = $serverResponse;
             }

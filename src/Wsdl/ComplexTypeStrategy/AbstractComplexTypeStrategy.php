@@ -1,4 +1,11 @@
-<?php
+<?php declare(strict_types=1);
+
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Cline\Soap\Wsdl\ComplexTypeStrategy;
 
@@ -25,7 +32,7 @@ abstract class AbstractComplexTypeStrategy implements ComplexTypeStrategyInterfa
     /**
      * Set the WSDL Context object this strategy resides in.
      */
-    public function setContext(Wsdl $context)
+    public function setContext(Wsdl $context): void
     {
         $this->context = $context;
     }
@@ -43,24 +50,24 @@ abstract class AbstractComplexTypeStrategy implements ComplexTypeStrategyInterfa
     /**
      * Look through registered types
      *
-     * @param string $phpType
+     * @param  string      $phpType
      * @return null|string
      */
     public function scanRegisteredTypes($phpType)
     {
         if (array_key_exists($phpType, $this->getContext()->getTypes())) {
             $soapTypes = $this->getContext()->getTypes();
+
             return $soapTypes[$phpType];
         }
+
         return null;
     }
 
     /**
      * Sets the strategy for generating complex type documentation
-     *
-     * @return void
      */
-    public function setDocumentationStrategy(DocumentationStrategyInterface $documentationStrategy)
+    public function setDocumentationStrategy(DocumentationStrategyInterface $documentationStrategy): void
     {
         $this->documentationStrategy = $documentationStrategy;
     }

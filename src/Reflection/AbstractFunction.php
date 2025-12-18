@@ -1,31 +1,50 @@
-<?php
+<?php declare(strict_types=1);
+
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Cline\Soap\Reflection;
 
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
 use ReflectionNamedType;
+use ReflectionType;
 use ReflectionUnionType;
+
+use const PREG_SET_ORDER;
+
+use function array_map;
+use function explode;
+use function implode;
+use function mb_strtolower;
+use function mb_trim;
+use function preg_match;
+use function preg_match_all;
+use function str_starts_with;
 
 abstract class AbstractFunction
 {
-    protected ReflectionFunctionAbstract $reflection;
-    protected string $namespace = '';
     protected string $description = '';
-    /** @var Prototype[] */
+
+    /** @var array<Prototype> */
     protected array $prototypes = [];
 
-    public function __construct(ReflectionFunctionAbstract $r, string $namespace = '')
-    {
-        $this->reflection = $r;
-        $this->namespace = $namespace;
+    public function __construct(
+        protected readonly ReflectionFunctionAbstract $reflection,
+        protected readonly string $namespace = '',
+    ) {
         $this->buildSignature();
     }
 
     public function getName(): string
     {
         $name = $this->reflection->getName();
-        return $this->namespace ? $this->namespace . '.' . $name : $name;
+
+        return $this->namespace ? $this->namespace.'.'.$name : $name;
     }
 
     public function getDescription(): string
@@ -34,7 +53,7 @@ abstract class AbstractFunction
     }
 
     /**
-     * @return Prototype[]
+     * @return array<Prototype>
      */
     public function getPrototypes(): array
     {
@@ -52,10 +71,12 @@ abstract class AbstractFunction
 
         $params = [];
         $position = 0;
+
         foreach ($this->reflection->getParameters() as $nativeParam) {
             $name = $nativeParam->getName();
             // First try native type, then docblock by name, then docblock by position
             $nativeType = $nativeParam->getType();
+
             if ($nativeType !== null) {
                 $type = $this->getNativeType($nativeType);
             } elseif (isset($paramTypesByName[$name])) {
@@ -66,7 +87,7 @@ abstract class AbstractFunction
                 $type = 'mixed';
             }
             $params[] = new ReflectionParameter($nativeParam, $type);
-            $position++;
+            ++$position;
         }
 
         $return = new ReflectionReturnValue($returnType);
@@ -83,13 +104,17 @@ abstract class AbstractFunction
         $description = [];
 
         foreach ($lines as $line) {
-            $line = trim($line, " \t*");
+            $line = mb_trim($line, " \t*");
+
             if (str_starts_with($line, '/') || str_starts_with($line, '@')) {
                 continue;
             }
-            if (!empty($line)) {
-                $description[] = $line;
+
+            if (empty($line)) {
+                continue;
             }
+
+            $description[] = $line;
         }
 
         return implode(' ', $description);
@@ -131,6 +156,7 @@ abstract class AbstractFunction
     {
         // First check native return type
         $nativeReturn = $this->reflection->getReturnType();
+
         if ($nativeReturn !== null) {
             return $this->getNativeType($nativeReturn);
         }
@@ -143,7 +169,7 @@ abstract class AbstractFunction
         return 'void';
     }
 
-    protected function getNativeType(?\ReflectionType $type): string
+    protected function getNativeType(?ReflectionType $type): string
     {
         if ($type === null) {
             return 'mixed';
@@ -151,17 +177,20 @@ abstract class AbstractFunction
 
         if ($type instanceof ReflectionNamedType) {
             $name = $type->getName();
+
             if ($type->allowsNull() && $name !== 'mixed' && $name !== 'null') {
                 return $name;
             }
+
             return $name;
         }
 
         if ($type instanceof ReflectionUnionType) {
             $types = array_map(
-                fn($t) => $t instanceof ReflectionNamedType ? $t->getName() : 'mixed',
-                $type->getTypes()
+                fn ($t) => $t instanceof ReflectionNamedType ? $t->getName() : 'mixed',
+                $type->getTypes(),
             );
+
             return implode('|', $types);
         }
 
@@ -171,7 +200,7 @@ abstract class AbstractFunction
     protected function normalizeType(string $type): string
     {
         // Handle common type aliases
-        return match (strtolower($type)) {
+        return match (mb_strtolower($type)) {
             'integer' => 'int',
             'boolean' => 'bool',
             'double' => 'float',

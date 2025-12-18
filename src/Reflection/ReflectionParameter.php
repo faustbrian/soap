@@ -1,22 +1,25 @@
-<?php
+<?php declare(strict_types=1);
+
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Cline\Soap\Reflection;
 
 use ReflectionParameter as NativeReflectionParameter;
 
-class ReflectionParameter
+final class ReflectionParameter
 {
-    protected NativeReflectionParameter $reflection;
-    protected string $type;
-    protected string $description;
     protected int $position = 0;
 
-    public function __construct(NativeReflectionParameter $r, string $type = 'mixed', string $description = '')
-    {
-        $this->reflection = $r;
-        $this->type = $type;
-        $this->description = $description;
-    }
+    public function __construct(
+        protected readonly NativeReflectionParameter $reflection,
+        protected string $type = 'mixed',
+        protected readonly string $description = '',
+    ) {}
 
     public function getType(): string
     {

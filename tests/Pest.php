@@ -19,9 +19,11 @@ pest()->extend(TestCase::class)->in(__DIR__);
  */
 function skipIfSoapNotLoaded(): void
 {
-    if (! extension_loaded('soap')) {
-        test()->markTestSkipped('SOAP Extension is not loaded');
+    if (extension_loaded('soap')) {
+        return;
     }
+
+    test()->markTestSkipped('SOAP Extension is not loaded');
 }
 
 /**
@@ -38,18 +40,19 @@ function fixturesPath(string $path = ''): string
 function createWsdl(
     string $serviceName = 'MyService',
     string $serviceUri = 'http://localhost/MyService.php',
-    ?ComplexTypeStrategyInterface $strategy = null
+    ?ComplexTypeStrategyInterface $strategy = null,
 ): Wsdl {
     $strategy ??= new DefaultComplexType();
+
     return new Wsdl($serviceName, $serviceUri, $strategy);
 }
 
 /**
  * Register WSDL namespaces on DOMDocument for XPath queries.
  */
-function registerWsdlNamespaces(\DOMDocument $dom, string $serviceUri = 'http://localhost/MyService.php'): \DOMXPath
+function registerWsdlNamespaces(DOMDocument $dom, string $serviceUri = 'http://localhost/MyService.php'): DOMXPath
 {
-    $xpath = new \DOMXPath($dom);
+    $xpath = new DOMXPath($dom);
     $xpath->registerNamespace('unittest', Wsdl::WSDL_NS_URI);
     $xpath->registerNamespace('tns', $serviceUri);
     $xpath->registerNamespace('soap', Wsdl::SOAP_11_NS_URI);
@@ -64,7 +67,7 @@ function registerWsdlNamespaces(\DOMDocument $dom, string $serviceUri = 'http://
 /**
  * Verify all document nodes have valid namespaces.
  */
-function assertDocumentNodesHaveNamespaces(\DOMDocument $dom): void
+function assertDocumentNodesHaveNamespaces(DOMDocument $dom): void
 {
     $element = $dom->documentElement;
     assertNodeAndChildrenHaveNamespaces($element);
@@ -73,13 +76,15 @@ function assertDocumentNodesHaveNamespaces(\DOMDocument $dom): void
 /**
  * Recursively check node and children for namespaces.
  */
-function assertNodeAndChildrenHaveNamespaces(\DOMNode $element): void
+function assertNodeAndChildrenHaveNamespaces(DOMNode $element): void
 {
     foreach ($element->childNodes as $node) {
-        if ($node->nodeType === XML_ELEMENT_NODE) {
-            expect($node->namespaceURI)
-                ->not->toBeEmpty("Document element: {$node->nodeName} has no valid namespace. Line: {$node->getLineNo()}");
-            assertNodeAndChildrenHaveNamespaces($node);
+        if ($node->nodeType !== \XML_ELEMENT_NODE) {
+            continue;
         }
+
+        expect($node->namespaceURI)
+            ->not->toBeEmpty("Document element: {$node->nodeName} has no valid namespace. Line: {$node->getLineNo()}");
+        assertNodeAndChildrenHaveNamespaces($node);
     }
 }

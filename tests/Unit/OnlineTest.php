@@ -1,6 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
-declare(strict_types=1);
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 use Cline\Soap\AutoDiscover;
 use Cline\Soap\Client;
@@ -24,7 +29,7 @@ describe('Online Integration', function (): void {
     test('Client connects to online SOAP service', function (): void {
         // This test requires a live SOAP service to be available
         // Skip unless explicitly enabled via environment variable
-        if (! getenv('RUN_ONLINE_TESTS')) {
+        if (!getenv('RUN_ONLINE_TESTS')) {
             $this->markTestSkipped('Online tests disabled. Set RUN_ONLINE_TESTS=1 to enable.');
         }
 
@@ -39,12 +44,12 @@ describe('Online Integration', function (): void {
 /**
  * Test class for online AutoDiscover tests.
  */
-class OnlineTestClass
+final class OnlineTest
 {
     /**
      * Simple test method.
      *
-     * @param  string  $input
+     * @param  string $input
      * @return string
      */
     public function testMethod($input)

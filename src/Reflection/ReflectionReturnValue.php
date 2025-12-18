@@ -1,17 +1,20 @@
-<?php
+<?php declare(strict_types=1);
+
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Cline\Soap\Reflection;
 
-class ReflectionReturnValue
+final class ReflectionReturnValue
 {
-    protected string $type;
-    protected string $description;
-
-    public function __construct(string $type = 'mixed', string $description = '')
-    {
-        $this->type = $type;
-        $this->description = $description;
-    }
+    public function __construct(
+        protected readonly string $type = 'mixed',
+        protected readonly string $description = '',
+    ) {}
 
     public function getType(): string
     {

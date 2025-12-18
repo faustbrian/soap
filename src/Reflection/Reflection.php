@@ -1,4 +1,11 @@
-<?php
+<?php declare(strict_types=1);
+
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Cline\Soap\Reflection;
 
@@ -6,14 +13,15 @@ use ReflectionClass as NativeReflectionClass;
 use ReflectionFunction as NativeReflectionFunction;
 use ReflectionObject;
 
-class Reflection
+use function is_object;
+
+final class Reflection
 {
     /**
      * Perform class reflection to create dispatch signatures.
      *
-     * @param string|object $class Class name or object
-     * @param string $namespace Optional namespace prefix
-     * @return ReflectionClass
+     * @param object|string $class     Class name or object
+     * @param string        $namespace Optional namespace prefix
      */
     public function reflectClass(string|object $class, string $namespace = ''): ReflectionClass
     {
@@ -29,12 +37,14 @@ class Reflection
     /**
      * Perform function reflection to create dispatch signatures.
      *
-     * @param string $function Function name
+     * @param string $function  Function name
      * @param string $namespace Optional namespace prefix
-     * @return ReflectionFunction
      */
     public function reflectFunction(string $function, string $namespace = ''): ReflectionFunction
     {
-        return new ReflectionFunction(new NativeReflectionFunction($function), $namespace);
+        return new ReflectionFunction(
+            new NativeReflectionFunction($function),
+            $namespace,
+        );
     }
 }

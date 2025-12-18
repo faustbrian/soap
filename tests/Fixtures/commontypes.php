@@ -1,20 +1,36 @@
-<?php // phpcs:disable
+<?php declare(strict_types=1);
+
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Tests\Fixtures;
 
 use ReturnTypeWillChange;
+use SoapClient;
+
+use const E_USER_ERROR;
+
+use function extension_loaded;
+use function func_get_args;
+use function ob_get_clean;
+use function ob_start;
+use function trigger_error;
 
 /* Test Functions */
 
 /**
  * Test Function
  *
- * @param string $arg
+ * @param  mixed  $who
  * @return string
  */
 function TestFunc($who)
 {
-    return "Hello $who";
+    return "Hello {$who}";
 }
 
 /**
@@ -22,7 +38,7 @@ function TestFunc($who)
  */
 function TestFunc2()
 {
-    return "Hello World";
+    return 'Hello World';
 }
 
 /**
@@ -62,7 +78,7 @@ function TestFunc5()
  */
 function TestFunc6()
 {
-    return "string";
+    return 'string';
 }
 
 /**
@@ -82,73 +98,36 @@ function TestFunc7()
  */
 function TestFunc8()
 {
-    $return = (object) ['foo' => 'bar', 'baz' => true, 'bat' => 123, 'qux' => false];
-    return $return;
+    return (object) ['foo' => 'bar', 'baz' => true, 'bat' => 123, 'qux' => false];
 }
 
 /**
  * Multiple Args
  *
- * @param string $foo
- * @param string $bar
+ * @param  string $foo
+ * @param  string $bar
  * @return string
  */
 function TestFunc9($foo, $bar)
 {
-    return "$foo $bar";
+    return "{$foo} {$bar}";
 }
 
-class TestFixingMultiplePrototypes
+final class TestFixingMultiplePrototypes
 {
     /**
      * Test function
      *
-     * @param integer $a
-     * @param integer $b
-     * @param integer $d
-     * @return integer
+     * @param  int $a
+     * @param  int $b
+     * @param  int $d
+     * @return int
      */
-    public function testFunc($a = 100, $b = 200, $d = 300)
-    {
-
-    }
+    public function testFunc($a = 100, $b = 200, $d = 300) {}
 }
 
-class Test
+final class Test
 {
-    /**
-     * Test Function 1
-     *
-     * @return string
-     */
-    public function testFunc1()
-    {
-        return "Hello World";
-    }
-
-    /**
-     * Test Function 2
-     *
-     * @param string $who Some Arg
-     * @return string
-     */
-    public function testFunc2($who)
-    {
-        return "Hello $who!";
-    }
-
-    /**
-     * Test Function 3
-     *
-     * @param string $who Some Arg
-     * @param int $when Some
-     * @return string
-     */
-    public function testFunc3($who, $when)
-    {
-        return "Hello $who, How are you $when";
-    }
-
     /**
      * Test Function 4
      *
@@ -158,26 +137,53 @@ class Test
     {
         return "I'm Static!";
     }
+
+    /**
+     * Test Function 1
+     *
+     * @return string
+     */
+    public function testFunc1()
+    {
+        return 'Hello World';
+    }
+
+    /**
+     * Test Function 2
+     *
+     * @param  string $who Some Arg
+     * @return string
+     */
+    public function testFunc2($who)
+    {
+        return "Hello {$who}!";
+    }
+
+    /**
+     * Test Function 3
+     *
+     * @param  string $who  Some Arg
+     * @param  int    $when Some
+     * @return string
+     */
+    public function testFunc3($who, $when)
+    {
+        return "Hello {$who}, How are you {$when}";
+    }
 }
 
-class AutoDiscoverTestClass1
+final class AutoDiscoverTestClass1
 {
-    /**
-     * @var integer $var
-     */
+    /** @var int */
     public $var = 1;
 
-    /**
-     * @var string $param
-     */
-    public $param = "hello";
+    /** @var string */
+    public $param = 'hello';
 }
 
-class AutoDiscoverTestClass2
+final class AutoDiscoverTestClass2
 {
     /**
-     *
-     * @param \Tests\Fixtures\AutoDiscoverTestClass1 $test
      * @return bool
      */
     public function add(AutoDiscoverTestClass1 $test)
@@ -186,7 +192,7 @@ class AutoDiscoverTestClass2
     }
 
     /**
-     * @return \Tests\Fixtures\AutoDiscoverTestClass1[]
+     * @return array<AutoDiscoverTestClass1>
      */
     public function fetchAll()
     {
@@ -197,213 +203,135 @@ class AutoDiscoverTestClass2
     }
 
     /**
-     * @param \Tests\Fixtures\AutoDiscoverTestClass1[]
+     * @param mixed $test
      */
-    public function addMultiple($test)
-    {
-
-    }
+    public function addMultiple($test): void {}
 }
 
-class ComplexTypeB
+final class ComplexTypeB
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     public $bar;
-    /**
-     * @var string
-     */
+
+    /** @var string */
     public $foo;
 }
 
-class ComplexTypeA
+final class ComplexTypeA
 {
-    /**
-     * @var \Tests\Fixtures\ComplexTypeB[]
-     */
+    /** @var array<ComplexTypeB> */
     public $baz = [];
 }
 
-class ComplexTest
+final class ComplexTest
 {
-    /**
-     * @var int
-     */
+    /** @var int */
     public $var = 5;
 }
 
-class ComplexObjectStructure
+final class ComplexObjectStructure
 {
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public $boolean = true;
 
-    /**
-     * @var string
-     */
-    public $string = "Hello World";
+    /** @var string */
+    public $string = 'Hello World';
 
-    /**
-     * @var int
-     */
+    /** @var int */
     public $int = 10;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     public $array = [1, 2, 3];
 }
 
-class ComplexObjectWithObjectStructure
+final class ComplexObjectWithObjectStructure
 {
-    /**
-     * @var \Tests\Fixtures\ComplexTest
-     */
+    /** @var ComplexTest */
     public $object;
 }
 
-class MyService
+final class MyService
 {
     /**
-     *    @param string $foo
-     *    @return \Tests\Fixtures\MyResponse[]
+     * @param  string            $foo
+     * @return array<MyResponse>
      */
-    public function foo($foo)
-    {
-    }
-    /**
-     *    @param string $bar
-     *    @return \Tests\Fixtures\MyResponse[]
-     */
-    public function bar($bar)
-    {
-    }
+    public function foo($foo) {}
 
     /**
-     *    @param string $baz
-     *    @return \Tests\Fixtures\MyResponse[]
+     * @param  string            $bar
+     * @return array<MyResponse>
      */
-    public function baz($baz)
-    {
-    }
+    public function bar($bar) {}
+
+    /**
+     * @param  string            $baz
+     * @return array<MyResponse>
+     */
+    public function baz($baz) {}
 }
 
-class MyServiceSequence
+final class MyServiceSequence
 {
     /**
-     *    @param string $foo
-     *    @return string[]
+     * @param  string        $foo
+     * @return array<string>
      */
-    public function foo($foo)
-    {
-    }
-    /**
-     *    @param string $bar
-     *    @return string[]
-     */
-    public function bar($bar)
-    {
-    }
+    public function foo($foo) {}
 
     /**
-     *    @param string $baz
-     *    @return string[]
+     * @param  string        $bar
+     * @return array<string>
      */
-    public function baz($baz)
-    {
-    }
+    public function bar($bar) {}
 
     /**
-     *    @param string $baz
-     *    @return string[][][]
+     * @param  string        $baz
+     * @return array<string>
      */
-    public function bazNested($baz)
-    {
-    }
+    public function baz($baz) {}
+
+    /**
+     * @param  string                      $baz
+     * @return array<array<array<string>>>
+     */
+    public function bazNested($baz) {}
 }
 
-class MyResponse
+final class MyResponse
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     public $p1;
 }
 
-class Recursion
+final class Recursion
 {
-    /**
-     * @var \Tests\Fixtures\Recursion
-     */
+    /** @var self */
     public $recursion;
 
     /**
-     * @return \Tests\Fixtures\Recursion
+     * @return self
      */
-    public function create()
-    {
-    }
+    public function create() {}
 }
 
 /**
  * @param string $message
  */
-function OneWay($message)
-{
+function OneWay($message): void {}
 
-}
-
-class NoReturnType
+final class NoReturnType
 {
     /**
-     *
      * @param string $message
      */
-    public function pushOneWay($message)
-    {
-
-    }
+    public function pushOneWay($message): void {}
 }
 
 /* Client test classes */
 /** Test Class */
-class TestClass
+final class TestClass
 {
-    /**
-     * Test Function 1
-     *
-     * @return string
-     */
-    public function testFunc1()
-    {
-        return "Hello World";
-    }
-
-    /**
-     * Test Function 2
-     *
-     * @param string $who Some Arg
-     * @return string
-     */
-    public function testFunc2($who)
-    {
-        return "Hello $who!";
-    }
-
-    /**
-     * Test Function 3
-     *
-     * @param string $who Some Arg
-     * @param int $when Some
-     * @return string
-     */
-    public function testFunc3($who, $when)
-    {
-        return "Hello $who, How are you $when";
-    }
-
     /**
      * Test Function 4
      *
@@ -413,10 +341,43 @@ class TestClass
     {
         return "I'm Static!";
     }
+
+    /**
+     * Test Function 1
+     *
+     * @return string
+     */
+    public function testFunc1()
+    {
+        return 'Hello World';
+    }
+
+    /**
+     * Test Function 2
+     *
+     * @param  string $who Some Arg
+     * @return string
+     */
+    public function testFunc2($who)
+    {
+        return "Hello {$who}!";
+    }
+
+    /**
+     * Test Function 3
+     *
+     * @param  string $who  Some Arg
+     * @param  int    $when Some
+     * @return string
+     */
+    public function testFunc3($who, $when)
+    {
+        return "Hello {$who}, How are you {$when}";
+    }
 }
 
 /** Test class 2 */
-class TestData1
+final class TestData1
 {
     /**
      * Property1
@@ -434,12 +395,12 @@ class TestData1
 }
 
 /** Test class 2 */
-class TestData2
+final class TestData2
 {
     /**
      * Property1
      *
-     * @var integer
+     * @var int
      */
     public $property1;
 
@@ -451,65 +412,9 @@ class TestData2
     public $property2;
 }
 
-class MockSoapServer
-{
-    public $handle = null;
-    public function handle()
-    {
-        $this->handle = func_get_args();
-    }
-    public function __call($name, $args)
-    {
-    }
-}
-
-class MockServer extends \Cline\Soap\Server
-{
-    public $mockSoapServer = null;
-    public function getSoap()
-    {
-        $this->mockSoapServer = new MockSoapServer();
-        return $this->mockSoapServer;
-    }
-}
-
-
 /** Server test classes */
-class ServerTestClass
+final class ServerTestClass
 {
-    /**
-     * Test Function 1
-     *
-     * @return string
-     */
-    public function testFunc1()
-    {
-        return "Hello World";
-    }
-
-    /**
-     * Test Function 2
-     *
-     * @param string $who Some Arg
-     * @return string
-     */
-    public function testFunc2($who)
-    {
-        return "Hello $who!";
-    }
-
-    /**
-     * Test Function 3
-     *
-     * @param string $who Some Arg
-     * @param int $when Some
-     * @return string
-     */
-    public function testFunc3($who, $when)
-    {
-        return "Hello $who, How are you $when";
-    }
-
     /**
      * Test Function 4
      *
@@ -521,38 +426,68 @@ class ServerTestClass
     }
 
     /**
-     * Test Function 5 raises a user error
+     * Test Function 1
      *
-     * @return void
+     * @return string
      */
-    public function testFunc5()
+    public function testFunc1()
     {
-        trigger_error("Test Message", E_USER_ERROR);
+        return 'Hello World';
+    }
+
+    /**
+     * Test Function 2
+     *
+     * @param  string $who Some Arg
+     * @return string
+     */
+    public function testFunc2($who)
+    {
+        return "Hello {$who}!";
+    }
+
+    /**
+     * Test Function 3
+     *
+     * @param  string $who  Some Arg
+     * @param  int    $when Some
+     * @return string
+     */
+    public function testFunc3($who, $when)
+    {
+        return "Hello {$who}, How are you {$when}";
+    }
+
+    /**
+     * Test Function 5 raises a user error
+     */
+    public function testFunc5(): void
+    {
+        trigger_error('Test Message', E_USER_ERROR);
     }
 }
 
 if (extension_loaded('soap')) {
-
     /** Local SOAP client */
-    class TestLocalSoapClient extends \SoapClient
+    final class TestLocalSoapClient extends SoapClient
     {
-        /**
-         * Server object
-         *
-         * @var \Cline\Soap\Server
-         */
-        public $server;
-
         /**
          * Local client constructor
          *
          * @param Laminas_Soap_Server $server
-         * @param string $wsdl
-         * @param array $options
+         * @param string              $wsdl
+         * @param array               $options
          */
-        public function __construct(\Cline\Soap\Server $server, $wsdl, $options)
-        {
-            $this->server = $server;
+        public function __construct(
+            /**
+             * Server object
+             *
+             * @var \Cline\Soap\Server
+             */
+            public readonly \Cline\Soap\Server $server,
+            $wsdl,
+            $options,
+        ) {
             parent::__construct($wsdl, $options);
         }
 
@@ -562,70 +497,55 @@ if (extension_loaded('soap')) {
             string $action,
             int $version,
             bool $oneWay = false,
-            ?string $uriParserClass = null
+            ?string $uriParserClass = null,
         ): ?string {
             ob_start();
             $this->server->handle($request);
-            $response = ob_get_clean();
 
-            return $response;
+            return ob_get_clean();
         }
     }
-
 }
 
-class SequenceTest
+final class SequenceTest
 {
-    /**
-     * @var int
-     */
+    /** @var int */
     public $var = 5;
 }
 
-class Book
+final class Book
 {
-    /**
-     * @var int
-     */
+    /** @var int */
     public $somevar;
 }
 
-class Cookie
+final class Cookie
 {
-    /**
-     * @var int
-     */
+    /** @var int */
     public $othervar;
 }
 
-class Anything
-{
-}
+final class Anything {}
 
-class PublicPrivateProtected
+final class PublicPrivateProtected
 {
-    const PROTECTED_VAR_NAME = 'bar';
-    const PRIVATE_VAR_NAME = 'baz';
+    public const string PROTECTED_VAR_NAME = 'bar';
 
-    /**
-     * @var string
-     */
+    public const string PRIVATE_VAR_NAME = 'baz';
+
+    /** @var string */
     public $foo;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $bar;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $baz;
 }
 
-class errorClass
+final class errorClass
 {
-    public function triggerError()
+    public function triggerError(): void
     {
         trigger_error('TestError', E_USER_ERROR);
     }

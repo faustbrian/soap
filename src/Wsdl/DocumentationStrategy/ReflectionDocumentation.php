@@ -1,4 +1,11 @@
-<?php
+<?php declare(strict_types=1);
+
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Cline\Soap\Wsdl\DocumentationStrategy;
 
@@ -7,9 +14,9 @@ use ReflectionProperty;
 
 use function explode;
 use function implode;
+use function mb_trim;
 use function preg_match;
 use function preg_replace;
-use function trim;
 
 final class ReflectionDocumentation implements DocumentationStrategyInterface
 {
@@ -30,26 +37,30 @@ final class ReflectionDocumentation implements DocumentationStrategyInterface
     }
 
     /**
-     * @param string $docComment
+     * @param  string $docComment
      * @return string
      */
     private function parseDocComment($docComment)
     {
         $documentation = [];
+
         foreach (explode("\n", $docComment) as $i => $line) {
             if ($i === 0) {
                 continue;
             }
 
-            $line = trim(preg_replace('/\s*\*+/', '', $line));
+            $line = mb_trim(preg_replace('/\s*\*+/', '', $line));
+
             if (preg_match('/^(@[a-z]|\/)/i', $line)) {
                 break;
             }
 
             // only include newlines if we've already got documentation
-            if (! empty($documentation) || $line !== '') {
-                $documentation[] = $line;
+            if (empty($documentation) && $line === '') {
+                continue;
             }
+
+            $documentation[] = $line;
         }
 
         return implode("\n", $documentation);

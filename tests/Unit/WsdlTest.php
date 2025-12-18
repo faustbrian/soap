@@ -12,22 +12,8 @@ use Cline\Soap\Wsdl;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\AnyType;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\ArrayOfTypeSequence;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\DefaultComplexType;
-use Uri\Rfc3986\Uri;
 use Tests\Fixtures\WsdlTestClass;
-
-use function count;
-use function file_get_contents;
-use function libxml_disable_entity_loader;
-use function libxml_get_errors;
-use function libxml_use_internal_errors;
-use function ob_get_clean;
-use function ob_start;
-use function print_r;
-use function sys_get_temp_dir;
-use function tempnam;
-use function unlink;
-
-use const LIBXML_VERSION;
+use Uri\Rfc3986\Uri;
 
 beforeEach(function (): void {
     skipIfSoapNotLoaded();
@@ -73,7 +59,9 @@ describe('Wsdl', function (): void {
 
         test('setUri with Uri object changes DOM document WSDL structure tns and targetNamespace attributes', function (string|Uri $uri, string $expectedUri): void {
             // Act
-            $this->wsdl->setUri(new Uri($uri));
+            $this->wsdl->setUri(
+                new Uri($uri),
+            );
 
             // Assert
             assertDocumentNodesHaveNamespaces($this->dom);
@@ -96,8 +84,9 @@ describe('Wsdl', function (): void {
         test('addMessage creates message node with simple parameters', function (array $parameters): void {
             // Arrange
             $messageParts = [];
+
             foreach ($parameters as $i => $parameter) {
-                $messageParts['parameter' . $i] = $this->wsdl->getType($parameter);
+                $messageParts['parameter'.$i] = $this->wsdl->getType($parameter);
             }
             $messageName = 'myMessage';
 
@@ -111,7 +100,7 @@ describe('Wsdl', function (): void {
                 ->and($messageNodes->item(0)->getAttribute('name'))->toBe($messageName);
 
             foreach ($messageParts as $parameterName => $parameterType) {
-                $part = $this->xpath->query('wsdl:part[@name="' . $parameterName . '"]', $messageNodes->item(0));
+                $part = $this->xpath->query('wsdl:part[@name="'.$parameterName.'"]', $messageNodes->item(0));
                 expect($part->item(0)->getAttribute('type'))->toBe($parameterType);
             }
         })->with('addMessageData');
@@ -119,10 +108,11 @@ describe('Wsdl', function (): void {
         test('addMessage creates message node with complex parameters', function (array $parameters): void {
             // Arrange
             $messageParts = [];
+
             foreach ($parameters as $i => $parameter) {
-                $messageParts['parameter' . $i] = [
+                $messageParts['parameter'.$i] = [
                     'type' => $this->wsdl->getType($parameter),
-                    'name' => 'parameter' . $i,
+                    'name' => 'parameter'.$i,
                 ];
             }
             $messageName = 'myMessage';
@@ -136,7 +126,7 @@ describe('Wsdl', function (): void {
             expect($messageNodes->length)->toBeGreaterThan(0);
 
             foreach ($messageParts as $parameterName => $parameterDefinition) {
-                $part = $this->xpath->query('wsdl:part[@name="' . $parameterName . '"]', $messageNodes->item(0));
+                $part = $this->xpath->query('wsdl:part[@name="'.$parameterName.'"]', $messageNodes->item(0));
                 expect($part->item(0)->getAttribute('type'))->toBe($parameterDefinition['type'])
                     ->and($part->item(0)->getAttribute('name'))->toBe($parameterDefinition['name']);
             }
@@ -161,7 +151,7 @@ describe('Wsdl', function (): void {
             string $operationName,
             ?string $inputRequest = null,
             ?string $outputResponse = null,
-            ?string $fail = null
+            ?string $fail = null,
         ): void {
             // Arrange
             $portName = 'myPortType';
@@ -172,10 +162,10 @@ describe('Wsdl', function (): void {
 
             // Assert
             assertDocumentNodesHaveNamespaces($this->dom);
-            $portTypeNodes = $this->xpath->query('//wsdl:definitions/wsdl:portType[@name="' . $portName . '"]');
+            $portTypeNodes = $this->xpath->query('//wsdl:definitions/wsdl:portType[@name="'.$portName.'"]');
             expect($portTypeNodes->length)->toBeGreaterThan(0);
 
-            $operationNodes = $this->xpath->query('wsdl:operation[@name="' . $operationName . '"]', $portTypeNodes->item(0));
+            $operationNodes = $this->xpath->query('wsdl:operation[@name="'.$operationName.'"]', $portTypeNodes->item(0));
             expect($operationNodes->length)->toBeGreaterThan(0);
 
             if (empty($inputRequest) && empty($outputResponse) && empty($fail)) {
@@ -184,20 +174,22 @@ describe('Wsdl', function (): void {
                 expect($operationNodes->item(0)->hasChildNodes())->toBeTrue();
             }
 
-            if (! empty($inputRequest)) {
+            if (!empty($inputRequest)) {
                 $inputNodes = $operationNodes->item(0)->getElementsByTagName('input');
                 expect($inputNodes->item(0)->getAttribute('message'))->toBe($inputRequest);
             }
 
-            if (! empty($outputResponse)) {
+            if (!empty($outputResponse)) {
                 $outputNodes = $operationNodes->item(0)->getElementsByTagName('output');
                 expect($outputNodes->item(0)->getAttribute('message'))->toBe($outputResponse);
             }
 
-            if (! empty($fail)) {
-                $faultNodes = $operationNodes->item(0)->getElementsByTagName('fault');
-                expect($faultNodes->item(0)->getAttribute('message'))->toBe($fail);
+            if (empty($fail)) {
+                return;
             }
+
+            $faultNodes = $operationNodes->item(0)->getElementsByTagName('fault');
+            expect($faultNodes->item(0)->getAttribute('message'))->toBe($fail);
         })->with('addPortOperationData');
 
         test('addBinding creates binding node with correct attributes', function (): void {
@@ -220,23 +212,26 @@ describe('Wsdl', function (): void {
             ?string $outputEncoding = null,
             ?string $fault = null,
             ?string $faultEncoding = null,
-            ?string $faultName = null
+            ?string $faultName = null,
         ): void {
             // Arrange
             $binding = $this->wsdl->addBinding('MyServiceBinding', 'myPortType');
 
             $inputArray = [];
-            if (! empty($input) && ! empty($inputEncoding)) {
+
+            if (!empty($input) && !empty($inputEncoding)) {
                 $inputArray = ['use' => $input, 'encodingStyle' => $inputEncoding];
             }
 
             $outputArray = [];
-            if (! empty($output) && ! empty($outputEncoding)) {
+
+            if (!empty($output) && !empty($outputEncoding)) {
                 $outputArray = ['use' => $output, 'encodingStyle' => $outputEncoding];
             }
 
             $faultArray = [];
-            if (! empty($fault) && ! empty($faultEncoding) && ! empty($faultName)) {
+
+            if (!empty($fault) && !empty($faultEncoding) && !empty($faultName)) {
                 $faultArray = ['use' => $fault, 'encodingStyle' => $faultEncoding, 'name' => $faultName];
             }
 
@@ -250,7 +245,7 @@ describe('Wsdl', function (): void {
                 ->and($bindingNodes->item(0)->getAttribute('name'))->toBe('MyServiceBinding')
                 ->and($bindingNodes->item(0)->getAttribute('type'))->toBe('myPortType');
 
-            $operationNodes = $this->xpath->query('wsdl:operation[@name="' . $operationName . '"]', $bindingNodes->item(0));
+            $operationNodes = $this->xpath->query('wsdl:operation[@name="'.$operationName.'"]', $bindingNodes->item(0));
             expect($operationNodes->length)->toBe(1);
 
             if (empty($inputArray) && empty($outputArray) && empty($faultArray)) {
@@ -258,17 +253,19 @@ describe('Wsdl', function (): void {
             }
 
             foreach ([
-                '//wsdl:input/soap:body'  => $inputArray,
+                '//wsdl:input/soap:body' => $inputArray,
                 '//wsdl:output/soap:body' => $outputArray,
-                '//wsdl:fault'            => $faultArray,
+                '//wsdl:fault' => $faultArray,
             ] as $query => $ar) {
-                if (! empty($ar)) {
-                    $nodes = $this->xpath->query($query);
-                    expect($nodes->length)->toBeGreaterThan(0);
+                if (empty($ar)) {
+                    continue;
+                }
 
-                    foreach ($ar as $key => $val) {
-                        expect($nodes->item(0)->getAttribute($key))->toBe($ar[$key]);
-                    }
+                $nodes = $this->xpath->query($query);
+                expect($nodes->length)->toBeGreaterThan(0);
+
+                foreach ($ar as $key => $val) {
+                    expect($nodes->item(0)->getAttribute($key))->toBe($ar[$key]);
                 }
             }
         })->with('addBindingOperationData');
@@ -331,12 +328,12 @@ describe('Wsdl', function (): void {
                 'operation1',
                 ['use' => 'encoded', 'encodingStyle' => $actualUrl],
                 ['use' => 'encoded', 'encodingStyle' => $actualUrl],
-                ['name' => 'MyFault', 'use' => 'encoded', 'encodingStyle' => $actualUrl]
+                ['name' => 'MyFault', 'use' => 'encoded', 'encodingStyle' => $actualUrl],
             );
 
             // Assert
             $nodes = $this->xpath->query(
-                '//wsdl:binding[@type="myPortType" and @name="MyServiceBinding"]/wsdl:operation[@name="operation1"]/wsdl:input/soap:body'
+                '//wsdl:binding[@type="myPortType" and @name="MyServiceBinding"]/wsdl:operation[@name="operation1"]/wsdl:input/soap:body',
             );
             expect($nodes->length)->toBeGreaterThanOrEqual(1)
                 ->and($nodes->item(0)->getAttribute('encodingStyle'))->toBe($expectedUrl);
@@ -411,7 +408,7 @@ describe('Wsdl', function (): void {
             $message = $this->wsdl->addMessage('myMessage', $messageParts);
 
             // Act
-            $this->wsdl->addDocumentation($message, "foo");
+            $this->wsdl->addDocumentation($message, 'foo');
 
             // Assert
             assertDocumentNodesHaveNamespaces($this->dom);
@@ -549,7 +546,7 @@ describe('Wsdl', function (): void {
 
         test('addTypes from DOMDocument adds types element', function (): void {
             // Arrange
-            $dom = new \DOMDocument();
+            $dom = new DOMDocument();
             $types = $dom->createElementNS(Wsdl::WSDL_NS_URI, 'types');
             $dom->appendChild($types);
 
@@ -590,25 +587,27 @@ describe('Wsdl', function (): void {
 
         test('getType is case-insensitive for type detection (Laminas-3910, Laminas-11937)', function (): void {
             // Assert
-            expect($this->wsdl->getType("StrIng"))->toBe("xsd:string")
-                ->and($this->wsdl->getType("sTr"))->toBe("xsd:string")
-                ->and($this->wsdl->getType("iNt"))->toBe("xsd:int")
-                ->and($this->wsdl->getType("INTEGER"))->toBe("xsd:int")
-                ->and($this->wsdl->getType("FLOAT"))->toBe("xsd:float")
-                ->and($this->wsdl->getType("douBLE"))->toBe("xsd:double")
-                ->and($this->wsdl->getType("daTe"))->toBe("xsd:date")
-                ->and($this->wsdl->getType("long"))->toBe("xsd:long");
+            expect($this->wsdl->getType('StrIng'))->toBe('xsd:string')
+                ->and($this->wsdl->getType('sTr'))->toBe('xsd:string')
+                ->and($this->wsdl->getType('iNt'))->toBe('xsd:int')
+                ->and($this->wsdl->getType('INTEGER'))->toBe('xsd:int')
+                ->and($this->wsdl->getType('FLOAT'))->toBe('xsd:float')
+                ->and($this->wsdl->getType('douBLE'))->toBe('xsd:double')
+                ->and($this->wsdl->getType('daTe'))->toBe('xsd:date')
+                ->and($this->wsdl->getType('long'))->toBe('xsd:long');
         });
 
         test('ArrayOfTypeSequence strategy recognizes duplicate sequence definitions only once (Laminas-5430)', function (): void {
             // Arrange
-            $this->wsdl->setComplexTypeStrategy(new ArrayOfTypeSequence());
+            $this->wsdl->setComplexTypeStrategy(
+                new ArrayOfTypeSequence(),
+            );
 
             // Act
-            $this->wsdl->addComplexType("string[]");
-            $this->wsdl->addComplexType("int[]");
-            $this->wsdl->addComplexType("string[]");
-            $this->wsdl->addComplexType("int[]");
+            $this->wsdl->addComplexType('string[]');
+            $this->wsdl->addComplexType('int[]');
+            $this->wsdl->addComplexType('string[]');
+            $this->wsdl->addComplexType('int[]');
 
             // Assert
             assertDocumentNodesHaveNamespaces($this->dom);
@@ -630,7 +629,7 @@ describe('Wsdl', function (): void {
         test('addElement creates element with sequence structure', function (): void {
             // Arrange
             $element = [
-                'name'     => 'MyElement',
+                'name' => 'MyElement',
                 'sequence' => [
                     ['name' => 'myString', 'type' => 'string'],
                     ['name' => 'myInt',    'type' => 'int'],
@@ -642,20 +641,21 @@ describe('Wsdl', function (): void {
 
             // Assert
             assertDocumentNodesHaveNamespaces($this->dom);
-            expect($newElementName)->toBe('tns:' . $element['name']);
+            expect($newElementName)->toBe('tns:'.$element['name']);
 
             $nodes = $this->xpath->query(
-                '//wsdl:types/xsd:schema/xsd:element[@name="' . $element['name'] . '"]/xsd:complexType'
+                '//wsdl:types/xsd:schema/xsd:element[@name="'.$element['name'].'"]/xsd:complexType',
             );
             expect($nodes->length)->toBe(1)
                 ->and($nodes->item(0)->firstChild->localName)->toBe('sequence');
 
             $n = 0;
+
             foreach ($element['sequence'] as $elementDefinition) {
-                $n++;
+                ++$n;
                 $elementNode = $this->xpath->query(
-                    'xsd:element[@name="' . $elementDefinition['name'] . '"]',
-                    $nodes->item(0)->firstChild
+                    'xsd:element[@name="'.$elementDefinition['name'].'"]',
+                    $nodes->item(0)->firstChild,
                 );
                 expect($elementNode->item(0)->getAttribute('type'))->toBe($elementDefinition['type']);
             }
@@ -666,7 +666,7 @@ describe('Wsdl', function (): void {
     describe('Sad Paths', function (): void {
         test('addElement throws RuntimeException for invalid element structure', function (): void {
             // Act & Assert
-            expect(fn() => $this->wsdl->addElement(1))
+            expect(fn () => $this->wsdl->addElement(1))
                 ->toThrow(RuntimeException::class);
         });
     });
@@ -676,10 +676,11 @@ describe('Wsdl', function (): void {
 function checkXMLContent(string $content, object $context): void
 {
     libxml_use_internal_errors(true);
-    if (LIBXML_VERSION < 20900) {
+
+    if (LIBXML_VERSION < 20_900) {
         libxml_disable_entity_loader(false);
     }
-    $xml = new \DOMDocument();
+    $xml = new DOMDocument();
     $xml->preserveWhiteSpace = false;
     $xml->encoding = 'UTF-8';
     $xml->formatOutput = false;
@@ -741,6 +742,7 @@ dataset('addPortOperationData', function () {
 
 dataset('addBindingOperationData', function () {
     $enc = 'http://schemas.xmlsoap.org/soap/encoding/';
+
     return [
         ['operation'],
         ['operation', 'encoded', $enc, 'encoded', $enc, 'encoded', $enc, 'myFaultName'],
@@ -748,7 +750,7 @@ dataset('addBindingOperationData', function () {
         ['operation', null, null, 'encoded', $enc, 'encoded'],
         ['operation', 'encoded', $enc],
         ['operation', null, null, null, null, 'encoded', $enc, 'myFaultName'],
-        ['operation', 'encoded1', $enc . '1', 'encoded2', $enc . '2', 'encoded3', $enc . '3', 'myFaultName'],
+        ['operation', 'encoded1', $enc.'1', 'encoded2', $enc.'2', 'encoded3', $enc.'3', 'myFaultName'],
     ];
 });
 

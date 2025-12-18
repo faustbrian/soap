@@ -1,8 +1,17 @@
-<?php
+<?php declare(strict_types=1);
+
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Cline\Soap\Server;
 
 use Cline\Soap\Exception;
+use Cline\Soap\Exception\BadMethodCallException;
+use Cline\Soap\Exception\UnexpectedValueException;
 use ReflectionObject;
 
 use function call_user_func_array;
@@ -73,7 +82,7 @@ use function sprintf;
  *  $soap->handle();
  * </code>
  */
-class DocumentLiteralWrapper
+final class DocumentLiteralWrapper
 {
     /** @var object */
     protected $object;
@@ -88,7 +97,7 @@ class DocumentLiteralWrapper
      */
     public function __construct($object)
     {
-        $this->object     = $object;
+        $this->object = $object;
         $this->reflection = new ReflectionObject($this->object);
     }
 
@@ -96,7 +105,7 @@ class DocumentLiteralWrapper
      * Proxy method that does the heavy document/literal decomposing.
      *
      * @param  string $method
-     * @param  array $args
+     * @param  array  $args
      * @return mixed
      */
     public function __call($method, $args)
@@ -105,7 +114,8 @@ class DocumentLiteralWrapper
         $this->assertServiceDelegateHasMethod($method);
 
         $delegateArgs = $this->parseArguments($method, $args[0]);
-        $ret          = call_user_func_array([$this->object, $method], $delegateArgs);
+        $ret = call_user_func_array([$this->object, $method], $delegateArgs);
+
         return $this->getResultMessage($method, $ret);
     }
 
@@ -113,27 +123,29 @@ class DocumentLiteralWrapper
      * Parse the document/literal wrapper into arguments to call the real
      * service.
      *
-     * @param  string $method
-     * @param  object $document
+     * @param  string                   $method
+     * @param  object                   $document
+     * @throws UnexpectedValueException
      * @return array
-     * @throws Exception\UnexpectedValueException
      */
     protected function parseArguments($method, $document)
     {
         $reflMethod = $this->reflection->getMethod($method);
-        $params     = [];
+        $params = [];
+
         foreach ($reflMethod->getParameters() as $param) {
             $params[$param->getName()] = $param;
         }
 
         $delegateArgs = [];
+
         foreach (get_object_vars($document) as $argName => $argValue) {
-            if (! isset($params[$argName])) {
-                throw new Exception\UnexpectedValueException(sprintf(
-                    "Received unknown argument %s which is not an argument to %s::%s",
+            if (!isset($params[$argName])) {
+                throw new UnexpectedValueException(sprintf(
+                    'Received unknown argument %s which is not an argument to %s::%s',
                     $argName,
                     get_class($this->object),
-                    $method
+                    $method,
                 ));
             }
             $delegateArgs[$params[$argName]->getPosition()] = $argValue;
@@ -146,39 +158,38 @@ class DocumentLiteralWrapper
      * Returns result message content
      *
      * @param  string $method
-     * @param  mixed $ret
+     * @param  mixed  $ret
      * @return array
      */
     protected function getResultMessage($method, $ret)
     {
-        return [$method . 'Result' => $ret];
+        return [$method.'Result' => $ret];
     }
 
     /**
-     * @param  string $method
-     * @throws Exception\BadMethodCallException
+     * @param  string                 $method
+     * @throws BadMethodCallException
      */
-    protected function assertServiceDelegateHasMethod($method)
+    protected function assertServiceDelegateHasMethod($method): void
     {
-        if (! $this->reflection->hasMethod($method)) {
-            throw new Exception\BadMethodCallException(sprintf(
-                "Method %s does not exist on delegate object %s",
+        if (!$this->reflection->hasMethod($method)) {
+            throw new BadMethodCallException(sprintf(
+                'Method %s does not exist on delegate object %s',
                 $method,
-                get_class($this->object)
+                get_class($this->object),
             ));
         }
     }
 
     /**
-     * @param  array $args
-     * @throws Exception\UnexpectedValueException
+     * @throws UnexpectedValueException
      */
-    protected function assertOnlyOneArgument(array $args)
+    protected function assertOnlyOneArgument(array $args): void
     {
         if (count($args) !== 1) {
-            throw new Exception\UnexpectedValueException(sprintf(
-                "Expecting exactly one argument that is the document/literal wrapper, got %d",
-                count($args)
+            throw new UnexpectedValueException(sprintf(
+                'Expecting exactly one argument that is the document/literal wrapper, got %d',
+                count($args),
             ));
         }
     }

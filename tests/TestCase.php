@@ -12,8 +12,7 @@ namespace Tests;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 /**
- * @internal
- *
  * @author Brian Faust <brian@cline.sh>
+ * @internal
  */
 abstract class TestCase extends BaseTestCase {}
