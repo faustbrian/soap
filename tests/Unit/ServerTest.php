@@ -582,7 +582,7 @@ describe('Fault', function (): void {
     test('fault with bogus input returns unknown error', function (): void {
         $server = new Server();
 
-        expect(fn () => $server->fault(['Here', 'There', 'Bogus']))
+        expect(fn (): \SoapFault => $server->fault(['Here', 'There', 'Bogus']))
             ->toThrow(TypeError::class);
     });
 
@@ -590,7 +590,7 @@ describe('Fault', function (): void {
     test('fault with integer code does not break', function (): void {
         $server = new Server();
 
-        expect(fn () => $server->fault('FaultMessage!', 5_000))
+        expect(fn (): \SoapFault => $server->fault('FaultMessage!', 5_000))
             ->toThrow(TypeError::class);
     });
 });
