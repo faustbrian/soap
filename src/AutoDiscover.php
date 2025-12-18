@@ -8,7 +8,7 @@ use Cline\Soap\AutoDiscover\DiscoveryStrategy\DiscoveryStrategyInterface as Disc
 use Cline\Soap\AutoDiscover\DiscoveryStrategy\ReflectionDiscovery;
 use Cline\Soap\Wsdl;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\ComplexTypeStrategyInterface as ComplexTypeStrategy;
-use Laminas\Uri;
+use Uri\Rfc3986;
 
 use function array_unique;
 use function count;
@@ -104,7 +104,7 @@ class AutoDiscover
     /**
      * Constructor
      *
-     * @param null|string|Uri\Uri $endpointUri
+     * @param null|string|Rfc3986\Uri $endpointUri
      * @param null|string $wsdlClass
      * @param null|array $classMap
      */
@@ -223,16 +223,21 @@ class AutoDiscover
     /**
      * Set the location at which the WSDL file will be available.
      *
-     * @param  Uri\Uri|string $uri
+     * @param  Rfc3986\Uri|string $uri
      * @return self
      * @throws Exception\InvalidArgumentException
      */
     public function setUri($uri)
     {
-        if (! is_string($uri) && ! $uri instanceof Uri\Uri) {
+        if (! is_string($uri) && ! $uri instanceof Rfc3986\Uri) {
             throw new Exception\InvalidArgumentException(
-                'Argument to \Cline\Soap\AutoDiscover::setUri should be string or \Laminas\Uri\Uri instance.'
+                'Argument to \Cline\Soap\AutoDiscover::setUri should be string or \Uri\Rfc3986\Uri instance.'
             );
+        }
+
+        if ($uri instanceof Rfc3986\Uri) {
+            $this->uri = $uri;
+            return $this;
         }
 
         $uri = trim($uri);
@@ -249,7 +254,7 @@ class AutoDiscover
     /**
      * Return the current Uri that the SOAP WSDL Service will be located at.
      *
-     * @return Uri\Uri
+     * @return Rfc3986\Uri
      * @throws Exception\RuntimeException
      */
     public function getUri()
@@ -260,7 +265,7 @@ class AutoDiscover
             );
         }
         if (is_string($this->uri)) {
-            $this->uri = Uri\UriFactory::factory($this->uri);
+            $this->uri = new Rfc3986\Uri($this->uri);
         }
         return $this->uri;
     }
@@ -454,7 +459,7 @@ class AutoDiscover
      */
     protected function addFunctionToWsdl($function, $wsdl, $port, $binding)
     {
-        $uri = $this->getUri();
+        $uri = $this->getUri()->toString();
 
         // We only support one prototype: the one with the maximum number of arguments
         $prototype                  = null;
@@ -568,7 +573,7 @@ class AutoDiscover
         // attribute (WS-I Basic Profile 1.1 R2717)
         $operationBodyStyle = $this->operationBodyStyle;
         if ($this->bindingStyle['style'] === 'rpc' && ! isset($operationBodyStyle['namespace'])) {
-            $operationBodyStyle['namespace'] = '' . $uri;
+            $operationBodyStyle['namespace'] = $uri;
         }
 
         // Add the binding operation

@@ -12,7 +12,7 @@ use Cline\Soap\Wsdl;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\AnyType;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\ArrayOfTypeSequence;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\DefaultComplexType;
-use Laminas\Uri\Uri;
+use Uri\Rfc3986\Uri;
 use Tests\Fixtures\WsdlTestClass;
 
 use function count;

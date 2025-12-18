@@ -8,7 +8,7 @@ use DOMElement;
 use DOMNode;
 use DOMXPath;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\ComplexTypeStrategyInterface as ComplexTypeStrategy;
-use Laminas\Uri\Uri;
+use Uri\Rfc3986\Uri;
 
 use function count;
 use function file_put_contents;

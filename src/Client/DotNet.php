@@ -8,7 +8,7 @@ use Laminas\Http\Response as HttpResponse;
 use Cline\Soap\Client as SOAPClient;
 use Cline\Soap\Client\Common as CommonClient;
 use Cline\Soap\Exception;
-use Laminas\Uri\Http as HttpUri;
+use Uri\Rfc3986\Uri as HttpUri;
 use Traversable;
 
 use const SOAP_1_1;

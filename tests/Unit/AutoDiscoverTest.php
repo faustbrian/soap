@@ -15,7 +15,7 @@ use Cline\Soap\Wsdl;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\ArrayOfTypeComplex;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\ArrayOfTypeSequence;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\ComplexTypeStrategyInterface;
-use Laminas\Uri\Uri;
+use Uri\Rfc3986\Uri;
 use Tests\Fixtures\AutoDiscoverTestClass2;
 use Tests\Fixtures\MyService;
 use Tests\Fixtures\MyServiceSequence;
@@ -253,7 +253,7 @@ describe('AutoDiscover', function (): void {
             expect(fn() => $server->setUri(["bogus"]))
                 ->toThrow(SoapInvalidArgumentException::class)
                 ->and(fn() => $server->setUri(["bogus"]))
-                ->toThrow(SoapInvalidArgumentException::class, 'Argument to \Cline\Soap\AutoDiscover::setUri should be string or \Laminas\Uri\Uri instance.');
+                ->toThrow(SoapInvalidArgumentException::class, 'Argument to \Cline\Soap\AutoDiscover::setUri should be string or \Uri\Rfc3986\Uri instance.');
         });
     });
 
