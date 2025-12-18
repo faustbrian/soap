@@ -3,7 +3,7 @@
 namespace Cline\Soap;
 
 use DOMElement;
-use Laminas\Server\Reflection;
+use Cline\Soap\Reflection\Reflection;
 use Cline\Soap\AutoDiscover\DiscoveryStrategy\DiscoveryStrategyInterface as DiscoveryStrategy;
 use Cline\Soap\AutoDiscover\DiscoveryStrategy\ReflectionDiscovery;
 use Cline\Soap\Wsdl;

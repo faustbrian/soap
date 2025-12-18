@@ -2,9 +2,9 @@
 
 namespace Cline\Soap\AutoDiscover\DiscoveryStrategy;
 
-use Laminas\Server\Reflection\AbstractFunction;
-use Laminas\Server\Reflection\Prototype;
-use Laminas\Server\Reflection\ReflectionParameter;
+use Cline\Soap\Reflection\AbstractFunction;
+use Cline\Soap\Reflection\Prototype;
+use Cline\Soap\Reflection\ReflectionParameter;
 
 /**
  * Describes how types, return values and method details are detected during
