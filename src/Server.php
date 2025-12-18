@@ -9,7 +9,6 @@ use Laminas\Server\Server as LaminasServerServer;
 use Cline\Soap\Exception\ExtensionNotLoadedException;
 use Cline\Soap\Exception\InvalidArgumentException;
 use Cline\Soap\Exception\RuntimeException;
-use Laminas\Stdlib\ArrayUtils;
 use ReflectionClass;
 use SimpleXMLElement;
 use SoapFault;
@@ -263,7 +262,7 @@ class Server implements LaminasServerServer
     public function setOptions($options)
     {
         if ($options instanceof Traversable) {
-            $options = ArrayUtils::iteratorToArray($options);
+            $options = iterator_to_array($options);
         }
 
         foreach ($options as $key => $value) {

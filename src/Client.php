@@ -3,7 +3,6 @@
 namespace Cline\Soap;
 
 use Laminas\Server\Client as ServerClient;
-use Laminas\Stdlib\ArrayUtils;
 use SoapClient;
 use SoapHeader;
 use Traversable;
@@ -232,7 +231,7 @@ class Client implements ServerClient
     public function setOptions($options)
     {
         if ($options instanceof Traversable) {
-            $options = ArrayUtils::iteratorToArray($options);
+            $options = iterator_to_array($options);
         }
 
         foreach ($options as $key => $value) {
