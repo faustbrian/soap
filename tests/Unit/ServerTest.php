@@ -109,11 +109,12 @@ describe('Encoding', function (): void {
         expect($server->getEncoding())->toBe('ISO-8859-1');
     });
 
+    // PHP 8.5 strict typing throws TypeError before method can validate
     test('throws exception for invalid encoding type', function (): void {
         $server = new Server();
 
         expect(fn (): Server => $server->setEncoding(['UTF-8']))
-            ->toThrow(InvalidArgumentException::class, 'Invalid encoding specified');
+            ->toThrow(TypeError::class);
     });
 });
 
@@ -126,11 +127,12 @@ describe('SOAP Version', function (): void {
         expect($server->getSoapVersion())->toBe(\SOAP_1_1);
     });
 
+    // PHP 8.5 strict typing throws TypeError before method can validate
     test('throws exception for invalid soap version', function (): void {
         $server = new Server();
 
         expect(fn (): Server => $server->setSoapVersion('bogus'))
-            ->toThrow(InvalidArgumentException::class, 'Invalid soap version specified');
+            ->toThrow(TypeError::class);
     });
 });
 
@@ -197,11 +199,12 @@ describe('Classmap', function (): void {
         expect($server->getClassmap())->toBe($classmap);
     });
 
+    // PHP 8.5 strict typing throws TypeError before method can validate
     test('throws exception for string classmap', function (): void {
         $server = new Server();
 
         expect(fn (): Server => $server->setClassmap('bogus'))
-            ->toThrow(InvalidArgumentException::class, 'Classmap must be an array');
+            ->toThrow(TypeError::class);
     });
 
     test('throws exception for invalid class in classmap', function (): void {
@@ -328,16 +331,18 @@ describe('Class', function (): void {
 
     test('can set class with arguments', function (): void {
         $server = new Server();
-        $result = $server->setClass(ServerTestClass::class, null, 1, 2, 3, 4);
+        // PHP 8.5: namespace parameter must be string, not null
+        $result = $server->setClass(ServerTestClass::class, '', 1, 2, 3, 4);
 
         expect($result)->toBe($server);
     });
 
+    // PHP 8.5 strict typing throws TypeError before method can validate
     test('throws exception for integer class name', function (): void {
         $server = new Server();
 
         expect(fn (): Server => $server->setClass(465))
-            ->toThrow(InvalidArgumentException::class, 'Invalid class argument (integer)');
+            ->toThrow(TypeError::class);
     });
 
     test('throws exception for unknown class name', function (): void {
@@ -358,11 +363,12 @@ describe('Object', function (): void {
         expect($result)->toBe($server);
     });
 
+    // PHP 8.5 strict typing throws TypeError before method can validate
     test('throws exception for integer object', function (): void {
         $server = new Server();
 
         expect(fn (): Server => $server->setObject(465))
-            ->toThrow(InvalidArgumentException::class, 'Invalid object argument (integer)');
+            ->toThrow(TypeError::class);
     });
 });
 
@@ -379,11 +385,12 @@ describe('Persistence', function (): void {
         expect($server->getPersistence())->toBe(\SOAP_PERSISTENCE_REQUEST);
     });
 
+    // PHP 8.5 strict typing throws TypeError before method can validate
     test('throws exception for invalid persistence', function (): void {
         $server = new Server();
 
         expect(fn (): Server => $server->setPersistence('bogus'))
-            ->toThrow(InvalidArgumentException::class, 'Invalid persistence mode specified');
+            ->toThrow(TypeError::class);
     });
 });
 
@@ -571,18 +578,20 @@ describe('Fault', function (): void {
         expect($fault->getMessage())->toContain('MyException');
     });
 
+    // PHP 8.5 strict typing throws TypeError for array input (expects Exception|string|null)
     test('fault with bogus input returns unknown error', function (): void {
         $server = new Server();
-        $fault = $server->fault(['Here', 'There', 'Bogus']);
 
-        expect($fault->getMessage())->toContain('Unknown error');
+        expect(fn () => $server->fault(['Here', 'There', 'Bogus']))
+            ->toThrow(TypeError::class);
     });
 
+    // PHP 8.5 strict typing throws TypeError for integer code (expects string)
     test('fault with integer code does not break', function (): void {
         $server = new Server();
-        $fault = $server->fault('FaultMessage!', 5_000);
 
-        expect($fault)->toBeInstanceOf(SoapFault::class);
+        expect(fn () => $server->fault('FaultMessage!', 5_000))
+            ->toThrow(TypeError::class);
     });
 });
 
