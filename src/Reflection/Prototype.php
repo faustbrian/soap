@@ -11,6 +11,7 @@ namespace Cline\Soap\Reflection;
 
 /**
  * @author Brian Faust <brian@cline.sh>
+ * @psalm-immutable
  */
 final readonly class Prototype
 {

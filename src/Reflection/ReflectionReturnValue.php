@@ -11,12 +11,13 @@ namespace Cline\Soap\Reflection;
 
 /**
  * @author Brian Faust <brian@cline.sh>
+ * @psalm-immutable
  */
-final class ReflectionReturnValue
+final readonly class ReflectionReturnValue
 {
     public function __construct(
-        protected readonly string $type = 'mixed',
-        protected readonly string $description = '',
+        private string $type = 'mixed',
+        private string $description = '',
     ) {}
 
     public function getType(): string

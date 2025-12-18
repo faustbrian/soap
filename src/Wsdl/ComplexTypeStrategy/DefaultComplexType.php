@@ -69,9 +69,11 @@ class DefaultComplexType extends AbstractComplexTypeStrategy
             if (!$property->isPublic()) {
                 continue;
             }
+
             if (!preg_match_all('/@var\s+([^\s]+)/m', $property->getDocComment(), $matches)) {
                 continue;
             }
+
             /**
              * @todo check if 'xsd:element' must be used here (it may not be
              * compatible with using 'complexType' node for describing other

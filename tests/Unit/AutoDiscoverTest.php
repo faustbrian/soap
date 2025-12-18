@@ -14,7 +14,6 @@ use Cline\Soap\Exception\RuntimeException;
 use Cline\Soap\Wsdl;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\ArrayOfTypeComplex;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\ArrayOfTypeSequence;
-use Cline\Soap\Wsdl\ComplexTypeStrategy\ComplexTypeStrategyInterface;
 use Tests\Fixtures\AutoDiscoverTestClass2;
 use Tests\Fixtures\MyService;
 use Tests\Fixtures\MyServiceSequence;
@@ -45,7 +44,7 @@ function bindWsdl(Wsdl $wsdl, ?string $documentNamespace = null): void
     test()->dom->preserveWhiteSpace = false;
     test()->dom->loadXML($wsdl->toXML());
 
-    if (empty($documentNamespace)) {
+    if (in_array($documentNamespace, [null, '', '0'], true)) {
         $documentNamespace = test()->defaultServiceUri;
     }
 
@@ -57,9 +56,7 @@ function assertSpecificNodeNumberInXPath(int $n, string $xpath, ?string $msg = n
 {
     $nodes = test()->xpath->query($xpath);
 
-    if (!$nodes instanceof DOMNodeList) {
-        throw new \RuntimeException('Nodes not found. Invalid XPath expression?');
-    }
+    throw_unless($nodes instanceof DOMNodeList, \RuntimeException::class, 'Nodes not found. Invalid XPath expression?');
 
     expect($nodes->length)->toBe($n, $msg."\nXPath: ".$xpath);
 
@@ -139,9 +136,10 @@ describe('AutoDiscover', function (): void {
             $server->addFunction('\Tests\Fixtures\TestFunc');
             $server->setServiceName('TestService');
             $server->setUri('http://example.com');
+
             $wsdl = $server->generate();
 
-            expect(get_class($wsdl->getComplexTypeStrategy()))
+            expect($wsdl->getComplexTypeStrategy()::class)
                 ->toBe($strategy::class);
         });
 
@@ -152,9 +150,10 @@ describe('AutoDiscover', function (): void {
             $server->addFunction('\Tests\Fixtures\TestFunc');
             $server->setServiceName('TestService');
             $server->setUri('http://example.com');
+
             $wsdl = $server->generate();
 
-            expect(get_class($wsdl->getComplexTypeStrategy()))
+            expect($wsdl->getComplexTypeStrategy()::class)
                 ->toBe($strategy::class);
         });
 
@@ -164,6 +163,7 @@ describe('AutoDiscover', function (): void {
             $server->addFunction('\Tests\Fixtures\TestFunc');
             $server->setServiceName('TestService');
             $server->setUri('http://example.com');
+
             $wsdl = $server->generate();
 
             expect(mb_trim($wsdl::class, '\\'))->toBe(Wsdl::class);
@@ -175,7 +175,7 @@ describe('AutoDiscover', function (): void {
         test('returns ReflectionDiscovery as default discovery strategy', function (): void {
             $server = new AutoDiscover();
 
-            expect(get_class($server->getDiscoveryStrategy()))
+            expect($server->getDiscoveryStrategy()::class)
                 ->toBe(ReflectionDiscovery::class);
         });
     });
@@ -232,7 +232,7 @@ describe('AutoDiscover', function (): void {
             $server = new AutoDiscover();
             $server->addFunction('\Tests\Fixtures\TestFunc');
 
-            expect(fn () => $server->getServiceName())
+            expect(fn (): string => $server->getServiceName())
                 ->toThrow(RuntimeException::class);
         });
     });
@@ -241,24 +241,24 @@ describe('AutoDiscover', function (): void {
         test('throws exception when setting URI with whitespace only', function (): void {
             $server = new AutoDiscover();
 
-            expect(fn () => $server->setUri(' '))
+            expect(fn (): AutoDiscover => $server->setUri(' '))
                 ->toThrow(SoapInvalidArgumentException::class);
         });
 
         test('throws exception when getting URI before it is set', function (): void {
             $server = new AutoDiscover();
 
-            expect(fn () => $server->getUri())
+            expect(fn (): Uri => $server->getUri())
                 ->toThrow(RuntimeException::class);
         });
 
         test('throws exception when setting URI with non-string non-Uri type', function (): void {
             $server = new AutoDiscover();
 
-            expect(fn () => $server->setUri(['bogus']))
+            expect(fn (): AutoDiscover => $server->setUri(['bogus']))
                 ->toThrow(SoapInvalidArgumentException::class)
-                ->and(fn () => $server->setUri(['bogus']))
-                ->toThrow(SoapInvalidArgumentException::class, 'Argument to \Cline\Soap\AutoDiscover::setUri should be string or \Uri\Rfc3986\Uri instance.');
+                ->and(fn (): AutoDiscover => $server->setUri(['bogus']))
+                ->toThrow(SoapInvalidArgumentException::class, 'Argument to '.AutoDiscover::class.'::setUri should be string or \Uri\Rfc3986\Uri instance.');
         });
     });
 
@@ -278,7 +278,7 @@ describe('AutoDiscover', function (): void {
         test('throws exception when setting WSDL class to non-string value', function (): void {
             $server = new AutoDiscover();
 
-            expect(fn () => $server->setWsdlClass(
+            expect(fn (): AutoDiscover => $server->setWsdlClass(
                 new stdClass(),
             ))
                 ->toThrow(SoapInvalidArgumentException::class);

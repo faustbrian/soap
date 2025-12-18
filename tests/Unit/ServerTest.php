@@ -112,7 +112,7 @@ describe('Encoding', function (): void {
     test('throws exception for invalid encoding type', function (): void {
         $server = new Server();
 
-        expect(fn () => $server->setEncoding(['UTF-8']))
+        expect(fn (): Server => $server->setEncoding(['UTF-8']))
             ->toThrow(InvalidArgumentException::class, 'Invalid encoding specified');
     });
 });
@@ -129,7 +129,7 @@ describe('SOAP Version', function (): void {
     test('throws exception for invalid soap version', function (): void {
         $server = new Server();
 
-        expect(fn () => $server->setSoapVersion('bogus'))
+        expect(fn (): Server => $server->setSoapVersion('bogus'))
             ->toThrow(InvalidArgumentException::class, 'Invalid soap version specified');
     });
 });
@@ -145,7 +145,7 @@ describe('URN Validation', function (): void {
     test('throws exception for invalid URN', function (): void {
         $server = new Server();
 
-        expect(fn () => $server->validateUrn('bogosity'))
+        expect(fn (): bool => $server->validateUrn('bogosity'))
             ->toThrow(InvalidArgumentException::class, 'Invalid URN');
     });
 });
@@ -162,7 +162,7 @@ describe('Actor', function (): void {
     test('throws exception for invalid actor', function (): void {
         $server = new Server();
 
-        expect(fn () => $server->setActor('bogus'))
+        expect(fn (): Server => $server->setActor('bogus'))
             ->toThrow(InvalidArgumentException::class, 'Invalid URN');
     });
 });
@@ -179,7 +179,7 @@ describe('URI', function (): void {
     test('throws exception for invalid URI', function (): void {
         $server = new Server();
 
-        expect(fn () => $server->setUri('bogus'))
+        expect(fn (): Server => $server->setUri('bogus'))
             ->toThrow(InvalidArgumentException::class, 'Invalid URN');
     });
 });
@@ -200,14 +200,14 @@ describe('Classmap', function (): void {
     test('throws exception for string classmap', function (): void {
         $server = new Server();
 
-        expect(fn () => $server->setClassmap('bogus'))
+        expect(fn (): Server => $server->setClassmap('bogus'))
             ->toThrow(InvalidArgumentException::class, 'Classmap must be an array');
     });
 
     test('throws exception for invalid class in classmap', function (): void {
         $server = new Server();
 
-        expect(fn () => $server->setClassmap(['soapTypeName', 'bogusClassName']))
+        expect(fn (): Server => $server->setClassmap(['soapTypeName', 'bogusClassName']))
             ->toThrow(InvalidArgumentException::class, 'Invalid class in class map');
     });
 });
@@ -253,14 +253,14 @@ describe('Functions', function (): void {
     test('throws exception for integer function', function (): void {
         $server = new Server();
 
-        expect(fn () => $server->addFunction(126))
+        expect(fn (): Server => $server->addFunction(126))
             ->toThrow(InvalidArgumentException::class, 'Invalid function specified');
     });
 
     test('throws exception for non-existent function', function (): void {
         $server = new Server();
 
-        expect(fn () => $server->addFunction('bogus_function'))
+        expect(fn (): Server => $server->addFunction('bogus_function'))
             ->toThrow(InvalidArgumentException::class, 'Invalid function specified');
     });
 
@@ -272,7 +272,7 @@ describe('Functions', function (): void {
             '\Tests\Fixtures\TestFunc6',
         ];
 
-        expect(fn () => $server->addFunction($functions))
+        expect(fn (): Server => $server->addFunction($functions))
             ->toThrow(InvalidArgumentException::class, 'One or more invalid functions specified in array');
     });
 
@@ -322,7 +322,7 @@ describe('Class', function (): void {
         $server = new Server();
         $server->setClass(ServerTestClass::class);
 
-        expect(fn () => $server->setClass(ServerTestClass::class))
+        expect(fn (): Server => $server->setClass(ServerTestClass::class))
             ->toThrow(InvalidArgumentException::class, 'A class has already been registered');
     });
 
@@ -336,14 +336,14 @@ describe('Class', function (): void {
     test('throws exception for integer class name', function (): void {
         $server = new Server();
 
-        expect(fn () => $server->setClass(465))
+        expect(fn (): Server => $server->setClass(465))
             ->toThrow(InvalidArgumentException::class, 'Invalid class argument (integer)');
     });
 
     test('throws exception for unknown class name', function (): void {
         $server = new Server();
 
-        expect(fn () => $server->setClass('Bogus_Unknown_Class'))
+        expect(fn (): Server => $server->setClass('Bogus_Unknown_Class'))
             ->toThrow(InvalidArgumentException::class, 'does not exist');
     });
 });
@@ -361,7 +361,7 @@ describe('Object', function (): void {
     test('throws exception for integer object', function (): void {
         $server = new Server();
 
-        expect(fn () => $server->setObject(465))
+        expect(fn (): Server => $server->setObject(465))
             ->toThrow(InvalidArgumentException::class, 'Invalid object argument (integer)');
     });
 });
@@ -382,7 +382,7 @@ describe('Persistence', function (): void {
     test('throws exception for invalid persistence', function (): void {
         $server = new Server();
 
-        expect(fn () => $server->setPersistence('bogus'))
+        expect(fn (): Server => $server->setPersistence('bogus'))
             ->toThrow(InvalidArgumentException::class, 'Invalid persistence mode specified');
     });
 });
@@ -562,6 +562,7 @@ describe('Fault', function (): void {
     test('fault with registered exception returns message', function (): void {
         $server = new Server();
         $server->registerFaultException(RuntimeException::class);
+
         $fault = $server->fault(
             new RuntimeException('MyException'),
         );
@@ -677,10 +678,7 @@ describe('Load Functions', function (): void {
 
 describe('Error Handling', function (): void {
     test('error handling throws SoapFault in handle mode', function (): void {
-        // PHP 8.4+ triggers fatal for E_USER_ERROR which cannot be handled
-        if (\PHP_VERSION_ID >= 80_400) {
-            $this->markTestSkipped('E_USER_ERROR causes fatal in PHP 8.4+');
-        }
+        $this->markTestSkipped('E_USER_ERROR causes fatal in PHP 8.4+');
 
         if (headers_sent()) {
             $this->markTestSkipped('Cannot run when headers have already been sent');
@@ -709,10 +707,7 @@ describe('Error Handling', function (): void {
     });
 
     test('handlePhpErrors works correctly', function (): void {
-        // PHP 8.4+ triggers fatal for E_USER_ERROR which cannot be handled
-        if (\PHP_VERSION_ID >= 80_400) {
-            $this->markTestSkipped('E_USER_ERROR causes fatal in PHP 8.4+');
-        }
+        $this->markTestSkipped('E_USER_ERROR causes fatal in PHP 8.4+');
 
         if (headers_sent()) {
             $this->markTestSkipped('Cannot run when headers have already been sent');

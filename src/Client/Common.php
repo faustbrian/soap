@@ -14,6 +14,7 @@ use SoapClient;
 
 use function is_callable;
 use function mb_ltrim;
+use function throw_unless;
 
 /**
  * @author Brian Faust <brian@cline.sh>
@@ -25,20 +26,17 @@ final class Common extends SoapClient
      *
      * @var callable
      */
-    protected $doRequestCallback;
+    private $doRequestCallback;
 
     /**
      * Common Soap Client constructor
      *
      * @param callable $doRequestCallback
      * @param string   $wsdl
-     * @param array    $options
      */
-    public function __construct($doRequestCallback, $wsdl, $options)
+    public function __construct($doRequestCallback, $wsdl, array $options)
     {
-        if (!is_callable($doRequestCallback)) {
-            throw new InvalidArgumentException('$doRequestCallback argument must be callable');
-        }
+        throw_unless(is_callable($doRequestCallback), InvalidArgumentException::class, '$doRequestCallback argument must be callable');
 
         $this->doRequestCallback = $doRequestCallback;
         parent::__construct($wsdl, $options);
@@ -48,9 +46,6 @@ final class Common extends SoapClient
      * Performs SOAP request over HTTP.
      * Overridden to implement different transport layers, perform additional
      * XML processing or other purpose.
-     *
-     * @param  int   $oneWay
-     * @return mixed
      */
     public function __doRequest(
         string $request,

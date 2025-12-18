@@ -16,5 +16,7 @@ return Factory::create(
     skip: [
         RemoveUnreachableStatementRector::class => [__DIR__.'/tests'],
         NewlineBetweenClassLikeStmtsRector::class,
+        // Skip test fixtures - they have intentional empty methods for PHPDoc inspection
+        __DIR__.'/tests/Fixtures',
     ],
 );

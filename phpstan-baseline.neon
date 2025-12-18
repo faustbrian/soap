@@ -133,6 +133,12 @@ parameters:
 			path: src/AutoDiscover.php
 
 		-
+			message: '#^Property Cline\\Soap\\AutoDiscover\:\:\$strategy \(bool\|Cline\\Soap\\Wsdl\\ComplexTypeStrategy\\ComplexTypeStrategyInterface\|null\) is never assigned bool so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
 			message: '#^Property Cline\\Soap\\AutoDiscover\:\:\$wsdlClass \(string\) does not accept Cline\\Soap\\Wsdl\|string\.$#'
 			identifier: assign.propertyType
 			count: 1
@@ -337,32 +343,8 @@ parameters:
 			path: src/Client.php
 
 		-
-			message: '#^PHPDoc tag @return with type mixed is not subtype of native type array\|null\.$#'
-			identifier: return.phpDocType
-			count: 1
-			path: src/Client.php
-
-		-
 			message: '#^PHPDoc tag @throws with type Cline\\Soap\\Exception\\ExceptionInterface is not subtype of Throwable$#'
 			identifier: throws.notThrowable
-			count: 1
-			path: src/Client.php
-
-		-
-			message: '#^PHPDoc tag @var for property Cline\\Soap\\Client\:\:\$proxyPort with type string is incompatible with native type int\|null\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: src/Client.php
-
-		-
-			message: '#^PHPDoc tag @var for property Cline\\Soap\\Client\:\:\$style with type string is incompatible with native type int\|null\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: src/Client.php
-
-		-
-			message: '#^PHPDoc tag @var for property Cline\\Soap\\Client\:\:\$use with type string is incompatible with native type int\|null\.$#'
-			identifier: property.phpDocType
 			count: 1
 			path: src/Client.php
 
@@ -595,18 +577,6 @@ parameters:
 			path: src/Client/Common.php
 
 		-
-			message: '#^PHPDoc tag @param for parameter \$oneWay with type int is incompatible with native type bool\.$#'
-			identifier: parameter.phpDocType
-			count: 1
-			path: src/Client/Common.php
-
-		-
-			message: '#^PHPDoc tag @return with type mixed is not subtype of native type string\|null\.$#'
-			identifier: return.phpDocType
-			count: 1
-			path: src/Client/Common.php
-
-		-
 			message: '#^Call to function is_object\(\) with array will always evaluate to false\.$#'
 			identifier: function.impossibleType
 			count: 1
@@ -711,18 +681,6 @@ parameters:
 		-
 			message: '#^Parameter \#2 \$wsdl of method Cline\\Soap\\Client\\Local\:\:__construct\(\) is required but parameter \#2 \$options of method Cline\\Soap\\Client\:\:__construct\(\) is optional\.$#'
 			identifier: parameter.notOptional
-			count: 1
-			path: src/Client/Local.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between string and null will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: src/Client/Local.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between string\|false and null will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
 			count: 1
 			path: src/Client/Local.php
 
@@ -901,25 +859,7 @@ parameters:
 			path: src/Server.php
 
 		-
-			message: '#^PHPDoc tag @return with type mixed is not subtype of native type array\|null\.$#'
-			identifier: return.phpDocType
-			count: 1
-			path: src/Server.php
-
-		-
-			message: '#^PHPDoc tag @var for property Cline\\Soap\\Server\:\:\$wsdlCache with type mixed is not subtype of native type bool\|int\|string\|null\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: src/Server.php
-
-		-
 			message: '#^Parameter \#1 \$actor of method Cline\\Soap\\Server\:\:setActor\(\) expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Server.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function set_error_handler expects \(callable\(int, string, string, int\)\: bool\)\|null, array\{\$this\(Cline\\Soap\\Server\), ''handlePhpErrors''\} given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/Server.php
@@ -932,6 +872,12 @@ parameters:
 
 		-
 			message: '#^Parameter \#1 \$class of method Cline\\Soap\\Server\:\:registerFaultException\(\) expects array\|string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Parameter \#1 \$class of method SoapServer\:\:setClass\(\) expects string, mixed given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/Server.php
@@ -1291,12 +1237,6 @@ parameters:
 			path: src/Wsdl.php
 
 		-
-			message: '#^Method Cline\\Soap\\Wsdl\:\:getTargetNamespace\(\) never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: src/Wsdl.php
-
-		-
 			message: '#^Method Cline\\Soap\\Wsdl\:\:getTypes\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -1401,12 +1341,6 @@ parameters:
 		-
 			message: '#^Result of \|\| is always true\.$#'
 			identifier: booleanOr.alwaysTrue
-			count: 1
-			path: src/Wsdl.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between DOMElement and null will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
 			count: 1
 			path: src/Wsdl.php
 

@@ -14,6 +14,7 @@ use Cline\Soap\Wsdl\DocumentationStrategy\DocumentationStrategyInterface;
 use RuntimeException;
 
 use function array_key_exists;
+use function throw_if;
 
 /**
  * Abstract class for Cline\Soap\Wsdl\Strategy.
@@ -74,9 +75,7 @@ abstract class AbstractComplexTypeStrategy implements ComplexTypeStrategyInterfa
      */
     protected function requireContext(): Wsdl
     {
-        if ($this->context === null) {
-            throw new RuntimeException('WSDL context must be set before this operation');
-        }
+        throw_if(!$this->context instanceof Wsdl, RuntimeException::class, 'WSDL context must be set before this operation');
 
         return $this->context;
     }

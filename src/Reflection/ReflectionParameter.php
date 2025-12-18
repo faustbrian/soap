@@ -16,12 +16,12 @@ use ReflectionParameter as NativeReflectionParameter;
  */
 final class ReflectionParameter
 {
-    protected int $position = 0;
+    private int $position = 0;
 
     public function __construct(
-        protected readonly NativeReflectionParameter $reflection,
-        protected string $type = 'mixed',
-        protected readonly string $description = '',
+        private readonly NativeReflectionParameter $reflection,
+        private string $type = 'mixed',
+        private readonly string $description = '',
     ) {}
 
     public function getType(): string

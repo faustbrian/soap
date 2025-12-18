@@ -27,9 +27,7 @@ use const SOAP_LITERAL;
 use const SOAP_RPC;
 
 use function array_merge;
-use function call_user_func_array;
 use function class_exists;
-use function count;
 use function extension_loaded;
 use function get_resource_type;
 use function in_array;
@@ -42,6 +40,8 @@ use function iterator_to_array;
 use function mb_strtolower;
 use function parse_url;
 use function sprintf;
+use function throw_if;
+use function throw_unless;
 
 /**
  * @phpstan-consistent-constructor
@@ -117,7 +117,6 @@ class Client implements ClientInterface
      */
     protected ?int $sslMethod = null;
 
-    /** @var string */
     protected string|int|null $connectionTimeout = null;
 
     protected ?string $localCert = null;
@@ -136,17 +135,14 @@ class Client implements ClientInterface
 
     protected ?string $proxyPassword = null;
 
-    /** @var string */
     protected ?int $proxyPort = null;
 
     protected mixed $streamContext = null;
 
-    /** @var string */
     protected ?int $style = null;
 
     protected ?string $uri = null;
 
-    /** @var string */
     protected ?int $use = null;
 
     protected ?string $userAgent = null;
@@ -155,7 +151,6 @@ class Client implements ClientInterface
 
     protected ?int $compression = null;
 
-    /** @var int */
     protected int|string|null $features = null;
 
     /**
@@ -164,9 +159,7 @@ class Client implements ClientInterface
      */
     public function __construct(?string $wsdl = null, array|Traversable|null $options = null)
     {
-        if (!extension_loaded('soap')) {
-            throw new ExtensionNotLoadedException('SOAP extension is not loaded.');
-        }
+        throw_unless(extension_loaded('soap'), ExtensionNotLoadedException::class, 'SOAP extension is not loaded.');
 
         if ($wsdl !== null) {
             $this->setWSDL($wsdl);
@@ -187,6 +180,7 @@ class Client implements ClientInterface
         if (!is_array($arguments)) {
             $arguments = [$arguments];
         }
+
         $soapClient = $this->getSoapClient();
 
         $this->lastMethod = $name;
@@ -196,7 +190,7 @@ class Client implements ClientInterface
             $name,
             $this->_preProcessArguments($arguments),
             [], /* Options are already set to the SOAP client object */
-            count($soapHeaders) > 0 ? $soapHeaders : [],
+            $soapHeaders,
             $this->soapOutputHeaders,
         );
 
@@ -239,7 +233,7 @@ class Client implements ClientInterface
         }
 
         foreach ($options as $key => $value) {
-            switch (mb_strtolower($key)) {
+            switch (mb_strtolower((string) $key)) {
                 case 'classmap':
                 case 'class_map':
                     $this->setClassmap($value);
@@ -421,19 +415,11 @@ class Client implements ClientInterface
         $options['ssl_method'] = $this->getSslMethod();
 
         foreach ($options as $key => $value) {
-            /*
-             * ugly hack as I don't know if checking for '=== null'
-             * breaks some other option
-             */
-            if (in_array($key, ['user_agent', 'cache_wsdl', 'compression'], true)) {
-                if ($value === null) {
-                    unset($options[$key]);
-                }
-            } else {
-                if ($value === null) {
-                    unset($options[$key]);
-                }
+            if ($value !== null) {
+                continue;
             }
+
+            unset($options[$key]);
         }
 
         return $options;
@@ -447,11 +433,7 @@ class Client implements ClientInterface
      */
     public function setSoapVersion(int $version): self
     {
-        if (!in_array($version, [SOAP_1_1, SOAP_1_2], true)) {
-            throw new InvalidArgumentException(
-                'Invalid soap version specified. Use SOAP_1_1 or SOAP_1_2 constants.',
-            );
-        }
+        throw_unless(in_array($version, [SOAP_1_1, SOAP_1_2], true), InvalidArgumentException::class, 'Invalid soap version specified. Use SOAP_1_1 or SOAP_1_2 constants.');
 
         $this->soapVersion = $version;
         $this->soapClient = null;
@@ -475,9 +457,7 @@ class Client implements ClientInterface
     public function setClassmap(array $classmap): self
     {
         foreach ($classmap as $class) {
-            if (!class_exists($class)) {
-                throw new InvalidArgumentException('Invalid class in class map: '.$class);
-            }
+            throw_unless(class_exists($class), InvalidArgumentException::class, 'Invalid class in class map: '.$class);
         }
 
         $this->classmap = $classmap;
@@ -488,8 +468,6 @@ class Client implements ClientInterface
 
     /**
      * Retrieve classmap
-     *
-     * @return mixed
      */
     public function getClassmap(): ?array
     {
@@ -540,9 +518,7 @@ class Client implements ClientInterface
      */
     public function setEncoding(string $encoding): self
     {
-        if (!is_string($encoding)) {
-            throw new InvalidArgumentException('Invalid encoding specified');
-        }
+        throw_unless(is_string($encoding), InvalidArgumentException::class, 'Invalid encoding specified');
 
         $this->encoding = $encoding;
         $this->soapClient = null;
@@ -567,9 +543,7 @@ class Client implements ClientInterface
     {
         $scheme = parse_url($urn, PHP_URL_SCHEME);
 
-        if ($scheme === false || $scheme === null) {
-            throw new InvalidArgumentException('Invalid URN');
-        }
+        throw_if($scheme === false || $scheme === null, InvalidArgumentException::class, 'Invalid URN');
 
         return true;
     }
@@ -630,11 +604,7 @@ class Client implements ClientInterface
      */
     public function setStyle(int $style): self
     {
-        if (!in_array($style, [SOAP_RPC, SOAP_DOCUMENT], true)) {
-            throw new InvalidArgumentException(
-                'Invalid request style specified. Use SOAP_RPC or SOAP_DOCUMENT constants.',
-            );
-        }
+        throw_unless(in_array($style, [SOAP_RPC, SOAP_DOCUMENT], true), InvalidArgumentException::class, 'Invalid request style specified. Use SOAP_RPC or SOAP_DOCUMENT constants.');
 
         $this->style = $style;
         $this->soapClient = null;
@@ -658,11 +628,7 @@ class Client implements ClientInterface
      */
     public function setEncodingMethod(int $use): self
     {
-        if (!in_array($use, [SOAP_ENCODED, SOAP_LITERAL], true)) {
-            throw new InvalidArgumentException(
-                'Invalid message encoding method. Use SOAP_ENCODED or SOAP_LITERAL constants.',
-            );
-        }
+        throw_unless(in_array($use, [SOAP_ENCODED, SOAP_LITERAL], true), InvalidArgumentException::class, 'Invalid message encoding method. Use SOAP_ENCODED or SOAP_LITERAL constants.');
 
         $this->use = $use;
         $this->soapClient = null;
@@ -740,7 +706,7 @@ class Client implements ClientInterface
      */
     public function setProxyPort(int $proxyPort): self
     {
-        $this->proxyPort = (int) $proxyPort;
+        $this->proxyPort = $proxyPort;
         $this->soapClient = null;
 
         return $this;
@@ -792,9 +758,7 @@ class Client implements ClientInterface
      */
     public function setHttpsCertificate(string $localCert): self
     {
-        if (!is_readable($localCert)) {
-            throw new InvalidArgumentException('Invalid HTTPS client certificate path.');
-        }
+        throw_unless(is_readable($localCert), InvalidArgumentException::class, 'Invalid HTTPS client certificate path.');
 
         $this->localCert = $localCert;
         $this->soapClient = null;
@@ -834,11 +798,8 @@ class Client implements ClientInterface
      */
     public function setCompressionOptions(?int $compressionOptions): self
     {
-        if ($compressionOptions === null) {
-            $this->compression = null;
-        } else {
-            $this->compression = (int) $compressionOptions;
-        }
+        $this->compression = $compressionOptions ?? null;
+
         $this->soapClient = null;
 
         return $this;
@@ -868,9 +829,7 @@ class Client implements ClientInterface
      */
     public function setStreamContext(mixed $context): self
     {
-        if (!is_resource($context) || get_resource_type($context) !== 'stream-context') {
-            throw new InvalidArgumentException('Invalid stream context resource given.');
-        }
+        throw_if(!is_resource($context) || get_resource_type($context) !== 'stream-context', InvalidArgumentException::class, 'Invalid stream context resource given.');
 
         $this->streamContext = $context;
 
@@ -914,11 +873,7 @@ class Client implements ClientInterface
     public function setWSDLCache(null|bool|int|string $caching): self
     {
         // @todo check WSDL_CACHE_* constants?
-        if ($caching === null) {
-            $this->cacheWsdl = null;
-        } else {
-            $this->cacheWsdl = (int) $caching;
-        }
+        $this->cacheWsdl = $caching === null ? null : (int) $caching;
 
         return $this;
     }
@@ -936,11 +891,7 @@ class Client implements ClientInterface
      */
     public function setUserAgent(?string $userAgent): self
     {
-        if ($userAgent === null) {
-            $this->userAgent = null;
-        } else {
-            $this->userAgent = (string) $userAgent;
-        }
+        $this->userAgent = $userAgent ?? null;
 
         return $this;
     }
@@ -958,7 +909,7 @@ class Client implements ClientInterface
      */
     public function getLastRequest(): string
     {
-        if ($this->soapClient !== null) {
+        if ($this->soapClient instanceof SoapClient) {
             return $this->soapClient->__getLastRequest();
         }
 
@@ -970,7 +921,7 @@ class Client implements ClientInterface
      */
     public function getLastResponse(): string
     {
-        if ($this->soapClient !== null) {
+        if ($this->soapClient instanceof SoapClient) {
             return $this->soapClient->__getLastResponse();
         }
 
@@ -982,7 +933,7 @@ class Client implements ClientInterface
      */
     public function getLastRequestHeaders(): string
     {
-        if ($this->soapClient !== null) {
+        if ($this->soapClient instanceof SoapClient) {
             return $this->soapClient->__getLastRequestHeaders();
         }
 
@@ -994,7 +945,7 @@ class Client implements ClientInterface
      */
     public function getLastResponseHeaders(): string
     {
-        if ($this->soapClient !== null) {
+        if ($this->soapClient instanceof SoapClient) {
             return $this->soapClient->__getLastResponseHeaders();
         }
 
@@ -1071,7 +1022,7 @@ class Client implements ClientInterface
      */
     public function call(string $method, array $params = []): mixed
     {
-        return call_user_func_array([$this, '__call'], [$method, $params]);
+        return $this->__call(...[$method, $params]);
     }
 
     /**
@@ -1127,7 +1078,7 @@ class Client implements ClientInterface
      */
     public function getSoapClient(): SoapClient
     {
-        if ($this->soapClient === null) {
+        if (!$this->soapClient instanceof SoapClient) {
             $this->initSoapClientObject();
         }
 
@@ -1152,7 +1103,7 @@ class Client implements ClientInterface
 
     public function setKeepAlive(bool $keepAlive): self
     {
-        $this->keepAlive = (bool) $keepAlive;
+        $this->keepAlive = $keepAlive;
 
         return $this;
     }
@@ -1181,25 +1132,16 @@ class Client implements ClientInterface
         $options = array_merge($this->getOptions(), ['trace' => true]);
 
         if ($wsdl === null) {
-            if (!isset($options['location'])) {
-                throw new UnexpectedValueException('"location" parameter is required in non-WSDL mode.');
-            }
-
-            if (!isset($options['uri'])) {
-                throw new UnexpectedValueException('"uri" parameter is required in non-WSDL mode.');
-            }
+            throw_unless(isset($options['location']), UnexpectedValueException::class, '"location" parameter is required in non-WSDL mode.');
+            throw_unless(isset($options['uri']), UnexpectedValueException::class, '"uri" parameter is required in non-WSDL mode.');
         } else {
-            if (isset($options['use'])) {
-                throw new UnexpectedValueException('"use" parameter only works in non-WSDL mode.');
-            }
-
-            if (isset($options['style'])) {
-                throw new UnexpectedValueException('"style" parameter only works in non-WSDL mode.');
-            }
+            throw_if(isset($options['use']), UnexpectedValueException::class, '"use" parameter only works in non-WSDL mode.');
+            throw_if(isset($options['style']), UnexpectedValueException::class, '"style" parameter only works in non-WSDL mode.');
         }
+
         unset($options['wsdl']);
 
-        $this->soapClient = new Common([$this, '_doRequest'], $wsdl, $options);
+        $this->soapClient = new Common($this->_doRequest(...), $wsdl, $options);
     }
 
     /** @codingStandardsIgnoreStart */

@@ -11,10 +11,12 @@ namespace Cline\Soap\Wsdl\ComplexTypeStrategy;
 
 use Cline\Soap\Exception\InvalidArgumentException;
 use Cline\Soap\Wsdl;
+use Override;
 
 use function mb_substr_count;
 use function preg_match;
 use function str_replace;
+use function throw_if;
 
 /**
  * @author Brian Faust <brian@cline.sh>
@@ -29,6 +31,7 @@ final class ArrayOfTypeComplex extends DefaultComplexType
      *
      * @return string tns:xsd-type
      */
+    #[Override()]
     public function addComplexType(string $type): string
     {
         if (($soapType = $this->scanRegisteredTypes($type)) !== null) {
@@ -42,12 +45,8 @@ final class ArrayOfTypeComplex extends DefaultComplexType
             return parent::addComplexType($singularType);
         }
 
-        if ($nestingLevel !== 1) {
-            throw new InvalidArgumentException(
-                'ArrayOfTypeComplex cannot return nested ArrayOfObject deeper than one level. '
-                .'Use array object properties to return deep nested data.',
-            );
-        }
+        throw_if($nestingLevel !== 1, InvalidArgumentException::class, 'ArrayOfTypeComplex cannot return nested ArrayOfObject deeper than one level. '
+        .'Use array object properties to return deep nested data.');
 
         // The following blocks define the Array of Object structure
         return $this->addArrayOfComplexType($singularType, $type);
@@ -108,7 +107,7 @@ final class ArrayOfTypeComplex extends DefaultComplexType
     /**
      * From a nested definition with type[] or array<Type>, get the singular PHP Type
      */
-    protected function getSingularPhpType(string $type): string
+    private function getSingularPhpType(string $type): string
     {
         // Handle array<Type> notation
         if (preg_match('/^array<(.+)>$/i', $type, $matches)) {
@@ -122,7 +121,7 @@ final class ArrayOfTypeComplex extends DefaultComplexType
     /**
      * Return the array nesting level based on the type name
      */
-    protected function getNestedCount(string $type): int
+    private function getNestedCount(string $type): int
     {
         // Handle array<Type> notation (always 1 level)
         if (preg_match('/^array<.+>$/i', $type)) {

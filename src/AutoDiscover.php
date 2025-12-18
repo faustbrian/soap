@@ -25,49 +25,46 @@ use const ENT_QUOTES;
 use function array_unique;
 use function count;
 use function function_exists;
-use function get_class;
-use function gettype;
+use function get_debug_type;
 use function header;
 use function htmlspecialchars;
 use function is_array;
-use function is_object;
 use function is_string;
 use function is_subclass_of;
-use function mb_strlen;
 use function mb_trim;
 use function preg_match;
 use function sprintf;
+use function throw_if;
+use function throw_unless;
 
 /**
  * @author Brian Faust <brian@cline.sh>
  */
 final class AutoDiscover
 {
-    protected ?string $serviceName = null;
-
-    protected Reflection $reflection;
+    private ?string $serviceName = null;
 
     /**
      * Service function names
      */
-    protected array $functions = [];
+    private array $functions = [];
 
     /**
      * Service class name
      */
-    protected ?string $class = null;
+    private ?string $class = null;
 
-    protected ComplexTypeStrategy|bool|null $strategy = null;
+    private ComplexTypeStrategy|bool|null $strategy = null;
 
     /**
      * Url where the WSDL file will be available at.
      */
-    protected Uri|string|null $uri = null;
+    private Uri|string|null $uri = null;
 
     /**
      * soap:body operation style options
      */
-    protected array $operationBodyStyle = [
+    private array $operationBodyStyle = [
         'use' => 'encoded',
         'encodingStyle' => 'http://schemas.xmlsoap.org/soap/encoding/',
     ];
@@ -75,7 +72,7 @@ final class AutoDiscover
     /**
      * soap:operation style
      */
-    protected array $bindingStyle = [
+    private array $bindingStyle = [
         'style' => 'rpc',
         'transport' => 'http://schemas.xmlsoap.org/soap/http',
     ];
@@ -83,17 +80,19 @@ final class AutoDiscover
     /**
      * Name of the class to handle the WSDL creation.
      */
-    protected string $wsdlClass = Wsdl::class;
+    private string $wsdlClass = Wsdl::class;
 
     /**
      * Class Map of PHP to WSDL types.
      */
-    protected array $classMap = [];
+    private array $classMap = [];
 
     /**
      * Discovery strategy for types and other method details.
      */
-    protected DiscoveryStrategy $discoveryStrategy;
+    private DiscoveryStrategy $discoveryStrategy;
+
+    private readonly Reflection $reflection;
 
     /**
      * Constructor
@@ -109,7 +108,7 @@ final class AutoDiscover
             new ReflectionDiscovery(),
         );
 
-        if (null !== $strategy) {
+        if ($strategy instanceof ComplexTypeStrategy) {
             $this->setComplexTypeStrategy($strategy);
         }
 
@@ -120,6 +119,7 @@ final class AutoDiscover
         if (null !== $wsdlClass) {
             $this->setWsdlClass($wsdlClass);
         }
+
         $this->setClassMap($classMap);
     }
 
@@ -160,7 +160,7 @@ final class AutoDiscover
             throw new InvalidArgumentException(sprintf(
                 '%s expects an array; received "%s"',
                 __METHOD__,
-                is_object($classMap) ? $classMap::class : gettype($classMap),
+                get_debug_type($classMap),
             ));
         }
 
@@ -181,9 +181,7 @@ final class AutoDiscover
         // first character must be letter or underscore {@see http://www.w3.org/TR/wsdl#_document-n}
         $i = preg_match('/^[a-z\_]/ims', $serviceName, $matches);
 
-        if ($i !== 1) {
-            throw new InvalidArgumentException('Service Name must start with letter or _');
-        }
+        throw_if($i !== 1, InvalidArgumentException::class, 'Service Name must start with letter or _');
 
         $this->serviceName = $serviceName;
 
@@ -215,11 +213,7 @@ final class AutoDiscover
      */
     public function setUri(mixed $uri): self
     {
-        if (!is_string($uri) && !$uri instanceof Uri) {
-            throw new InvalidArgumentException(
-                'Argument to \Cline\Soap\AutoDiscover::setUri should be string or \Uri\Rfc3986\Uri instance.',
-            );
-        }
+        throw_if(!is_string($uri) && !$uri instanceof Uri, InvalidArgumentException::class, 'Argument to '.self::class.'::setUri should be string or \Uri\Rfc3986\Uri instance.');
 
         if ($uri instanceof Uri) {
             $this->uri = $uri;
@@ -230,9 +224,7 @@ final class AutoDiscover
         $uri = mb_trim($uri);
         $uri = htmlspecialchars($uri, ENT_QUOTES, 'UTF-8', false);
 
-        if (empty($uri)) {
-            throw new InvalidArgumentException('Uri contains invalid characters or is empty');
-        }
+        throw_if($uri === '' || $uri === '0', InvalidArgumentException::class, 'Uri contains invalid characters or is empty');
 
         $this->uri = $uri;
 
@@ -246,11 +238,7 @@ final class AutoDiscover
      */
     public function getUri(): Uri
     {
-        if ($this->uri === null) {
-            throw new RuntimeException(
-                'Missing uri. You have to explicitly configure the Endpoint Uri by calling AutoDiscover::setUri().',
-            );
-        }
+        throw_if($this->uri === null, RuntimeException::class, 'Missing uri. You have to explicitly configure the Endpoint Uri by calling AutoDiscover::setUri().');
 
         if (is_string($this->uri)) {
             $this->uri = new Uri($this->uri);
@@ -266,11 +254,7 @@ final class AutoDiscover
      */
     public function setWsdlClass(mixed $wsdlClass): self
     {
-        if (!is_string($wsdlClass) && !is_subclass_of($wsdlClass, Wsdl::class)) {
-            throw new InvalidArgumentException(
-                'No \Cline\Soap\Wsdl subclass given to Cline\Soap\AutoDiscover::setWsdlClass as string.',
-            );
-        }
+        throw_if(!is_string($wsdlClass) && !is_subclass_of($wsdlClass, Wsdl::class), InvalidArgumentException::class, 'No \Cline\Soap\Wsdl subclass given to '.self::class.'::setWsdlClass as string.');
 
         $this->wsdlClass = $wsdlClass;
 
@@ -295,9 +279,8 @@ final class AutoDiscover
      */
     public function setOperationBodyStyle(array $operationStyle = []): self
     {
-        if (!isset($operationStyle['use'])) {
-            throw new InvalidArgumentException('Key "use" is required in Operation soap:body style.');
-        }
+        throw_unless(isset($operationStyle['use']), InvalidArgumentException::class, 'Key "use" is required in Operation soap:body style.');
+
         $this->operationBodyStyle = $operationStyle;
 
         return $this;
@@ -353,16 +336,11 @@ final class AutoDiscover
                 $this->addFunction($row);
             }
         } elseif (is_string($function)) {
-            if (!function_exists($function)) {
-                throw new InvalidArgumentException(
-                    'Argument to Cline\Soap\AutoDiscover::addFunction should be a valid function name.',
-                );
-            }
-
+            throw_unless(function_exists($function), InvalidArgumentException::class, 'Argument to '.self::class.'::addFunction should be a valid function name.');
             $this->functions[] = $function;
         } else {
             throw new InvalidArgumentException(
-                'Argument to Cline\Soap\AutoDiscover::addFunction should be string or array of strings.',
+                'Argument to '.self::class.'::addFunction should be string or array of strings.',
             );
         }
 
@@ -376,17 +354,13 @@ final class AutoDiscover
      */
     public function generate(): Wsdl
     {
-        if ($this->class && $this->functions) {
-            throw new RuntimeException('Can either dump functions or a class as a service, not both.');
-        }
+        throw_if($this->class && $this->functions, RuntimeException::class, 'Can either dump functions or a class as a service, not both.');
 
         if ($this->class) {
-            $wsdl = $this->generateClass();
-        } else {
-            $wsdl = $this->generateFunctions();
+            return $this->generateClass();
         }
 
-        return $wsdl;
+        return $this->generateFunctions();
     }
 
     /**
@@ -421,7 +395,7 @@ final class AutoDiscover
     /**
      * Generate the WSDL for a service class.
      */
-    protected function generateClass(): Wsdl
+    private function generateClass(): Wsdl
     {
         return $this->generateWsdl($this->reflection->reflectClass($this->class)->getMethods());
     }
@@ -429,7 +403,7 @@ final class AutoDiscover
     /**
      * Generate the WSDL for a set of functions.
      */
-    protected function generateFunctions(): Wsdl
+    private function generateFunctions(): Wsdl
     {
         $methods = [];
 
@@ -443,7 +417,7 @@ final class AutoDiscover
     /**
      * Generate the WSDL for a set of reflection method instances.
      */
-    protected function generateWsdl(array $reflectionMethods): Wsdl
+    private function generateWsdl(array $reflectionMethods): Wsdl
     {
         $uri = $this->getUri();
 
@@ -481,7 +455,7 @@ final class AutoDiscover
      * @param  DOMElement               $binding  wsdl:binding
      * @throws InvalidArgumentException
      */
-    protected function addFunctionToWsdl(AbstractFunction $function, Wsdl $wsdl, DOMElement $port, DOMElement $binding): void
+    private function addFunctionToWsdl(AbstractFunction $function, Wsdl $wsdl, DOMElement $port, DOMElement $binding): void
     {
         $uri = $this->getUri()->toString();
 
@@ -525,6 +499,7 @@ final class AutoDiscover
                 if ($param->isOptional()) {
                     $sequenceElement['nillable'] = 'true';
                 }
+
                 $sequence[] = $sequenceElement;
             }
 
@@ -543,6 +518,7 @@ final class AutoDiscover
                 ];
             }
         }
+
         $wsdl->addMessage($functionName.'In', $args);
 
         $isOneWayMessage = $this->discoveryStrategy->isFunctionOneWay($function, $prototype);
@@ -597,6 +573,7 @@ final class AutoDiscover
                 false,
             );
         }
+
         $desc = $this->discoveryStrategy->getFunctionDocumentation($function);
 
         if ($desc !== '') {
@@ -617,6 +594,7 @@ final class AutoDiscover
         } else {
             $operation = $wsdl->addBindingOperation($binding, $functionName, $operationBodyStyle);
         }
+
         $wsdl->addSoapOperation($operation, $uri.'#'.$functionName);
     }
 }

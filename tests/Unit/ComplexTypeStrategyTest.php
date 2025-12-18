@@ -12,16 +12,14 @@ use Cline\Soap\Wsdl;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\AnyType;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\ArrayOfTypeComplex;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\ArrayOfTypeSequence;
+use Cline\Soap\Wsdl\ComplexTypeStrategy\ComplexTypeStrategyInterface;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\Composite;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\DefaultComplexType;
 use Cline\Soap\Wsdl\DocumentationStrategy\DocumentationStrategyInterface;
 use Tests\Fixtures\Anything;
 use Tests\Fixtures\Book;
-use Tests\Fixtures\ComplexObjectStructure;
 use Tests\Fixtures\ComplexObjectWithObjectStructure;
-use Tests\Fixtures\ComplexTest;
 use Tests\Fixtures\ComplexTypeA;
-use Tests\Fixtures\ComplexTypeB;
 use Tests\Fixtures\Cookie;
 use Tests\Fixtures\PublicPrivateProtected;
 use Tests\Fixtures\SequenceTest;
@@ -193,7 +191,7 @@ describe('ArrayOfTypeComplex Strategy', function (): void {
             $wsdl = new Wsdl('MyService', 'http://localhost/MyService.php', $strategy);
 
             // Act & Assert
-            expect(fn () => $wsdl->addComplexType('\Tests\Fixtures\ComplexTest[][]'))
+            expect(fn (): string => $wsdl->addComplexType('\Tests\Fixtures\ComplexTest[][]'))
                 ->toThrow(InvalidArgumentException::class, 'ArrayOfTypeComplex cannot return nested ArrayOfObject deeper than one level');
         });
 
@@ -203,7 +201,7 @@ describe('ArrayOfTypeComplex Strategy', function (): void {
             $wsdl = new Wsdl('MyService', 'http://localhost/MyService.php', $strategy);
 
             // Act & Assert
-            expect(fn () => $wsdl->addComplexType('\Tests\Fixtures\UnknownClass[]'))
+            expect(fn (): string => $wsdl->addComplexType('\Tests\Fixtures\UnknownClass[]'))
                 ->toThrow(InvalidArgumentException::class, 'Cannot add a complex type \Tests\Fixtures\UnknownClass that is not an object or where class');
         });
     });
@@ -450,7 +448,7 @@ describe('ArrayOfTypeSequence Strategy', function (): void {
             $wsdl = new Wsdl('MyService', 'http://localhost/MyService.php', $strategy);
 
             // Act & Assert
-            expect(fn () => $wsdl->addComplexType('Tests\Fixtures\Wsdl\UnknownClass[]'))
+            expect(fn (): string => $wsdl->addComplexType('Tests\Fixtures\Wsdl\UnknownClass[]'))
                 ->toThrow(InvalidArgumentException::class, 'Cannot add a complex type');
         });
     });
@@ -514,7 +512,7 @@ describe('Composite Strategy', function (): void {
             $strategy = new Composite([], $strategyClass);
 
             // Act & Assert
-            expect(get_class($strategy->getDefaultStrategy()))->toBe($strategyClass);
+            expect($strategy->getDefaultStrategy()::class)->toBe($strategyClass);
         });
     });
 
@@ -524,7 +522,7 @@ describe('Composite Strategy', function (): void {
             $strategy = new Composite();
 
             // Act & Assert - TypeError is thrown due to strict type hint (string $type)
-            expect(fn () => $strategy->connectTypeToStrategy([], 'strategy'))
+            expect(fn (): Composite => $strategy->connectTypeToStrategy([], 'strategy'))
                 ->toThrow(TypeError::class);
         });
 
@@ -534,7 +532,7 @@ describe('Composite Strategy', function (): void {
             $strategy->connectTypeToStrategy('Book', 'strategy');
 
             // Act & Assert
-            expect(fn () => $strategy->getStrategyOfType('Book'))
+            expect(fn (): ComplexTypeStrategyInterface => $strategy->getStrategyOfType('Book'))
                 ->toThrow(InvalidArgumentException::class, 'Strategy for Complex Type "Book" is not a valid strategy');
         });
 
@@ -544,7 +542,7 @@ describe('Composite Strategy', function (): void {
             $strategy->connectTypeToStrategy('Book', 'strategy');
 
             // Act & Assert
-            expect(fn () => $strategy->getStrategyOfType('Anything'))
+            expect(fn (): ComplexTypeStrategyInterface => $strategy->getStrategyOfType('Anything'))
                 ->toThrow(InvalidArgumentException::class, 'Default Strategy for Complex Types is not a valid strategy object');
         });
 
@@ -553,7 +551,7 @@ describe('Composite Strategy', function (): void {
             $strategy = new Composite();
 
             // Act & Assert
-            expect(fn () => $strategy->addComplexType('Test'))
+            expect(fn (): string => $strategy->addComplexType('Test'))
                 ->toThrow(InvalidArgumentException::class, 'Cannot add complex type "Test"');
         });
     });
@@ -615,6 +613,7 @@ describe('DefaultComplexType Strategy', function (): void {
 
             $strategy = new DefaultComplexType();
             $strategy->setDocumentationStrategy($documentation);
+
             $wsdl = new Wsdl('MyService', 'http://localhost/MyService.php', $strategy);
 
             // Act

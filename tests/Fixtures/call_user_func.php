@@ -35,5 +35,5 @@ function call_user_func(...$args)
         .'</TestMethodResult>'
         .'</TestMethodResponse>';
 
-    return $result . ('</s:Body>' . '</s:Envelope>');
+    return $result.'</s:Body></s:Envelope>';
 }

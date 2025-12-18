@@ -16,6 +16,7 @@ use function str_starts_with;
 
 /**
  * @author Brian Faust <brian@cline.sh>
+ * @psalm-immutable
  */
 final readonly class ReflectionClass
 {
@@ -45,9 +46,11 @@ final readonly class ReflectionClass
             if ($method->isConstructor()) {
                 continue;
             }
+
             if ($method->isDestructor()) {
                 continue;
             }
+
             if (str_starts_with($method->getName(), '__')) {
                 continue;
             }

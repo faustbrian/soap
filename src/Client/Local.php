@@ -11,6 +11,7 @@ namespace Cline\Soap\Client;
 
 use Cline\Soap\Client as SOAPClient;
 use Cline\Soap\Server as SOAPServer;
+use Override;
 
 use function ob_get_clean;
 use function ob_start;
@@ -31,7 +32,7 @@ final class Local extends SOAPClient
      * @param null|array<string, mixed> $options
      */
     public function __construct(
-        protected readonly SOAPServer $server,
+        private readonly SOAPServer $server,
         ?string $wsdl,
         ?array $options = null,
     ) {
@@ -45,6 +46,7 @@ final class Local extends SOAPClient
     /**
      * Actual "do request" method.
      */
+    #[Override()]
     public function _doRequest(Common $client, string $request, string $location, string $action, int $version, bool $oneWay = false): mixed
     {
         // Perform request as is
@@ -52,12 +54,10 @@ final class Local extends SOAPClient
         $this->server->handle($request);
         $response = ob_get_clean();
 
-        if ($response === null || $response === '') {
+        if ($response === '') {
             $serverResponse = $this->server->getResponse();
 
-            if ($serverResponse !== null) {
-                $response = $serverResponse;
-            }
+            $response = $serverResponse;
         }
 
         return $response;

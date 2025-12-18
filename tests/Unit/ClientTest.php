@@ -12,7 +12,6 @@ use Cline\Soap\Client;
 use Cline\Soap\Client\Local;
 use Cline\Soap\Server;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\ArrayOfTypeComplex;
-use Tests\Fixtures\AutoDiscoverTestClass1;
 use Tests\Fixtures\AutoDiscoverTestClass2;
 use Tests\Fixtures\TestClass;
 use Tests\Fixtures\TestData1;
@@ -326,6 +325,7 @@ describe('Client', function (): void {
             // Arrange
             $server = new Server(fixturesPath('wsdl_example.wsdl'));
             $server->setClass(TestClass::class);
+
             $client = new Local($server, fixturesPath('wsdl_example.wsdl'));
 
             // Act
@@ -352,6 +352,7 @@ describe('Client', function (): void {
             );
             $autodiscover->setClass(AutoDiscoverTestClass2::class);
             $autodiscover->setUri('http://example.com');
+
             $wsdl = $autodiscover->generate();
             $wsdl->dump($wsdlFilename);
 
@@ -379,6 +380,7 @@ describe('Client', function (): void {
 
                 ++$count;
             }
+
             expect($count)->toBe(2);
 
             // Cleanup
@@ -395,10 +397,12 @@ describe('Client', function (): void {
             // Arrange
             $server = new Server(fixturesPath('wsdl_example.wsdl'));
             $server->setClass(TestClass::class);
+
             $client = new Local($server, fixturesPath('wsdl_example.wsdl'));
 
             // Act
             $client->testFunc2('World');
+
             $lastRequest = $client->getLastRequest();
 
             // Assert
@@ -428,10 +432,12 @@ describe('Client', function (): void {
             // Arrange
             $server = new Server(fixturesPath('wsdl_example.wsdl'));
             $server->setClass(TestClass::class);
+
             $client = new Local($server, fixturesPath('wsdl_example.wsdl'));
 
             // Act
             $client->testFunc2('World');
+
             $lastResponse = $client->getLastResponse();
 
             // Assert
@@ -461,6 +467,7 @@ describe('Client', function (): void {
             // Arrange
             $server = new Server(fixturesPath('wsdl_example.wsdl'));
             $server->setClass(TestClass::class);
+
             $client = new Local($server, fixturesPath('wsdl_example.wsdl'));
 
             // Act
@@ -480,6 +487,7 @@ describe('Client', function (): void {
             // Arrange
             $server = new Server(fixturesPath('wsdl_example.wsdl'));
             $server->setClass(TestClass::class);
+
             $client = new Local($server, fixturesPath('wsdl_example.wsdl'));
 
             // Act
@@ -499,6 +507,7 @@ describe('Client', function (): void {
             // Arrange
             $server = new Server(fixturesPath('wsdl_example.wsdl'));
             $server->setClass(TestClass::class);
+
             $client = new Local($server, fixturesPath('wsdl_example.wsdl'));
 
             // Act
@@ -559,6 +568,7 @@ describe('Client', function (): void {
             // Arrange
             $server = new Server(fixturesPath('wsdl_example.wsdl'));
             $server->setClass(TestClass::class);
+
             $client = new Local($server, fixturesPath('wsdl_example.wsdl'));
 
             // Add request header (temporary)
@@ -696,6 +706,7 @@ describe('Client', function (): void {
 
             // Act
             $soap->setSoapClient($clientMock);
+
             $retrievedClient = $soap->getSoapClient();
 
             // Assert
@@ -709,7 +720,7 @@ describe('Client', function (): void {
             $client = new Client(null, []);
 
             // Act & Assert
-            expect(fn () => $client->getSoapClient())
+            expect(fn (): SoapClient => $client->getSoapClient())
                 ->toThrow(UnexpectedValueException::class);
         });
 
@@ -718,7 +729,7 @@ describe('Client', function (): void {
             $client = new Client(null, ['location' => 'http://example.com']);
 
             // Act & Assert
-            expect(fn () => $client->getSoapClient())
+            expect(fn (): SoapClient => $client->getSoapClient())
                 ->toThrow(UnexpectedValueException::class);
         });
 
@@ -727,7 +738,7 @@ describe('Client', function (): void {
             $client = new Client(fixturesPath('wsdl_example.wsdl'), ['use' => \SOAP_ENCODED]);
 
             // Act & Assert
-            expect(fn () => $client->getSoapClient())
+            expect(fn (): SoapClient => $client->getSoapClient())
                 ->toThrow(UnexpectedValueException::class);
         });
 
@@ -736,7 +747,7 @@ describe('Client', function (): void {
             $client = new Client(fixturesPath('wsdl_example.wsdl'), ['style' => \SOAP_DOCUMENT]);
 
             // Act & Assert
-            expect(fn () => $client->getSoapClient())
+            expect(fn (): SoapClient => $client->getSoapClient())
                 ->toThrow(UnexpectedValueException::class);
         });
     });

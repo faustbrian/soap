@@ -10,6 +10,7 @@
 namespace Cline\Soap\Reflection;
 
 use ReflectionFunctionAbstract;
+use ReflectionIntersectionType;
 use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionType;
@@ -109,15 +110,19 @@ abstract class AbstractFunction
 
         foreach ($lines as $line) {
             $line = mb_trim($line, " \t*");
+
             if (str_starts_with($line, '/')) {
                 continue;
             }
+
             if (str_starts_with($line, '@')) {
                 continue;
             }
+
             if ($line === '') {
                 continue;
             }
+
             if ($line === '0') {
                 continue;
             }
@@ -179,7 +184,7 @@ abstract class AbstractFunction
 
     protected function getNativeType(?ReflectionType $type): string
     {
-        if (!$type instanceof \ReflectionType) {
+        if (!$type instanceof ReflectionType) {
             return 'mixed';
         }
 
@@ -195,7 +200,7 @@ abstract class AbstractFunction
 
         if ($type instanceof ReflectionUnionType) {
             $types = array_map(
-                fn (\ReflectionIntersectionType|\ReflectionNamedType $t) => $t instanceof ReflectionNamedType ? $t->getName() : 'mixed',
+                fn (ReflectionIntersectionType|ReflectionNamedType $t) => $t instanceof ReflectionNamedType ? $t->getName() : 'mixed',
                 $type->getTypes(),
             );
 
@@ -219,6 +224,7 @@ abstract class AbstractFunction
         if (mb_strtolower($normalized) !== 'self' && mb_strtolower($normalized) !== 'static') {
             return $normalized;
         }
+
         if ($this->reflection instanceof ReflectionMethod) {
             return $this->reflection->getDeclaringClass()->getName();
         }

@@ -15,7 +15,6 @@ use ReflectionObject;
 
 use function call_user_func_array;
 use function count;
-use function get_class;
 use function get_object_vars;
 use function sprintf;
 
@@ -80,16 +79,17 @@ use function sprintf;
  *
  * To keep your service object code free from this implementation detail
  * of SOAP this wrapper service handles the parsing between the formats.
+ * @psalm-immutable
  */
-final class DocumentLiteralWrapper
+final readonly class DocumentLiteralWrapper
 {
-    protected ReflectionObject $reflection;
+    private ReflectionObject $reflection;
 
     /**
      * Pass Service object to the constructor
      */
     public function __construct(
-        protected readonly object $object,
+        private object $object,
     ) {
         $this->reflection = new ReflectionObject($this->object);
     }
@@ -118,7 +118,7 @@ final class DocumentLiteralWrapper
      *
      * @return array<int, mixed>
      */
-    protected function parseArguments(string $method, object $document): array
+    private function parseArguments(string $method, object $document): array
     {
         $reflMethod = $this->reflection->getMethod($method);
         $params = [];
@@ -134,10 +134,11 @@ final class DocumentLiteralWrapper
                 throw new UnexpectedValueException(sprintf(
                     'Received unknown argument %s which is not an argument to %s::%s',
                     $argName,
-                    get_class($this->object),
+                    $this->object::class,
                     $method,
                 ));
             }
+
             $delegateArgs[$params[$argName]->getPosition()] = $argValue;
         }
 
@@ -149,7 +150,7 @@ final class DocumentLiteralWrapper
      *
      * @return array<string, mixed>
      */
-    protected function getResultMessage(string $method, mixed $ret): array
+    private function getResultMessage(string $method, mixed $ret): array
     {
         return [$method.'Result' => $ret];
     }
@@ -157,13 +158,13 @@ final class DocumentLiteralWrapper
     /**
      * @throws BadMethodCallException
      */
-    protected function assertServiceDelegateHasMethod(string $method): void
+    private function assertServiceDelegateHasMethod(string $method): void
     {
         if (!$this->reflection->hasMethod($method)) {
             throw new BadMethodCallException(sprintf(
                 'Method %s does not exist on delegate object %s',
                 $method,
-                get_class($this->object),
+                $this->object::class,
             ));
         }
     }
@@ -173,7 +174,7 @@ final class DocumentLiteralWrapper
      *
      * @throws UnexpectedValueException
      */
-    protected function assertOnlyOneArgument(array $args): void
+    private function assertOnlyOneArgument(array $args): void
     {
         if (count($args) !== 1) {
             throw new UnexpectedValueException(sprintf(

@@ -10,6 +10,7 @@
 namespace Cline\Soap\Wsdl\ComplexTypeStrategy;
 
 use Cline\Soap\Wsdl;
+use Override;
 
 use function mb_strpos;
 use function mb_strtolower;
@@ -31,6 +32,7 @@ final class ArrayOfTypeSequence extends DefaultComplexType
      *
      * @return string tns:xsd-type
      */
+    #[Override()]
     public function addComplexType(string $type): string
     {
         $nestedCounter = $this->getNestedCount($type);
@@ -63,7 +65,7 @@ final class ArrayOfTypeSequence extends DefaultComplexType
      * Return the ArrayOf or simple type name based on the singular xsdtype
      * and the nesting level
      */
-    protected function getTypeBasedOnNestingLevel(string $singularType, int $level): string
+    private function getTypeBasedOnNestingLevel(string $singularType, int $level): string
     {
         if ($level === 0) {
             // This is not an Array anymore, return the xsd simple type
@@ -79,7 +81,7 @@ final class ArrayOfTypeSequence extends DefaultComplexType
     /**
      * From a nested definition with type[] or array<Type>, get the singular xsd:type
      */
-    protected function getSingularType(string $type): string
+    private function getSingularType(string $type): string
     {
         // Handle array<Type> notation - unwrap all nested array<> to get innermost type
         while (preg_match('/^array<(.+)>$/i', $type, $matches)) {
@@ -93,7 +95,7 @@ final class ArrayOfTypeSequence extends DefaultComplexType
     /**
      * Return the array nesting level based on the type name
      */
-    protected function getNestedCount(string $type): int
+    private function getNestedCount(string $type): int
     {
         // Handle array<Type> notation - count nested array< occurrences
         if (preg_match('/^array<.+>$/i', $type)) {
@@ -111,7 +113,7 @@ final class ArrayOfTypeSequence extends DefaultComplexType
      * @param string $childType    Qualified array items type (e.g. 'xsd:int', 'tns:ArrayOfInt')
      * @param string $phpArrayType PHP type (e.g. 'int[][]', '\MyNamespace\MyClassName[][][]')
      */
-    protected function addSequenceType(string $arrayType, string $childType, string $phpArrayType): void
+    private function addSequenceType(string $arrayType, string $childType, string $phpArrayType): void
     {
         if ($this->scanRegisteredTypes($phpArrayType) !== null) {
             return;

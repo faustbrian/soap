@@ -13,6 +13,7 @@ use Cline\Soap\Client as SOAPClient;
 use Cline\Soap\Exception\RuntimeException;
 use Laminas\Http\Client\Adapter\Curl as CurlClient;
 use Laminas\Http\Response as HttpResponse;
+use Override;
 use Traversable;
 use Uri\Rfc3986\Uri as HttpUri;
 
@@ -30,6 +31,7 @@ use function iterator_to_array;
 use function property_exists;
 use function reset;
 use function sprintf;
+use function throw_if;
 
 /**
  * .NET SOAP client
@@ -43,29 +45,29 @@ final class DotNet extends SOAPClient
     /**
      * Curl HTTP client adapter.
      */
-    protected ?CurlClient $curlClient = null;
+    private ?CurlClient $curlClient = null;
 
     /**
      * The last request headers.
      */
-    protected string $lastRequestHeaders = '';
+    private string $lastRequestHeaders = '';
 
     /**
      * The last response headers.
      */
-    protected string $lastResponseHeaders = '';
+    private string $lastResponseHeaders = '';
 
     /**
      * SOAP client options.
      *
      * @var array<string, mixed>
      */
-    protected array $options = [];
+    private array $options = [];
 
     /**
      * Should NTLM authentication be used?
      */
-    protected bool $useNtlm = false;
+    private bool $useNtlm = false;
 
     /**
      * Constructor
@@ -93,6 +95,7 @@ final class DotNet extends SOAPClient
      *
      * @return string The XML SOAP response.
      */
+    #[Override()]
     public function _doRequest(Common $client, string $request, string $location, string $action, int $version, bool $oneWay = false): mixed
     {
         if (!$this->useNtlm) {
@@ -131,6 +134,7 @@ final class DotNet extends SOAPClient
         // Perform the cURL request and get the response
         $curlClient->connect($uri->getHost(), $uri->getPort());
         $curlClient->write('POST', $uri, 1.1, $headers, $request);
+
         $response = HttpResponse::fromString($curlClient->read());
 
         // @todo persistent connection ?
@@ -150,7 +154,7 @@ final class DotNet extends SOAPClient
      */
     public function getCurlClient(): CurlClient
     {
-        if ($this->curlClient === null) {
+        if (!$this->curlClient instanceof CurlClient) {
             $this->curlClient = new CurlClient();
         }
 
@@ -162,6 +166,7 @@ final class DotNet extends SOAPClient
      *
      * @return string Request headers.
      */
+    #[Override()]
     public function getLastRequestHeaders(): string
     {
         return $this->lastRequestHeaders;
@@ -172,6 +177,7 @@ final class DotNet extends SOAPClient
      *
      * @return string Response headers.
      */
+    #[Override()]
     public function getLastResponseHeaders(): string
     {
         return $this->lastResponseHeaders;
@@ -196,6 +202,7 @@ final class DotNet extends SOAPClient
      *
      * @param array<string, mixed>|Traversable<string, mixed> $options Options.
      */
+    #[Override()]
     public function setOptions(array|Traversable $options): static
     {
         if (isset($options['authentication']) && $options['authentication'] === 'ntlm') {
@@ -220,15 +227,11 @@ final class DotNet extends SOAPClient
      *
      * @return array<mixed>
      */
+    #[Override()]
     protected function _preProcessArguments(array $arguments): array
     {
-        if (count($arguments) > 1
-            || (count($arguments) === 1 && !is_array(reset($arguments)))
-        ) {
-            throw new RuntimeException(
-                '.Net webservice arguments must be grouped into an array: array("a" => $a, "b" => $b, ...).',
-            );
-        }
+        throw_if(count($arguments) > 1
+            || (count($arguments) === 1 && !is_array(reset($arguments))), RuntimeException::class, '.Net webservice arguments must be grouped into an array: array("a" => $a, "b" => $b, ...).');
 
         // Do nothing
         return $arguments;
@@ -242,6 +245,7 @@ final class DotNet extends SOAPClient
      *
      * My be overridden in descendant classes
      */
+    #[Override()]
     protected function _preProcessResult(mixed $result): mixed
     {
         if (!is_object($result)) {
@@ -265,7 +269,7 @@ final class DotNet extends SOAPClient
      *
      * @return string The headers string.
      */
-    protected function flattenHeaders(array $headers): string
+    private function flattenHeaders(array $headers): string
     {
         $result = '';
 

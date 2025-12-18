@@ -7,7 +7,6 @@
  * file that was distributed with this source code.
  */
 
-use Cline\Soap\Exception\RuntimeException;
 use Cline\Soap\Wsdl;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\AnyType;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\ArrayOfTypeSequence;
@@ -49,6 +48,7 @@ describe('Wsdl', function (): void {
             if ($uri instanceof Uri) {
                 $uri = $uri->toString();
             }
+
             $this->wsdl->setUri($uri);
 
             // Assert
@@ -93,6 +93,7 @@ describe('Wsdl', function (): void {
             foreach ($parameters as $i => $parameter) {
                 $messageParts['parameter'.$i] = $this->wsdl->getType($parameter);
             }
+
             $messageName = 'myMessage';
 
             // Act
@@ -120,6 +121,7 @@ describe('Wsdl', function (): void {
                     'name' => 'parameter'.$i,
                 ];
             }
+
             $messageName = 'myMessage';
 
             // Act
@@ -173,23 +175,23 @@ describe('Wsdl', function (): void {
             $operationNodes = $this->xpath->query('wsdl:operation[@name="'.$operationName.'"]', $portTypeNodes->item(0));
             expect($operationNodes->length)->toBeGreaterThan(0);
 
-            if (empty($inputRequest) && empty($outputResponse) && empty($fail)) {
+            if (in_array($inputRequest, [null, '', '0'], true) && in_array($outputResponse, [null, '', '0'], true) && in_array($fail, [null, '', '0'], true)) {
                 expect($operationNodes->item(0)->hasChildNodes())->toBeFalse();
             } else {
                 expect($operationNodes->item(0)->hasChildNodes())->toBeTrue();
             }
 
-            if (!empty($inputRequest)) {
+            if (!in_array($inputRequest, [null, '', '0'], true)) {
                 $inputNodes = $operationNodes->item(0)->getElementsByTagName('input');
                 expect($inputNodes->item(0)->getAttribute('message'))->toBe($inputRequest);
             }
 
-            if (!empty($outputResponse)) {
+            if (!in_array($outputResponse, [null, '', '0'], true)) {
                 $outputNodes = $operationNodes->item(0)->getElementsByTagName('output');
                 expect($outputNodes->item(0)->getAttribute('message'))->toBe($outputResponse);
             }
 
-            if (empty($fail)) {
+            if (in_array($fail, [null, '', '0'], true)) {
                 return;
             }
 
@@ -224,19 +226,19 @@ describe('Wsdl', function (): void {
 
             $inputArray = [];
 
-            if (!empty($input) && !empty($inputEncoding)) {
+            if (!in_array($input, [null, '', '0'], true) && !in_array($inputEncoding, [null, '', '0'], true)) {
                 $inputArray = ['use' => $input, 'encodingStyle' => $inputEncoding];
             }
 
             $outputArray = [];
 
-            if (!empty($output) && !empty($outputEncoding)) {
+            if (!in_array($output, [null, '', '0'], true) && !in_array($outputEncoding, [null, '', '0'], true)) {
                 $outputArray = ['use' => $output, 'encodingStyle' => $outputEncoding];
             }
 
             $faultArray = [];
 
-            if (!empty($fault) && !empty($faultEncoding) && !empty($faultName)) {
+            if (!in_array($fault, [null, '', '0'], true) && !in_array($faultEncoding, [null, '', '0'], true) && !in_array($faultName, [null, '', '0'], true)) {
                 $faultArray = ['use' => $fault, 'encodingStyle' => $faultEncoding, 'name' => $faultName];
             }
 
@@ -253,7 +255,7 @@ describe('Wsdl', function (): void {
             $operationNodes = $this->xpath->query('wsdl:operation[@name="'.$operationName.'"]', $bindingNodes->item(0));
             expect($operationNodes->length)->toBe(1);
 
-            if (empty($inputArray) && empty($outputArray) && empty($faultArray)) {
+            if ($inputArray === [] && $outputArray === [] && $faultArray === []) {
                 expect($operationNodes->item(0)->hasChildNodes())->toBeFalse();
             }
 
@@ -262,14 +264,14 @@ describe('Wsdl', function (): void {
                 '//wsdl:output/soap:body' => $outputArray,
                 '//wsdl:fault' => $faultArray,
             ] as $query => $ar) {
-                if (empty($ar)) {
+                if ($ar === []) {
                     continue;
                 }
 
                 $nodes = $this->xpath->query($query);
                 expect($nodes->length)->toBeGreaterThan(0);
 
-                foreach ($ar as $key => $val) {
+                foreach (array_keys($ar) as $key) {
                     expect($nodes->item(0)->getAttribute($key))->toBe($ar[$key]);
                 }
             }
@@ -310,6 +312,7 @@ describe('Wsdl', function (): void {
             // Arrange
             $this->wsdl->addPortType('myPortType');
             $this->wsdl->addBinding('MyServiceBinding', 'myPortType');
+
             $expectedUrl = $serviceUrl instanceof Uri ? $serviceUrl->toString() : $serviceUrl;
 
             // Act
@@ -511,6 +514,7 @@ describe('Wsdl', function (): void {
             // Act
             $this->wsdl->addType(WsdlTestClass::class, 'tns:SomeTypeName');
             $this->wsdl->addType(WsdlTestClass::class, 'tns:AnotherTypeName');
+
             $types = $this->wsdl->getTypes();
 
             // Assert
@@ -664,6 +668,7 @@ describe('Wsdl', function (): void {
                 );
                 expect($elementNode->item(0)->getAttribute('type'))->toBe($elementDefinition['type']);
             }
+
             expect($n)->toBe(count($element['sequence']));
         });
     });
@@ -685,6 +690,7 @@ function checkXMLContent(string $content, object $context): void
     if (\LIBXML_VERSION < 20_900) {
         libxml_disable_entity_loader(false);
     }
+
     $xml = new DOMDocument();
     $xml->preserveWhiteSpace = false;
     $xml->encoding = 'UTF-8';
@@ -712,40 +718,34 @@ function checkXMLContent(string $content, object $context): void
 }
 
 // Dataset definitions
-dataset('uriTestingData', function () {
-    return [
-        ['http://localhost/MyService.php', 'http://localhost/MyService.php'],
-        ['http://localhost/MyNewService.php', 'http://localhost/MyNewService.php'],
-        [new Uri('http://localhost/MyService.php'), 'http://localhost/MyService.php'],
-        // Bug Laminas-5736
-        ['http://localhost/MyService.php?a=b&amp;b=c', 'http://localhost/MyService.php?a=b&amp;b=c'],
-        ['http://localhost/MyService.php?a=b&b=c', 'http://localhost/MyService.php?a=b&amp;b=c'],
-    ];
-});
+dataset('uriTestingData', fn (): array => [
+    ['http://localhost/MyService.php', 'http://localhost/MyService.php'],
+    ['http://localhost/MyNewService.php', 'http://localhost/MyNewService.php'],
+    [new Uri('http://localhost/MyService.php'), 'http://localhost/MyService.php'],
+    // Bug Laminas-5736
+    ['http://localhost/MyService.php?a=b&amp;b=c', 'http://localhost/MyService.php?a=b&amp;b=c'],
+    ['http://localhost/MyService.php?a=b&b=c', 'http://localhost/MyService.php?a=b&amp;b=c'],
+]);
 
-dataset('addMessageData', function () {
-    return [
-        [['int', 'int', 'int']],
-        [['string', 'string', 'string', 'string']],
-        [['mixed']],
-        [['int', 'int', 'string', 'string']],
-        [['int', 'string', 'int', 'string']],
-    ];
-});
+dataset('addMessageData', fn (): array => [
+    [['int', 'int', 'int']],
+    [['string', 'string', 'string', 'string']],
+    [['mixed']],
+    [['int', 'int', 'string', 'string']],
+    [['int', 'string', 'int', 'string']],
+]);
 
-dataset('addPortOperationData', function () {
-    return [
-        ['operation'],
-        ['operation', 'tns:operationRequest', 'tns:operationResponse'],
-        ['operation', 'tns:operationRequest', 'tns:operationResponse', 'tns:operationFault'],
-        ['operation', 'tns:operationRequest', null, 'tns:operationFault'],
-        ['operation', null, null, 'tns:operationFault'],
-        ['operation', null, 'tns:operationResponse', 'tns:operationFault'],
-        ['operation', null, 'tns:operationResponse'],
-    ];
-});
+dataset('addPortOperationData', fn (): array => [
+    ['operation'],
+    ['operation', 'tns:operationRequest', 'tns:operationResponse'],
+    ['operation', 'tns:operationRequest', 'tns:operationResponse', 'tns:operationFault'],
+    ['operation', 'tns:operationRequest', null, 'tns:operationFault'],
+    ['operation', null, null, 'tns:operationFault'],
+    ['operation', null, 'tns:operationResponse', 'tns:operationFault'],
+    ['operation', null, 'tns:operationResponse'],
+]);
 
-dataset('addBindingOperationData', function () {
+dataset('addBindingOperationData', function (): array {
     $enc = 'http://schemas.xmlsoap.org/soap/encoding/';
 
     return [
@@ -759,51 +759,41 @@ dataset('addBindingOperationData', function () {
     ];
 });
 
-dataset('soapBindingStyleData', function () {
-    return [
-        ['document'],
-        ['rpc'],
-    ];
-});
+dataset('soapBindingStyleData', fn (): array => [
+    ['document'],
+    ['rpc'],
+]);
 
-dataset('addSoapOperationData', function () {
-    return [
-        ['http://localhost/MyService.php#myOperation'],
-        [new Uri('http://localhost/MyService.php#myOperation')],
-    ];
-});
+dataset('addSoapOperationData', fn (): array => [
+    ['http://localhost/MyService.php#myOperation'],
+    [new Uri('http://localhost/MyService.php#myOperation')],
+]);
 
-dataset('addServiceData', function () {
-    return [
-        ['http://localhost/MyService.php'],
-        [new Uri('http://localhost/MyService.php')],
-    ];
-});
+dataset('addServiceData', fn (): array => [
+    ['http://localhost/MyService.php'],
+    [new Uri('http://localhost/MyService.php')],
+]);
 
-dataset('ampersandInUrlData', function () {
-    return [
-        'Decoded ampersand' => [
-            'http://localhost/MyService.php?foo=bar&baz=qux',
-            'http://localhost/MyService.php?foo=bar&amp;baz=qux',
-        ],
-        'Encoded ampersand' => [
-            'http://localhost/MyService.php?foo=bar&amp;baz=qux',
-            'http://localhost/MyService.php?foo=bar&amp;baz=qux',
-        ],
-        'Encoded and decoded ampersand' => [
-            'http://localhost/MyService.php?foo=bar&&amp;baz=qux',
-            'http://localhost/MyService.php?foo=bar&amp;&amp;baz=qux',
-        ],
-    ];
-});
+dataset('ampersandInUrlData', fn (): array => [
+    'Decoded ampersand' => [
+        'http://localhost/MyService.php?foo=bar&baz=qux',
+        'http://localhost/MyService.php?foo=bar&amp;baz=qux',
+    ],
+    'Encoded ampersand' => [
+        'http://localhost/MyService.php?foo=bar&amp;baz=qux',
+        'http://localhost/MyService.php?foo=bar&amp;baz=qux',
+    ],
+    'Encoded and decoded ampersand' => [
+        'http://localhost/MyService.php?foo=bar&&amp;baz=qux',
+        'http://localhost/MyService.php?foo=bar&amp;&amp;baz=qux',
+    ],
+]);
 
-dataset('translateTypeData', function () {
-    return [
-        ['\\SomeType', 'SomeType'],
-        ['SomeType\\', 'SomeType'],
-        ['\\SomeType\\', 'SomeType'],
-        ['\\SomeNamespace\SomeType\\', 'SomeType'],
-        ['\\SomeNamespace\SomeType\\SomeOtherType', 'SomeOtherType'],
-        ['\\SomeNamespace\SomeType\\SomeOtherType\\YetAnotherType', 'YetAnotherType'],
-    ];
-});
+dataset('translateTypeData', fn (): array => [
+    ['\\SomeType', 'SomeType'],
+    ['SomeType\\', 'SomeType'],
+    ['\\SomeType\\', 'SomeType'],
+    ['\\SomeNamespace\SomeType\\', 'SomeType'],
+    ['\\SomeNamespace\SomeType\\SomeOtherType', 'SomeOtherType'],
+    ['\\SomeNamespace\SomeType\\SomeOtherType\\YetAnotherType', 'YetAnotherType'],
+]);

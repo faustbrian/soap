@@ -24,7 +24,6 @@ use const ENT_QUOTES;
 use const SOAP_1_1;
 use const SOAP_1_2;
 
-use function count;
 use function file_put_contents;
 use function htmlspecialchars;
 use function in_array;
@@ -36,6 +35,7 @@ use function mb_strtolower;
 use function mb_substr;
 use function mb_trim;
 use function str_replace;
+use function throw_if;
 
 /**
  * @author Brian Faust <brian@cline.sh>
@@ -76,31 +76,31 @@ final class Wsdl
     /**
      * DOM Instance
      */
-    protected ?DOMDocument $dom = null;
+    private ?DOMDocument $dom = null;
 
     /**
      * Types defined on schema
      */
-    protected array $includedTypes = [];
+    private array $includedTypes = [];
 
-    protected ?DOMElement $schema = null;
+    private ?DOMElement $schema = null;
 
     /**
      * Strategy for detection of complex types
      */
-    protected ?ComplexTypeStrategy $strategy = null;
+    private ?ComplexTypeStrategy $strategy = null;
 
     /**
      * URI where the WSDL will be available
      */
-    protected ?string $uri = null;
+    private ?string $uri = null;
 
     /**
      * Root XML_Tree_Node
      *
      * @var DOMElement WSDL
      */
-    protected DOMElement $wsdl;
+    private readonly DOMElement $wsdl;
 
     /**
      * @param  string                   $name     Name of the Web Service being Described
@@ -118,7 +118,7 @@ final class Wsdl
          *
          * @var array
          */
-        protected array $classMap = [],
+        private array $classMap = [],
     ) {
         if ($uri instanceof Uri) {
             $uri = $uri->toString();
@@ -126,7 +126,7 @@ final class Wsdl
 
         $this->setUri($uri);
 
-        $this->dom = $this->getDOMDocument($name, $this->getUri());
+        $this->dom = $this->getDOMDocument($name, $this->uri);
         $this->wsdl = $this->dom->documentElement;
 
         $this->setComplexTypeStrategy($strategy ?: new DefaultComplexType());
@@ -135,15 +135,9 @@ final class Wsdl
     /**
      * Retrieve target namespace of the WSDL document.
      */
-    public function getTargetNamespace(): ?string
+    public function getTargetNamespace(): string
     {
-        $targetNamespace = null;
-
-        if ($this->wsdl !== null) {
-            $targetNamespace = $this->wsdl->getAttribute('targetNamespace');
-        }
-
-        return $targetNamespace;
+        return $this->wsdl->getAttribute('targetNamespace');
     }
 
     /**
@@ -230,9 +224,7 @@ final class Wsdl
         $uri = mb_trim($uri);
         $uri = htmlspecialchars($uri, ENT_QUOTES, 'UTF-8', false);
 
-        if (empty($uri)) {
-            throw new InvalidArgumentException('Uri contains invalid characters or is empty');
-        }
+        throw_if($uri === '' || $uri === '0', InvalidArgumentException::class, 'Uri contains invalid characters or is empty');
 
         return $uri;
     }
@@ -271,18 +263,16 @@ final class Wsdl
         $message = $this->dom->createElementNS(self::WSDL_NS_URI, 'message');
         $message->setAttribute('name', $messageName);
 
-        if (count($parts) > 0) {
-            foreach ($parts as $name => $type) {
-                $part = $this->dom->createElementNS(self::WSDL_NS_URI, 'part');
-                $message->appendChild($part);
+        foreach ($parts as $name => $type) {
+            $part = $this->dom->createElementNS(self::WSDL_NS_URI, 'part');
+            $message->appendChild($part);
 
-                $part->setAttribute('name', $name);
+            $part->setAttribute('name', $name);
 
-                if (is_array($type)) {
-                    $this->arrayToAttributes($part, $type);
-                } else {
-                    $this->setAttributeWithSanitization($part, 'type', $type);
-                }
+            if (is_array($type)) {
+                $this->arrayToAttributes($part, $type);
+            } else {
+                $this->setAttributeWithSanitization($part, 'type', $type);
             }
         }
 
@@ -394,7 +384,7 @@ final class Wsdl
 
         $this->setAttribute($operation, 'name', $name);
 
-        if (is_array($input) && !empty($input)) {
+        if (is_array($input) && $input !== []) {
             $node = $this->dom->createElementNS(self::WSDL_NS_URI, 'input');
             $operation->appendChild($node);
 
@@ -404,7 +394,7 @@ final class Wsdl
             $this->arrayToAttributes($soapNode, $input);
         }
 
-        if (is_array($output) && !empty($output)) {
+        if (is_array($output) && $output !== []) {
             $node = $this->dom->createElementNS(self::WSDL_NS_URI, 'output');
             $operation->appendChild($node);
 
@@ -414,7 +404,7 @@ final class Wsdl
             $this->arrayToAttributes($soapNode, $output);
         }
 
-        if (is_array($fault) && !empty($fault)) {
+        if (is_array($fault) && $fault !== []) {
             $node = $this->dom->createElementNS(self::WSDL_NS_URI, 'fault');
             $operation->appendChild($node);
 
@@ -459,6 +449,7 @@ final class Wsdl
         if ($soapAction instanceof Uri) {
             $soapAction = $soapAction->toString();
         }
+
         $soapOperation = $this->dom->createElementNS($this->getSoapNamespaceUriByVersion($soapVersion), 'operation');
         $operation->insertBefore($soapOperation, $operation->firstChild);
 
@@ -482,6 +473,7 @@ final class Wsdl
         if ($location instanceof Uri) {
             $location = $location->toString();
         }
+
         $service = $this->dom->createElementNS(self::WSDL_NS_URI, 'service');
         $this->wsdl->appendChild($service);
 
@@ -521,11 +513,7 @@ final class Wsdl
      */
     public function addDocumentation(DOMElement|self $inputNode, string $documentation): DOMElement
     {
-        if ($inputNode === $this) {
-            $node = $this->dom->documentElement;
-        } else {
-            $node = $inputNode;
-        }
+        $node = $inputNode === $this ? $this->dom->documentElement : $inputNode;
 
         if ($node->namespaceURI === self::XSD_NS_URI) {
             // complex types require annotation element for documentation
@@ -533,7 +521,8 @@ final class Wsdl
             $child = $this->dom->createElementNS(self::XSD_NS_URI, 'annotation');
             $child->appendChild($doc);
         } else {
-            $doc = $child = $this->dom->createElementNS(self::WSDL_NS_URI, 'documentation');
+            $doc = $this->dom->createElementNS(self::WSDL_NS_URI, 'documentation');
+            $child = $doc;
         }
 
         if ($node->hasChildNodes()) {
@@ -593,7 +582,7 @@ final class Wsdl
      */
     public function getSchema(): DOMElement
     {
-        if ($this->schema === null) {
+        if (!$this->schema instanceof DOMElement) {
             $this->addSchemaTypeSection();
         }
 
@@ -647,50 +636,22 @@ final class Wsdl
      */
     public function getType(string $type): string
     {
-        switch (mb_strtolower($type)) {
-            case 'string':
-            case 'str':
-                return self::XSD_NS.':string';
-
-            case 'long':
-                return self::XSD_NS.':long';
-
-            case 'int':
-            case 'integer':
-                return self::XSD_NS.':int';
-
-            case 'float':
-                return self::XSD_NS.':float';
-
-            case 'double':
-                return self::XSD_NS.':double';
-
-            case 'boolean':
-            case 'bool':
-                return self::XSD_NS.':boolean';
-
-            case 'array':
-                return self::SOAP_ENC_NS.':Array';
-
-            case 'object':
-                return self::XSD_NS.':struct';
-
-            case 'mixed':
-                return self::XSD_NS.':anyType';
-
-            case 'date':
-                return self::XSD_NS.':date';
-
-            case 'datetime':
-                return self::XSD_NS.':dateTime';
-
-            case 'void':
-                return '';
-
-            default:
-                // delegate retrieval of complex type to current strategy
-                return $this->addComplexType($type);
-        }
+        return match (mb_strtolower($type)) {
+            'string', 'str' => self::XSD_NS.':string',
+            'long' => self::XSD_NS.':long',
+            'int', 'integer' => self::XSD_NS.':int',
+            'float' => self::XSD_NS.':float',
+            'double' => self::XSD_NS.':double',
+            'boolean', 'bool' => self::XSD_NS.':boolean',
+            'array' => self::SOAP_ENC_NS.':Array',
+            'object' => self::XSD_NS.':struct',
+            'mixed' => self::XSD_NS.':anyType',
+            'date' => self::XSD_NS.':date',
+            'datetime' => self::XSD_NS.':dateTime',
+            'void' => '',
+            // delegate retrieval of complex type to current strategy
+            default => $this->addComplexType($type),
+        };
     }
 
     /**
@@ -698,14 +659,14 @@ final class Wsdl
      */
     public function addSchemaTypeSection(): self
     {
-        if ($this->schema === null) {
+        if (!$this->schema instanceof DOMElement) {
             $types = $this->dom->createElementNS(self::WSDL_NS_URI, 'types');
             $this->wsdl->appendChild($types);
 
             $this->schema = $this->dom->createElementNS(self::XSD_NS_URI, 'schema');
             $types->appendChild($this->schema);
 
-            $this->setAttributeWithSanitization($this->schema, 'targetNamespace', $this->getUri());
+            $this->setAttributeWithSanitization($this->schema, 'targetNamespace', $this->uri);
         }
 
         return $this;
@@ -728,7 +689,7 @@ final class Wsdl
         $pos = mb_strrpos($type, '\\');
 
         if ($pos) {
-            $type = mb_substr($type, $pos + 1);
+            return mb_substr($type, $pos + 1);
         }
 
         return $type;
@@ -745,9 +706,10 @@ final class Wsdl
         if (isset($this->includedTypes[$type])) {
             return $this->includedTypes[$type];
         }
+
         $this->addSchemaTypeSection();
 
-        $strategy = $this->getComplexTypeStrategy();
+        $strategy = $this->strategy;
         $strategy->setContext($this);
 
         // delegates the detection of a complex type to the current strategy
@@ -801,7 +763,7 @@ final class Wsdl
      *
      * @param string $name
      */
-    protected function getDOMDocument(string|Uri $name, ?string $uri = null): DOMDocument
+    private function getDOMDocument(string|Uri $name, ?string $uri = null): DOMDocument
     {
         $dom = new DOMDocument();
 
@@ -835,7 +797,7 @@ final class Wsdl
      * @param  array      $element an xsd:element represented as an array
      * @return DOMElement parsed element
      */
-    protected function parseElement(array $element): DOMElement
+    private function parseElement(array $element): DOMElement
     {
         // phpcs:disable WebimpressCodingStandard.NamingConventions.ValidVariableName.NotCamelCaps
         $elementXML = $this->dom->createElementNS(self::XSD_NS_URI, 'element');
@@ -845,15 +807,17 @@ final class Wsdl
                 if (is_array($value)) {
                     $complexType = $this->dom->createElementNS(self::XSD_NS_URI, 'complexType');
 
-                    if (count($value) > 0) {
+                    if ($value !== []) {
                         $container = $this->dom->createElementNS(self::XSD_NS_URI, $key);
 
                         foreach ($value as $subElement) {
                             $subElementXML = $this->parseElement($subElement);
                             $container->appendChild($subElementXML);
                         }
+
                         $complexType->appendChild($container);
                     }
+
                     $elementXML->appendChild($complexType);
                 }
             } else {
@@ -870,18 +834,12 @@ final class Wsdl
      *
      * @return string safe value or original $value
      */
-    protected function sanitizeAttributeValueByName(string $name, mixed $value): mixed
+    private function sanitizeAttributeValueByName(string $name, mixed $value): mixed
     {
-        switch (mb_strtolower($name)) {
-            case 'targetnamespace':
-            case 'encodingstyle':
-            case 'soapaction':
-            case 'location':
-                return $this->sanitizeUri($value);
-
-            default:
-                return $value;
-        }
+        return match (mb_strtolower($name)) {
+            'targetnamespace', 'encodingstyle', 'soapaction', 'location' => $this->sanitizeUri($value),
+            default => $value,
+        };
     }
 
     /**
@@ -889,7 +847,7 @@ final class Wsdl
      *
      * Optionally uses {@link function sanitizeAttributeValueByName}.
      */
-    protected function arrayToAttributes(DOMNode $node, array $attributes, bool $withSanitizer = true): void
+    private function arrayToAttributes(DOMNode $node, array $attributes, bool $withSanitizer = true): void
     {
         foreach ($attributes as $attributeName => $attributeValue) {
             if ($withSanitizer) {
@@ -903,7 +861,7 @@ final class Wsdl
     /**
      * Set attribute to given node using {@link function sanitizeAttributeValueByName}
      */
-    protected function setAttributeWithSanitization(DOMNode $node, string $attributeName, mixed $attributeValue): void
+    private function setAttributeWithSanitization(DOMNode $node, string $attributeName, mixed $attributeValue): void
     {
         $attributeValue = $this->sanitizeAttributeValueByName($attributeName, $attributeValue);
         $this->setAttribute($node, $attributeName, $attributeValue);
@@ -912,7 +870,7 @@ final class Wsdl
     /**
      * Set attribute to given node
      */
-    protected function setAttribute(DOMNode $node, string $attributeName, mixed $attributeValue): void
+    private function setAttribute(DOMNode $node, string $attributeName, mixed $attributeValue): void
     {
         $attributeNode = $node->ownerDocument->createAttribute($attributeName);
         $node->appendChild($attributeNode);
@@ -927,11 +885,9 @@ final class Wsdl
      * @param  int                      $soapVersion SOAP_1_1 or SOAP_1_2 constants
      * @throws InvalidArgumentException
      */
-    protected function getSoapNamespaceUriByVersion(int $soapVersion): string
+    private function getSoapNamespaceUriByVersion(int $soapVersion): string
     {
-        if ($soapVersion !== SOAP_1_1 && $soapVersion !== SOAP_1_2) {
-            throw new InvalidArgumentException('Invalid SOAP version, use constants: SOAP_1_1 or SOAP_1_2');
-        }
+        throw_if($soapVersion !== SOAP_1_1 && $soapVersion !== SOAP_1_2, InvalidArgumentException::class, 'Invalid SOAP version, use constants: SOAP_1_1 or SOAP_1_2');
 
         if ($soapVersion === SOAP_1_1) {
             return self::SOAP_11_NS_URI;

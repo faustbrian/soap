@@ -15,6 +15,7 @@ use Cline\Soap\Wsdl;
 use function class_exists;
 use function is_string;
 use function sprintf;
+use function throw_unless;
 
 /**
  * @author Brian Faust <brian@cline.sh>
@@ -74,6 +75,7 @@ final class Composite implements ComplexTypeStrategyInterface
         if (is_string($strategy) && class_exists($strategy)) {
             $strategy = new $strategy();
         }
+
         throw_unless($strategy instanceof ComplexTypeStrategyInterface, InvalidArgumentException::class, 'Default Strategy for Complex Types is not a valid strategy object.');
 
         $this->defaultStrategy = $strategy;

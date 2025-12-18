@@ -31,7 +31,7 @@ function skipIfSoapNotLoaded(): void
  */
 function fixturesPath(string $path = ''): string
 {
-    return __DIR__.'/Fixtures'.($path ? '/'.$path : '');
+    return __DIR__.'/Fixtures'.($path !== '' && $path !== '0' ? '/'.$path : '');
 }
 
 /**
@@ -84,7 +84,7 @@ function assertNodeAndChildrenHaveNamespaces(DOMNode $element): void
         }
 
         expect($node->namespaceURI)
-            ->not->toBeEmpty("Document element: {$node->nodeName} has no valid namespace. Line: {$node->getLineNo()}");
+            ->not->toBeEmpty(sprintf('Document element: %s has no valid namespace. Line: %d', $node->nodeName, $node->getLineNo()));
         assertNodeAndChildrenHaveNamespaces($node);
     }
 }
