@@ -11,5 +11,6 @@ namespace Cline\Soap\Exception;
 
 /**
  * Common Exception interface
+ * @author Brian Faust <brian@cline.sh>
  */
 interface ExceptionInterface {}

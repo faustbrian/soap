@@ -13,5 +13,6 @@ use BadMethodCallException as SPLBadMethodCallException;
 
 /**
  * Exception thrown when unrecognized method is called via overloading
+ * @author Brian Faust <brian@cline.sh>
  */
 final class BadMethodCallException extends SPLBadMethodCallException implements ExceptionInterface {}

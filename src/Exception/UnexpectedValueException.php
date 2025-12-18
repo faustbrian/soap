@@ -13,5 +13,6 @@ use UnexpectedValueException as SPLUnexpectedValueException;
 
 /**
  * Exception thrown when provided arguments are invalid
+ * @author Brian Faust <brian@cline.sh>
  */
 final class UnexpectedValueException extends SPLUnexpectedValueException implements ExceptionInterface {}

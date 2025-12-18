@@ -13,6 +13,7 @@ namespace Tests\Fixtures;
  * MyCalculatorService
  *
  * Class used in DocumentLiteralWrapperTest
+ * @author Brian Faust <brian@cline.sh>
  */
 final class MyCalculatorService
 {

@@ -9,17 +9,24 @@
 
 use Cline\Soap\Client\DotNet;
 use Cline\Soap\Exception\RuntimeException;
-use Laminas\Http\Client\Adapter\Curl as CurlClient;
+use Laminas\Http\Client\Adapter\Curl;
 
 beforeEach(function (): void {
     skipIfSoapNotLoaded();
+
+    // Skip if Laminas HTTP is not available (required for DotNet client)
+    if (class_exists(Curl::class)) {
+        return;
+    }
+
+    test()->markTestSkipped('Laminas HTTP client not installed');
 });
 
 describe('DotNet Client', function (): void {
     test('defaults to SOAP 1.1 version', function (): void {
         $client = new DotNet(fixturesPath('wsdl_example.wsdl'));
 
-        expect($client->getSoapVersion())->toBe(SOAP_1_1);
+        expect($client->getSoapVersion())->toBe(\SOAP_1_1);
     });
 
     test('enables NTLM authentication when authentication option is set to ntlm', function (): void {
@@ -72,8 +79,12 @@ describe('DotNet Client', function (): void {
     });
 
     test('can set and get custom CurlClient', function (): void {
+        if (!class_exists(Curl::class)) {
+            $this->markTestSkipped('Laminas HTTP client not installed');
+        }
+
         $client = new DotNet(fixturesPath('wsdl_example.wsdl'));
-        $curlAdapter = new CurlClient();
+        $curlAdapter = new Curl();
 
         $client->setCurlClient($curlAdapter);
 

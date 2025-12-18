@@ -13,5 +13,6 @@ use InvalidArgumentException as SPLInvalidArgumentException;
 
 /**
  * Exception thrown when one or more method arguments are invalid
+ * @author Brian Faust <brian@cline.sh>
  */
 final class InvalidArgumentException extends SPLInvalidArgumentException implements ExceptionInterface {}

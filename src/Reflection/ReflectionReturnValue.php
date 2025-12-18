@@ -9,6 +9,9 @@
 
 namespace Cline\Soap\Reflection;
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class ReflectionReturnValue
 {
     public function __construct(

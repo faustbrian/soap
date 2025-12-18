@@ -34,7 +34,15 @@ use function sprintf;
  * <code>
  *
  * {
- *     /**
+ *
+ * @example
+ * <code>
+ *  $service = new MyCalculatorService();
+ *  $soap = new \Cline\Soap\Server($wsdlFile);
+ *  $soap->setObject(new \Cline\Soap\Server\DocumentLiteralWrapper($service));
+ *  $soap->handle();
+ * </code>
+ * @author Brian Faust <brian@cline.sh>
  *      * @param int $x
  *      * @param int $y
  *      * @return int
@@ -73,14 +81,6 @@ use function sprintf;
  *
  * To keep your service object code free from this implementation detail
  * of SOAP this wrapper service handles the parsing between the formats.
- *
- * @example
- * <code>
- *  $service = new MyCalculatorService();
- *  $soap = new \Cline\Soap\Server($wsdlFile);
- *  $soap->setObject(new \Cline\Soap\Server\DocumentLiteralWrapper($service));
- *  $soap->handle();
- * </code>
  */
 final class DocumentLiteralWrapper
 {

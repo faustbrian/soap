@@ -13,5 +13,6 @@ use RuntimeException;
 
 /**
  * Exception thrown when SOAP PHP extension is not loaded
+ * @author Brian Faust <brian@cline.sh>
  */
 final class ExtensionNotLoadedException extends RuntimeException {}

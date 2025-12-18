@@ -11,6 +11,9 @@ namespace Cline\Soap\Reflection;
 
 use ReflectionMethod as NativeReflectionMethod;
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class ReflectionMethod extends AbstractFunction
 {
     public function __construct(NativeReflectionMethod $r, string $namespace = '')

@@ -14,6 +14,9 @@ use ReflectionMethod as NativeReflectionMethod;
 
 use function str_starts_with;
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class ReflectionClass
 {
     public function __construct(

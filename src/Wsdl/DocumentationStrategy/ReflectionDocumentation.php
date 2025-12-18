@@ -18,29 +18,22 @@ use function mb_trim;
 use function preg_match;
 use function preg_replace;
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class ReflectionDocumentation implements DocumentationStrategyInterface
 {
-    /**
-     * @return string
-     */
-    public function getPropertyDocumentation(ReflectionProperty $property)
+    public function getPropertyDocumentation(ReflectionProperty $property): string
     {
-        return $this->parseDocComment($property->getDocComment());
+        return $this->parseDocComment($property->getDocComment() ?: '');
     }
 
-    /**
-     * @return string
-     */
-    public function getComplexTypeDocumentation(ReflectionClass $class)
+    public function getComplexTypeDocumentation(ReflectionClass $class): string
     {
-        return $this->parseDocComment($class->getDocComment());
+        return $this->parseDocComment($class->getDocComment() ?: '');
     }
 
-    /**
-     * @param  string $docComment
-     * @return string
-     */
-    private function parseDocComment($docComment)
+    private function parseDocComment(string $docComment): string
     {
         $documentation = [];
 

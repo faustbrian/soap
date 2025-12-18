@@ -9,24 +9,27 @@
 
 namespace Cline\Soap\Wsdl\ComplexTypeStrategy;
 
-use Cline\Soap\Exception;
 use Cline\Soap\Exception\InvalidArgumentException;
 use Cline\Soap\Wsdl;
 
 use function mb_substr_count;
+use function preg_match;
 use function str_replace;
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class ArrayOfTypeComplex extends DefaultComplexType
 {
     /**
      * Add an ArrayOfType based on the xsd:complexType syntax if type[] is
      * detected in return value doc comment.
      *
-     * @param  string                   $type
      * @throws InvalidArgumentException
-     * @return string                   tns:xsd-type
+     *
+     * @return string tns:xsd-type
      */
-    public function addComplexType($type)
+    public function addComplexType(string $type): string
     {
         if (($soapType = $this->scanRegisteredTypes($type)) !== null) {
             return $soapType;
@@ -54,11 +57,12 @@ final class ArrayOfTypeComplex extends DefaultComplexType
      * Add an ArrayOfType based on the xsd:complexType syntax if type[] is
      * detected in return value doc comment.
      *
-     * @param  string $singularType e.g. '\MyNamespace\MyClassname'
-     * @param  string $type         e.g. '\MyNamespace\MyClassname[]'
+     * @param string $singularType e.g. '\MyNamespace\MyClassname'
+     * @param string $type         e.g. '\MyNamespace\MyClassname[]'
+     *
      * @return string tns:xsd-type   e.g. 'tns:ArrayOfMyNamespace.MyClassname'
      */
-    protected function addArrayOfComplexType($singularType, $type)
+    protected function addArrayOfComplexType(string $singularType, string $type): string
     {
         if (($soapType = $this->scanRegisteredTypes($type)) !== null) {
             return $soapType;
@@ -102,24 +106,30 @@ final class ArrayOfTypeComplex extends DefaultComplexType
     }
 
     /**
-     * From a nested definition with type[], get the singular PHP Type
-     *
-     * @param  string $type
-     * @return string
+     * From a nested definition with type[] or array<Type>, get the singular PHP Type
      */
-    protected function getSingularPhpType($type)
+    protected function getSingularPhpType(string $type): string
     {
+        // Handle array<Type> notation
+        if (preg_match('/^array<(.+)>$/i', $type, $matches)) {
+            return $matches[1];
+        }
+
+        // Handle Type[] notation
         return str_replace('[]', '', $type);
     }
 
     /**
      * Return the array nesting level based on the type name
-     *
-     * @param  string $type
-     * @return int
      */
-    protected function getNestedCount($type)
+    protected function getNestedCount(string $type): int
     {
+        // Handle array<Type> notation (always 1 level)
+        if (preg_match('/^array<.+>$/i', $type)) {
+            return 1;
+        }
+
+        // Handle Type[] notation
         return mb_substr_count($type, '[]');
     }
 }

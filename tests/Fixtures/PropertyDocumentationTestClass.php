@@ -9,6 +9,9 @@
 
 namespace Tests\Fixtures;
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class PropertyDocumentationTestClass
 {
     /**

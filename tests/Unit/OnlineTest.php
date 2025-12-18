@@ -43,6 +43,7 @@ describe('Online Integration', function (): void {
 
 /**
  * Test class for online AutoDiscover tests.
+ * @author Brian Faust <brian@cline.sh>
  */
 final class OnlineTest
 {

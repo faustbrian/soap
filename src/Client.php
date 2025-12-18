@@ -43,73 +43,78 @@ use function mb_strtolower;
 use function parse_url;
 use function sprintf;
 
-final class Client implements ClientInterface
+/**
+ * @phpstan-consistent-constructor
+ *
+ * @author Brian Faust <brian@cline.sh>
+ */
+class Client implements ClientInterface
 {
     /**
      * Array of SOAP type => PHP class pairings for handling return/incoming values
      *
      * @var array
      */
-    protected $classmap;
+    protected array|null $classmap = null;
 
     /**
      * Encoding
      *
      * @var string
      */
-    protected $encoding = 'UTF-8';
+    protected string $encoding = 'UTF-8';
 
     /**
      * Registered fault exceptions
      *
      * @var array
      */
-    protected $faultExceptions = [];
+    protected array $faultExceptions = [];
 
     /**
      * Last invoked method
      *
      * @var string
      */
-    protected $lastMethod = '';
+    protected string $lastMethod = '';
 
     /**
      * Permanent SOAP request headers (shared between requests).
      *
      * @var array
      */
-    protected $permanentSoapInputHeaders = [];
+    protected array $permanentSoapInputHeaders = [];
 
     /**
      * SoapClient object
      *
      * @var SoapClient
      */
-    protected $soapClient;
+    protected SoapClient|null $soapClient = null;
 
     /**
      * Array of SoapHeader objects
      *
      * @var array<SoapHeader>
      */
-    protected $soapInputHeaders = [];
+    protected array $soapInputHeaders = [];
 
     /**
      * Array of SoapHeader objects
      *
      * @var array
      */
-    protected $soapOutputHeaders = [];
+    protected array $soapOutputHeaders = [];
 
     /**
      * SOAP version to use; SOAP_1_2 by default, to allow processing of headers
      *
      * @var int
      */
-    protected $soapVersion = SOAP_1_2;
+    protected int $soapVersion = SOAP_1_2;
 
     /** @var array */
-    protected $typemap;
+    protected array|null $typemap = null;
 
     /**
      * WSDL used to access server
@@ -117,7 +122,7 @@ final class Client implements ClientInterface
      *
      * @var string
      */
-    protected $wsdl;
+    protected string|null $wsdl = null;
 
     /**
      * Whether to send the "Connection: Keep-Alive" header (true) or "Connection: close" header (false)
@@ -125,7 +130,7 @@ final class Client implements ClientInterface
      *
      * @var bool
      */
-    protected $keepAlive;
+    protected bool|null $keepAlive = null;
 
     /**
      * One of SOAP_SSL_METHOD_TLS, SOAP_SSL_METHOD_SSLv2, SOAP_SSL_METHOD_SSLv3 or SOAP_SSL_METHOD_SSLv23
@@ -133,68 +138,68 @@ final class Client implements ClientInterface
      *
      * @var int
      */
-    protected $sslMethod;
+    protected int|null $sslMethod = null;
 
     /** @var string */
-    protected $connectionTimeout;
+    protected string|int|null $connectionTimeout = null;
 
     /** @var string */
-    protected $localCert;
+    protected string|null $localCert = null;
 
     /** @var string */
-    protected $location;
+    protected string|null $location = null;
 
     /** @var string */
-    protected $login;
+    protected string|null $login = null;
 
     /** @var string */
-    protected $passphrase;
+    protected string|null $passphrase = null;
 
     /** @var string */
-    protected $password;
+    protected string|null $password = null;
 
     /** @var string */
-    protected $proxyHost;
+    protected string|null $proxyHost = null;
 
     /** @var string */
-    protected $proxyLogin;
+    protected string|null $proxyLogin = null;
 
     /** @var string */
-    protected $proxyPassword;
+    protected string|null $proxyPassword = null;
 
     /** @var string */
-    protected $proxyPort;
+    protected int|null $proxyPort = null;
 
     /** @var string */
-    protected $streamContext;
+    protected mixed $streamContext = null;
 
     /** @var string */
-    protected $style;
+    protected int|null $style = null;
 
     /** @var string */
-    protected $uri;
+    protected string|null $uri = null;
 
     /** @var string */
-    protected $use;
+    protected int|null $use = null;
 
     /** @var string */
-    protected $userAgent;
+    protected string|null $userAgent = null;
 
     /** @var int */
-    protected $cacheWsdl;
+    protected int|null $cacheWsdl = null;
 
     /** @var int */
-    protected $compression;
+    protected int|null $compression = null;
 
     /** @var int */
-    protected $features;
+    protected int|string|null $features = null;
 
     /**
      * @param  string                      $wsdl
      * @param  array|Traversable           $options
      * @throws ExtensionNotLoadedException
      */
-    public function __construct($wsdl = null, $options = null)
+    public function __construct(string|null $wsdl = null, array|Traversable|null $options = null)
     {
         if (!extension_loaded('soap')) {
             throw new ExtensionNotLoadedException('SOAP extension is not loaded.');

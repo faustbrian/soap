@@ -13,19 +13,20 @@ use Cline\Soap\Wsdl;
 
 /**
  * Interface strategies that generate an XSD-Schema for complex data types in WSDL files.
+ *
+ * @author Brian Faust <brian@cline.sh>
  */
 interface ComplexTypeStrategyInterface
 {
     /**
      * Method accepts the current WSDL context file.
      */
-    public function setContext(Wsdl $context);
+    public function setContext(Wsdl $context): void;
 
     /**
      * Create a complex type based on a strategy
      *
-     * @param  string $type
      * @return string XSD type
      */
-    public function addComplexType($type);
+    public function addComplexType(string $type): string;
 }

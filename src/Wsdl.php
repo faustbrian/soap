@@ -37,6 +37,9 @@ use function mb_substr;
 use function mb_trim;
 use function str_replace;
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class Wsdl
 {
     /**
@@ -75,38 +78,38 @@ final class Wsdl
      *
      * @var DOMDocument
      */
-    protected $dom;
+    protected DOMDocument $dom;
 
     /**
      * Types defined on schema
      *
      * @var array
      */
-    protected $includedTypes = [];
+    protected array $includedTypes = [];
 
     /** @var DOMElement */
-    protected $schema;
+    protected ?DOMElement $schema = null;
 
     /**
      * Strategy for detection of complex types
      *
      * @var null|ComplexTypeStrategy
      */
-    protected $strategy;
+    protected ?ComplexTypeStrategy $strategy = null;
 
     /**
      * URI where the WSDL will be available
      *
      * @var string
      */
-    protected $uri;
+    protected string $uri;
 
     /**
      * Root XML_Tree_Node
      *
      * @var DOMElement WSDL
      */
-    protected $wsdl;
+    protected DOMElement $wsdl;
 
     /**
      * @param  string                   $name     Name of the Web Service being Described
@@ -116,8 +119,8 @@ final class Wsdl
      * @throws RuntimeException
      */
     public function __construct(
-        $name,
-        $uri,
+        string|Uri $name,
+        string|Uri $uri,
         ?ComplexTypeStrategy $strategy = null,
         /**
          * Map of PHP Class names to WSDL QNames.
@@ -143,7 +146,7 @@ final class Wsdl
      *
      * @return string
      */
-    public function getTargetNamespace()
+    public function getTargetNamespace(): ?string
     {
         $targetNamespace = null;
 
@@ -159,7 +162,7 @@ final class Wsdl
      *
      * @return array
      */
-    public function getClassMap()
+    public function getClassMap(): array
     {
         return $this->classMap;
     }
@@ -169,7 +172,7 @@ final class Wsdl
      *
      * @return self
      */
-    public function setClassMap(array $classMap)
+    public function setClassMap(array $classMap): self
     {
         $this->classMap = $classMap;
 
@@ -182,7 +185,7 @@ final class Wsdl
      * @param  string|Uri $uri
      * @return self
      */
-    public function setUri($uri)
+    public function setUri(string|Uri $uri): self
     {
         if ($uri instanceof Uri) {
             $uri = $uri->toString();
@@ -228,7 +231,7 @@ final class Wsdl
      *
      * @return string
      */
-    public function getUri()
+    public function getUri(): string
     {
         return $this->uri;
     }
@@ -240,7 +243,7 @@ final class Wsdl
      * @throws InvalidArgumentException
      * @return string
      */
-    public function sanitizeUri($uri)
+    public function sanitizeUri(string|Uri $uri): string
     {
         if ($uri instanceof Uri) {
             $uri = $uri->toString();
@@ -261,7 +264,7 @@ final class Wsdl
      *
      * @return self
      */
-    public function setComplexTypeStrategy(ComplexTypeStrategy $strategy)
+    public function setComplexTypeStrategy(ComplexTypeStrategy $strategy): self
     {
         $this->strategy = $strategy;
 
@@ -273,7 +276,7 @@ final class Wsdl
      *
      * @return ComplexTypeStrategy
      */
-    public function getComplexTypeStrategy()
+    public function getComplexTypeStrategy(): ?ComplexTypeStrategy
     {
         return $this->strategy;
     }
@@ -289,7 +292,7 @@ final class Wsdl
      *                                 - 'name of part' => array('element' => 'part xml element name')
      * @return DOMElement The new message's XML_Tree_Node for use in {@link function addDocumentation}
      */
-    public function addMessage($messageName, $parts)
+    public function addMessage(string $messageName, array $parts): DOMElement
     {
         $message = $this->dom->createElementNS(self::WSDL_NS_URI, 'message');
         $message->setAttribute('name', $messageName);
@@ -321,7 +324,7 @@ final class Wsdl
      * @return DOMElement The new portType's XML_Tree_Node for use in
      *                    {@link addPortOperation} and {@link addDocumentation}
      */
-    public function addPortType($name)
+    public function addPortType(string $name): DOMElement
     {
         $portType = $this->dom->createElementNS(self::WSDL_NS_URI, 'portType');
         $this->wsdl->appendChild($portType);
@@ -340,7 +343,7 @@ final class Wsdl
      * @param  bool|string $fault    Fault Message
      * @return DOMElement  The new operation's XML_Tree_Node for use in {@link function addDocumentation}
      */
-    public function addPortOperation($portType, $name, $input = false, $output = false, $fault = false)
+    public function addPortOperation(DOMElement $portType, string $name, bool|string $input = false, bool|string $output = false, bool|string $fault = false): DOMElement
     {
         $operation = $this->dom->createElementNS(self::WSDL_NS_URI, 'operation');
         $portType->appendChild($operation);
@@ -376,7 +379,7 @@ final class Wsdl
      * @return DOMElement The new binding's XML_Tree_Node for use with
      *                    {@link function addBindingOperation} and {@link function addDocumentation}
      */
-    public function addBinding($name, $portType)
+    public function addBinding(string $name, string $portType): DOMElement
     {
         $binding = $this->dom->createElementNS(self::WSDL_NS_URI, 'binding');
         $this->wsdl->appendChild($binding);
@@ -406,13 +409,13 @@ final class Wsdl
      * @return DOMElement The new Operation's XML_Tree_Node for use with {@link *     function addSoapOperation} and {@link function addDocumentation}
      */
     public function addBindingOperation(
-        $binding,
-        $name,
-        $input = false,
-        $output = false,
-        $fault = false,
-        $soapVersion = SOAP_1_1,
-    ) {
+        DOMElement $binding,
+        string $name,
+        array|bool $input = false,
+        array|bool $output = false,
+        array|bool $fault = false,
+        int $soapVersion = SOAP_1_1,
+    ): DOMElement {
         $operation = $this->dom->createElementNS(self::WSDL_NS_URI, 'operation');
         $binding->appendChild($operation);
 
@@ -458,11 +461,11 @@ final class Wsdl
      * @return DOMElement
      */
     public function addSoapBinding(
-        $binding,
-        $style = 'document',
-        $transport = 'http://schemas.xmlsoap.org/soap/http',
-        $soapVersion = SOAP_1_1,
-    ) {
+        DOMElement $binding,
+        string $style = 'document',
+        string $transport = 'http://schemas.xmlsoap.org/soap/http',
+        int $soapVersion = SOAP_1_1,
+    ): DOMElement {
         $soapBinding = $this->dom->createElementNS($this->getSoapNamespaceUriByVersion($soapVersion), 'binding');
         $binding->appendChild($soapBinding);
 
@@ -480,7 +483,7 @@ final class Wsdl
      * @param  int        $soapVersion SOAP version: SOAP_1_1 or SOAP_1_2, default: SOAP_1_1
      * @return DOMElement
      */
-    public function addSoapOperation($operation, $soapAction, $soapVersion = SOAP_1_1)
+    public function addSoapOperation(DOMElement $operation, string|Uri $soapAction, int $soapVersion = SOAP_1_1): DOMElement
     {
         if ($soapAction instanceof Uri) {
             $soapAction = $soapAction->toString();

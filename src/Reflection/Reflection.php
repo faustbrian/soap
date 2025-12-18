@@ -15,6 +15,9 @@ use ReflectionObject;
 
 use function is_object;
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class Reflection
 {
     /**

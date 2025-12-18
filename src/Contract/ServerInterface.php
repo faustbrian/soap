@@ -9,66 +9,67 @@
 
 namespace Cline\Soap\Contract;
 
+use Exception;
+use SoapFault;
+
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 interface ServerInterface
 {
     /**
      * Attach a function as a server method.
-     * @param mixed $function
-     * @param mixed $namespace
+     *
+     * @param array<string>|int|string $function
      */
-    public function addFunction($function, $namespace = '');
+    public function addFunction(array|int|string $function, string $namespace = ''): static;
 
     /**
      * Attach a class to a server.
-     * @param mixed      $class
-     * @param mixed      $namespace
-     * @param null|mixed $argv
      */
-    public function setClass($class, $namespace = '', $argv = null);
+    public function setClass(object|string $class, string $namespace = '', mixed $argv = null): static;
 
     /**
      * Generate a server fault.
-     * @param null|mixed $fault
-     * @param mixed      $code
      */
-    public function fault($fault = null, $code = 404);
+    public function fault(Exception|string|null $fault = null, string $code = 'Receiver'): SoapFault;
 
     /**
      * Handle a request.
-     * @param mixed $request
      */
-    public function handle($request = false);
+    public function handle(mixed $request = null): mixed;
 
     /**
      * Return a server definition array.
+     *
+     * @return array<int|string, mixed>
      */
-    public function getFunctions();
+    public function getFunctions(): array;
 
     /**
      * Load server definition.
-     * @param mixed $definition
+     *
+     * @param array<int|string, mixed> $definition
      */
-    public function loadFunctions($definition);
+    public function loadFunctions(array $definition): void;
 
     /**
      * Set server persistence.
-     * @param mixed $mode
      */
-    public function setPersistence($mode);
+    public function setPersistence(int $mode): static;
 
     /**
      * Set auto-response flag for the server.
-     * @param mixed $flag
      */
-    public function setReturnResponse($flag = true);
+    public function setReturnResponse(bool $flag = true): static;
 
     /**
      * Return auto-response flag of the server.
      */
-    public function getReturnResponse();
+    public function getReturnResponse(): bool;
 
     /**
      * Return last produced response.
      */
-    public function getResponse();
+    public function getResponse(): string;
 }

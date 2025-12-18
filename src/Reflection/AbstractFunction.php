@@ -26,6 +26,9 @@ use function preg_match;
 use function preg_match_all;
 use function str_starts_with;
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 abstract class AbstractFunction
 {
     protected string $description = '';
@@ -200,11 +203,20 @@ abstract class AbstractFunction
     protected function normalizeType(string $type): string
     {
         // Handle common type aliases
-        return match (mb_strtolower($type)) {
+        $normalized = match (mb_strtolower($type)) {
             'integer' => 'int',
             'boolean' => 'bool',
             'double' => 'float',
             default => $type,
         };
+
+        // Resolve self/static to the declaring class name
+        if (mb_strtolower($normalized) === 'self' || mb_strtolower($normalized) === 'static') {
+            if ($this->reflection instanceof ReflectionMethod) {
+                return $this->reflection->getDeclaringClass()->getName();
+            }
+        }
+
+        return $normalized;
     }
 }

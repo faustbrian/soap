@@ -25,7 +25,7 @@ use function trigger_error;
 /**
  * Test Function
  *
- * @param  mixed  $who
+ * @param  string $who
  * @return string
  */
 function TestFunc($who)
@@ -113,6 +113,9 @@ function TestFunc9($foo, $bar)
     return "{$foo} {$bar}";
 }
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class TestFixingMultiplePrototypes
 {
     /**
@@ -126,6 +129,9 @@ final class TestFixingMultiplePrototypes
     public function testFunc($a = 100, $b = 200, $d = 300) {}
 }
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class Test
 {
     /**
@@ -172,6 +178,9 @@ final class Test
     }
 }
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class AutoDiscoverTestClass1
 {
     /** @var int */
@@ -181,6 +190,9 @@ final class AutoDiscoverTestClass1
     public $param = 'hello';
 }
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class AutoDiscoverTestClass2
 {
     /**
@@ -192,7 +204,7 @@ final class AutoDiscoverTestClass2
     }
 
     /**
-     * @return array<AutoDiscoverTestClass1>
+     * @return array<\Tests\Fixtures\AutoDiscoverTestClass1>
      */
     public function fetchAll()
     {
@@ -208,6 +220,9 @@ final class AutoDiscoverTestClass2
     public function addMultiple($test): void {}
 }
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class ComplexTypeB
 {
     /** @var string */
@@ -217,18 +232,27 @@ final class ComplexTypeB
     public $foo;
 }
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class ComplexTypeA
 {
-    /** @var array<ComplexTypeB> */
+    /** @var array<\Tests\Fixtures\ComplexTypeB> */
     public $baz = [];
 }
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class ComplexTest
 {
     /** @var int */
     public $var = 5;
 }
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class ComplexObjectStructure
 {
     /** @var bool */
@@ -244,33 +268,42 @@ final class ComplexObjectStructure
     public $array = [1, 2, 3];
 }
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class ComplexObjectWithObjectStructure
 {
-    /** @var ComplexTest */
+    /** @var \Tests\Fixtures\ComplexTest */
     public $object;
 }
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class MyService
 {
     /**
-     * @param  string            $foo
-     * @return array<MyResponse>
+     * @param  string                            $foo
+     * @return array<\Tests\Fixtures\MyResponse>
      */
     public function foo($foo) {}
 
     /**
-     * @param  string            $bar
-     * @return array<MyResponse>
+     * @param  string                            $bar
+     * @return array<\Tests\Fixtures\MyResponse>
      */
     public function bar($bar) {}
 
     /**
-     * @param  string            $baz
-     * @return array<MyResponse>
+     * @param  string                            $baz
+     * @return array<\Tests\Fixtures\MyResponse>
      */
     public function baz($baz) {}
 }
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class MyServiceSequence
 {
     /**
@@ -298,12 +331,18 @@ final class MyServiceSequence
     public function bazNested($baz) {}
 }
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class MyResponse
 {
     /** @var string */
     public $p1;
 }
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class Recursion
 {
     /** @var self */
@@ -320,6 +359,9 @@ final class Recursion
  */
 function OneWay($message): void {}
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class NoReturnType
 {
     /**
@@ -329,7 +371,9 @@ final class NoReturnType
 }
 
 /* Client test classes */
-/** Test Class */
+/**
+ * Test Class * @author Brian Faust <brian@cline.sh>
+ */
 final class TestClass
 {
     /**
@@ -376,7 +420,9 @@ final class TestClass
     }
 }
 
-/** Test class 2 */
+/**
+ * Test class 2 * @author Brian Faust <brian@cline.sh>
+ */
 final class TestData1
 {
     /**
@@ -394,7 +440,9 @@ final class TestData1
     public $property2;
 }
 
-/** Test class 2 */
+/**
+ * Test class 2 * @author Brian Faust <brian@cline.sh>
+ */
 final class TestData2
 {
     /**
@@ -412,7 +460,9 @@ final class TestData2
     public $property2;
 }
 
-/** Server test classes */
+/**
+ * Server test classes * @author Brian Faust <brian@cline.sh>
+ */
 final class ServerTestClass
 {
     /**
@@ -468,7 +518,9 @@ final class ServerTestClass
 }
 
 if (extension_loaded('soap')) {
-    /** Local SOAP client */
+    /**
+     * Local SOAP client * @author Brian Faust <brian@cline.sh>
+     */
     final class TestLocalSoapClient extends SoapClient
     {
         /**
@@ -507,26 +559,41 @@ if (extension_loaded('soap')) {
     }
 }
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class SequenceTest
 {
     /** @var int */
     public $var = 5;
 }
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class Book
 {
     /** @var int */
     public $somevar;
 }
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class Cookie
 {
     /** @var int */
     public $othervar;
 }
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class Anything {}
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class PublicPrivateProtected
 {
     public const string PROTECTED_VAR_NAME = 'bar';
@@ -543,6 +610,9 @@ final class PublicPrivateProtected
     private $baz;
 }
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class errorClass
 {
     public function triggerError(): void

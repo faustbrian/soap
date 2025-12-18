@@ -14,20 +14,18 @@ use ReflectionProperty;
 
 /**
  * Implement this interface to provide contents for <xsd:documentation> elements on complex types
+ *
+ * @author Brian Faust <brian@cline.sh>
  */
 interface DocumentationStrategyInterface
 {
     /**
      * Returns documentation for complex type property
-     *
-     * @return string
      */
-    public function getPropertyDocumentation(ReflectionProperty $property);
+    public function getPropertyDocumentation(ReflectionProperty $property): string;
 
     /**
      * Returns documentation for complex type
-     *
-     * @return string
      */
-    public function getComplexTypeDocumentation(ReflectionClass $class);
+    public function getComplexTypeDocumentation(ReflectionClass $class): string;
 }

@@ -44,7 +44,7 @@ describe('Client', function (): void {
             ];
 
             $nonWSDLOptions = [
-                'soap_version' => SOAP_1_1,
+                'soap_version' => \SOAP_1_1,
                 'classmap' => [
                     'TestData1' => TestData1::class,
                     'TestData2' => TestData2::class,
@@ -52,8 +52,8 @@ describe('Client', function (): void {
                 'encoding' => 'ISO-8859-1',
                 'uri' => 'https://getlaminas.org/Laminas_Soap_ServerTest.php',
                 'location' => 'https://getlaminas.org/Laminas_Soap_ServerTest.php',
-                'use' => SOAP_ENCODED,
-                'style' => SOAP_RPC,
+                'use' => \SOAP_ENCODED,
+                'style' => \SOAP_RPC,
                 'login' => 'http_login',
                 'password' => 'http_password',
                 'proxy_host' => 'proxy.somehost.com',
@@ -65,7 +65,7 @@ describe('Client', function (): void {
                 'stream_context' => $ctx,
                 'cache_wsdl' => 8,
                 'features' => 4,
-                'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | 5,
+                'compression' => \SOAP_COMPRESSION_ACCEPT | \SOAP_COMPRESSION_GZIP | 5,
                 'typemap' => $typeMap,
                 'keep_alive' => true,
                 'ssl_method' => 3,
@@ -76,12 +76,12 @@ describe('Client', function (): void {
             $options = $client->getOptions();
 
             // Assert
-            expect($options['soap_version'])->toBe(SOAP_1_1)
+            expect($options['soap_version'])->toBe(\SOAP_1_1)
                 ->and($options['encoding'])->toBe('ISO-8859-1')
                 ->and($options['uri'])->toBe('https://getlaminas.org/Laminas_Soap_ServerTest.php')
                 ->and($options['location'])->toBe('https://getlaminas.org/Laminas_Soap_ServerTest.php')
-                ->and($options['use'])->toBe(SOAP_ENCODED)
-                ->and($options['style'])->toBe(SOAP_RPC)
+                ->and($options['use'])->toBe(\SOAP_ENCODED)
+                ->and($options['style'])->toBe(\SOAP_RPC)
                 ->and($options['login'])->toBe('http_login')
                 ->and($options['password'])->toBe('http_password')
                 ->and($options['proxy_host'])->toBe('proxy.somehost.com')
@@ -93,7 +93,7 @@ describe('Client', function (): void {
                 ->and($options['stream_context'])->toBe($ctx)
                 ->and($options['cache_wsdl'])->toBe(8)
                 ->and($options['features'])->toBe(4)
-                ->and($options['compression'])->toBe(SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | 5)
+                ->and($options['compression'])->toBe(\SOAP_COMPRESSION_ACCEPT | \SOAP_COMPRESSION_GZIP | 5)
                 ->and($options['typemap'])->toBe($typeMap)
                 ->and($options['keep_alive'])->toBeTrue()
                 ->and($options['ssl_method'])->toBe(3);
@@ -119,7 +119,7 @@ describe('Client', function (): void {
             ];
 
             $wsdlOptions = [
-                'soap_version' => SOAP_1_1,
+                'soap_version' => \SOAP_1_1,
                 'wsdl' => fixturesPath('wsdl_example.wsdl'),
                 'classmap' => [
                     'TestData1' => TestData1::class,
@@ -135,7 +135,7 @@ describe('Client', function (): void {
                 'local_cert' => fixturesPath('cert_file'),
                 'passphrase' => 'some pass phrase',
                 'stream_context' => $ctx,
-                'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | 5,
+                'compression' => \SOAP_COMPRESSION_ACCEPT | \SOAP_COMPRESSION_GZIP | 5,
                 'typemap' => $typeMap,
                 'keep_alive' => true,
                 'ssl_method' => 3,
@@ -146,7 +146,7 @@ describe('Client', function (): void {
             $options = $client->getOptions();
 
             // Assert
-            expect($options['soap_version'])->toBe(SOAP_1_1)
+            expect($options['soap_version'])->toBe(\SOAP_1_1)
                 ->and($options['wsdl'])->toBe(fixturesPath('wsdl_example.wsdl'))
                 ->and($options['encoding'])->toBe('ISO-8859-1')
                 ->and($options['login'])->toBe('http_login')
@@ -158,7 +158,7 @@ describe('Client', function (): void {
                 ->and($options['local_cert'])->toBe(fixturesPath('cert_file'))
                 ->and($options['passphrase'])->toBe('some pass phrase')
                 ->and($options['stream_context'])->toBe($ctx)
-                ->and($options['compression'])->toBe(SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | 5)
+                ->and($options['compression'])->toBe(\SOAP_COMPRESSION_ACCEPT | \SOAP_COMPRESSION_GZIP | 5)
                 ->and($options['typemap'])->toBe($typeMap)
                 ->and($options['keep_alive'])->toBeTrue()
                 ->and($options['ssl_method'])->toBe(3);
@@ -173,7 +173,7 @@ describe('Client', function (): void {
 
             // Assert
             expect($options['encoding'])->toBe('UTF-8')
-                ->and($options['soap_version'])->toBe(SOAP_1_2);
+                ->and($options['soap_version'])->toBe(\SOAP_1_2);
         });
 
         test('retrieves options after setting them', function (): void {
@@ -195,7 +195,7 @@ describe('Client', function (): void {
             ];
 
             $options = [
-                'soap_version' => SOAP_1_1,
+                'soap_version' => \SOAP_1_1,
                 'wsdl' => fixturesPath('wsdl_example.wsdl'),
                 'classmap' => [
                     'TestData1' => TestData1::class,
@@ -204,8 +204,8 @@ describe('Client', function (): void {
                 'encoding' => 'ISO-8859-1',
                 'uri' => 'https://getlaminas.org/Laminas_Soap_ServerTest.php',
                 'location' => 'https://getlaminas.org/Laminas_Soap_ServerTest.php',
-                'use' => SOAP_ENCODED,
-                'style' => SOAP_RPC,
+                'use' => \SOAP_ENCODED,
+                'style' => \SOAP_RPC,
                 'login' => 'http_login',
                 'password' => 'http_password',
                 'proxy_host' => 'proxy.somehost.com',
@@ -214,7 +214,7 @@ describe('Client', function (): void {
                 'proxy_password' => 'proxy_password',
                 'local_cert' => fixturesPath('cert_file'),
                 'passphrase' => 'some pass phrase',
-                'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | 5,
+                'compression' => \SOAP_COMPRESSION_ACCEPT | \SOAP_COMPRESSION_GZIP | 5,
                 'typemap' => $typeMap,
                 'keep_alive' => true,
                 'ssl_method' => 3,
@@ -225,13 +225,13 @@ describe('Client', function (): void {
             $retrievedOptions = $client->getOptions();
 
             // Assert
-            expect($retrievedOptions['soap_version'])->toBe(SOAP_1_1)
+            expect($retrievedOptions['soap_version'])->toBe(\SOAP_1_1)
                 ->and($retrievedOptions['wsdl'])->toBe(fixturesPath('wsdl_example.wsdl'))
                 ->and($retrievedOptions['encoding'])->toBe('ISO-8859-1')
                 ->and($retrievedOptions['uri'])->toBe('https://getlaminas.org/Laminas_Soap_ServerTest.php')
                 ->and($retrievedOptions['location'])->toBe('https://getlaminas.org/Laminas_Soap_ServerTest.php')
-                ->and($retrievedOptions['use'])->toBe(SOAP_ENCODED)
-                ->and($retrievedOptions['style'])->toBe(SOAP_RPC)
+                ->and($retrievedOptions['use'])->toBe(\SOAP_ENCODED)
+                ->and($retrievedOptions['style'])->toBe(\SOAP_RPC)
                 ->and($retrievedOptions['login'])->toBe('http_login')
                 ->and($retrievedOptions['password'])->toBe('http_password')
                 ->and($retrievedOptions['proxy_host'])->toBe('proxy.somehost.com')
@@ -291,10 +291,10 @@ describe('Client', function (): void {
             $options = $client->getOptions();
             expect($options)->not->toHaveKey('cache_wsdl');
 
-            $client->setWsdlCache(WSDL_CACHE_NONE);
-            expect($client->getWsdlCache())->toBe(WSDL_CACHE_NONE);
+            $client->setWsdlCache(\WSDL_CACHE_NONE);
+            expect($client->getWsdlCache())->toBe(\WSDL_CACHE_NONE);
             $options = $client->getOptions();
-            expect($options['cache_wsdl'])->toBe(WSDL_CACHE_NONE);
+            expect($options['cache_wsdl'])->toBe(\WSDL_CACHE_NONE);
 
             $client->setWsdlCache(null);
             expect($client->getWsdlCache())->toBeNull();
@@ -311,10 +311,10 @@ describe('Client', function (): void {
             $options = $client->getOptions();
             expect($options)->not->toHaveKey('compression');
 
-            $client->setCompressionOptions(SOAP_COMPRESSION_GZIP);
-            expect($client->getCompressionOptions())->toBe(SOAP_COMPRESSION_GZIP);
+            $client->setCompressionOptions(\SOAP_COMPRESSION_GZIP);
+            expect($client->getCompressionOptions())->toBe(\SOAP_COMPRESSION_GZIP);
             $options = $client->getOptions();
-            expect($options['compression'])->toBe(SOAP_COMPRESSION_GZIP);
+            expect($options['compression'])->toBe(\SOAP_COMPRESSION_GZIP);
 
             $client->setCompressionOptions(null);
             expect($client->getCompressionOptions())->toBeNull();
@@ -512,7 +512,7 @@ describe('Client', function (): void {
             // Arrange
             $ctx = stream_context_create();
             $nonWSDLOptions = [
-                'soap_version' => SOAP_1_1,
+                'soap_version' => \SOAP_1_1,
                 'classmap' => [
                     'TestData1' => TestData1::class,
                     'TestData2' => TestData2::class,
@@ -520,8 +520,8 @@ describe('Client', function (): void {
                 'encoding' => 'ISO-8859-1',
                 'uri' => 'https://getlaminas.org/Laminas_Soap_ServerTest.php',
                 'location' => 'https://getlaminas.org/Laminas_Soap_ServerTest.php',
-                'use' => SOAP_ENCODED,
-                'style' => SOAP_RPC,
+                'use' => \SOAP_ENCODED,
+                'style' => \SOAP_RPC,
                 'login' => 'http_login',
                 'password' => 'http_password',
                 'proxy_host' => 'proxy.somehost.com',
@@ -531,7 +531,7 @@ describe('Client', function (): void {
                 'local_cert' => fixturesPath('cert_file'),
                 'passphrase' => 'some pass phrase',
                 'stream_context' => $ctx,
-                'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP | 5,
+                'compression' => \SOAP_COMPRESSION_ACCEPT | \SOAP_COMPRESSION_GZIP | 5,
             ];
 
             // Act
@@ -539,12 +539,12 @@ describe('Client', function (): void {
             $options = $client->getOptions();
 
             // Assert
-            expect($options['soap_version'])->toBe(SOAP_1_1)
+            expect($options['soap_version'])->toBe(\SOAP_1_1)
                 ->and($options['encoding'])->toBe('ISO-8859-1')
                 ->and($options['uri'])->toBe('https://getlaminas.org/Laminas_Soap_ServerTest.php')
                 ->and($options['location'])->toBe('https://getlaminas.org/Laminas_Soap_ServerTest.php')
-                ->and($options['use'])->toBe(SOAP_ENCODED)
-                ->and($options['style'])->toBe(SOAP_RPC)
+                ->and($options['use'])->toBe(\SOAP_ENCODED)
+                ->and($options['style'])->toBe(\SOAP_RPC)
                 ->and($options['login'])->toBe('http_login')
                 ->and($options['password'])->toBe('http_password');
         });
@@ -724,7 +724,7 @@ describe('Client', function (): void {
 
         test('throws UnexpectedValueException when initializing with WSDL but invalid use option', function (): void {
             // Arrange
-            $client = new Client(fixturesPath('wsdl_example.wsdl'), ['use' => SOAP_ENCODED]);
+            $client = new Client(fixturesPath('wsdl_example.wsdl'), ['use' => \SOAP_ENCODED]);
 
             // Act & Assert
             expect(fn () => $client->getSoapClient())
@@ -733,7 +733,7 @@ describe('Client', function (): void {
 
         test('throws UnexpectedValueException when initializing with WSDL but invalid style option', function (): void {
             // Arrange
-            $client = new Client(fixturesPath('wsdl_example.wsdl'), ['style' => SOAP_DOCUMENT]);
+            $client = new Client(fixturesPath('wsdl_example.wsdl'), ['style' => \SOAP_DOCUMENT]);
 
             // Act & Assert
             expect(fn () => $client->getSoapClient())

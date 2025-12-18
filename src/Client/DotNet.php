@@ -36,6 +36,7 @@ use function sprintf;
  * .NET SOAP client
  *
  * Class is intended to be used with .NET Web Services.
+ * @author Brian Faust <brian@cline.sh>
  */
 final class DotNet extends SOAPClient
 {

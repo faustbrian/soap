@@ -16,18 +16,17 @@ use function array_key_exists;
 
 /**
  * Abstract class for Cline\Soap\Wsdl\Strategy.
+ *
+ * @author Brian Faust <brian@cline.sh>
  */
 abstract class AbstractComplexTypeStrategy implements ComplexTypeStrategyInterface
 {
     /**
      * Context object
-     *
-     * @var Wsdl
      */
-    protected $context;
+    protected ?Wsdl $context = null;
 
-    /** @var DocumentationStrategyInterface */
-    protected $documentationStrategy;
+    protected ?DocumentationStrategyInterface $documentationStrategy = null;
 
     /**
      * Set the WSDL Context object this strategy resides in.
@@ -39,21 +38,16 @@ abstract class AbstractComplexTypeStrategy implements ComplexTypeStrategyInterfa
 
     /**
      * Return the current WSDL context object
-     *
-     * @return Wsdl
      */
-    public function getContext()
+    public function getContext(): ?Wsdl
     {
         return $this->context;
     }
 
     /**
      * Look through registered types
-     *
-     * @param  string      $phpType
-     * @return null|string
      */
-    public function scanRegisteredTypes($phpType)
+    public function scanRegisteredTypes(string $phpType): ?string
     {
         if (array_key_exists($phpType, $this->getContext()->getTypes())) {
             $soapTypes = $this->getContext()->getTypes();

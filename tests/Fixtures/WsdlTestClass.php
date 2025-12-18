@@ -11,6 +11,7 @@ namespace Tests\Fixtures;
 
 /**
  * Test Class
+ * @author Brian Faust <brian@cline.sh>
  */
 final class WsdlTestClass
 {

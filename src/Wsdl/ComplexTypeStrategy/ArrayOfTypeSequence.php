@@ -12,22 +12,26 @@ namespace Cline\Soap\Wsdl\ComplexTypeStrategy;
 use Cline\Soap\Wsdl;
 
 use function mb_strpos;
+use function mb_strtolower;
 use function mb_substr;
 use function mb_substr_count;
+use function preg_match;
 use function str_repeat;
 use function str_replace;
 use function ucfirst;
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class ArrayOfTypeSequence extends DefaultComplexType
 {
     /**
      * Add an unbounded ArrayOfType based on the xsd:sequence syntax if
      * type[] is detected in return value doc comment.
      *
-     * @param  string $type
      * @return string tns:xsd-type
      */
-    public function addComplexType($type)
+    public function addComplexType(string $type): string
     {
         $nestedCounter = $this->getNestedCount($type);
 
@@ -58,12 +62,8 @@ final class ArrayOfTypeSequence extends DefaultComplexType
     /**
      * Return the ArrayOf or simple type name based on the singular xsdtype
      * and the nesting level
-     *
-     * @param  string $singularType
-     * @param  int    $level
-     * @return string
      */
-    protected function getTypeBasedOnNestingLevel($singularType, $level)
+    protected function getTypeBasedOnNestingLevel(string $singularType, int $level): string
     {
         if ($level === 0) {
             // This is not an Array anymore, return the xsd simple type
@@ -77,24 +77,30 @@ final class ArrayOfTypeSequence extends DefaultComplexType
     }
 
     /**
-     * From a nested definition with type[], get the singular xsd:type
-     *
-     * @param  string $type
-     * @return string
+     * From a nested definition with type[] or array<Type>, get the singular xsd:type
      */
-    protected function getSingularType($type)
+    protected function getSingularType(string $type): string
     {
+        // Handle array<Type> notation - unwrap all nested array<> to get innermost type
+        while (preg_match('/^array<(.+)>$/i', $type, $matches)) {
+            $type = $matches[1];
+        }
+
+        // Handle Type[] notation
         return str_replace('[]', '', $type);
     }
 
     /**
      * Return the array nesting level based on the type name
-     *
-     * @param  string $type
-     * @return int
      */
-    protected function getNestedCount($type)
+    protected function getNestedCount(string $type): int
     {
+        // Handle array<Type> notation - count nested array< occurrences
+        if (preg_match('/^array<.+>$/i', $type)) {
+            return mb_substr_count(mb_strtolower($type), 'array<');
+        }
+
+        // Handle Type[] notation
         return mb_substr_count($type, '[]');
     }
 
@@ -105,7 +111,7 @@ final class ArrayOfTypeSequence extends DefaultComplexType
      * @param string $childType    Qualified array items type (e.g. 'xsd:int', 'tns:ArrayOfInt')
      * @param string $phpArrayType PHP type (e.g. 'int[][]', '\MyNamespace\MyClassName[][][]')
      */
-    protected function addSequenceType($arrayType, $childType, $phpArrayType): void
+    protected function addSequenceType(string $arrayType, string $childType, string $phpArrayType): void
     {
         if ($this->scanRegisteredTypes($phpArrayType) !== null) {
             return;
@@ -131,7 +137,7 @@ final class ArrayOfTypeSequence extends DefaultComplexType
 
         $element->setAttribute('name', 'item');
         $element->setAttribute('type', $childType);
-        $element->setAttribute('minOccurs', 0);
+        $element->setAttribute('minOccurs', '0');
         $element->setAttribute('maxOccurs', 'unbounded');
     }
 }

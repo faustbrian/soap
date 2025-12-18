@@ -18,11 +18,15 @@ use ReflectionClass;
 use ReflectionProperty;
 
 use function class_exists;
+use function mb_strtolower;
 use function mb_trim;
 use function preg_match_all;
 use function sprintf;
 
-final class DefaultComplexType extends AbstractComplexTypeStrategy
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
+class DefaultComplexType extends AbstractComplexTypeStrategy
 {
     /**
      * Add a complex type by recursively using all the class properties fetched via Reflection.
@@ -31,7 +35,7 @@ final class DefaultComplexType extends AbstractComplexTypeStrategy
      * @throws InvalidArgumentException If class does not exist.
      * @return string                   XSD Type for the given PHP type
      */
-    public function addComplexType($type)
+    public function addComplexType(string $type): string
     {
         if (!class_exists($type)) {
             throw new InvalidArgumentException(sprintf(
@@ -74,7 +78,14 @@ final class DefaultComplexType extends AbstractComplexTypeStrategy
              */
             $element = $dom->createElementNS(Wsdl::XSD_NS_URI, 'element');
             $element->setAttribute('name', $propertyName = $property->getName());
-            $element->setAttribute('type', $this->getContext()->getType(mb_trim($matches[1][0])));
+            $propertyType = mb_trim($matches[1][0]);
+
+            // Resolve self/static to the declaring class name
+            if (mb_strtolower($propertyType) === 'self' || mb_strtolower($propertyType) === 'static') {
+                $propertyType = $phpType;
+            }
+
+            $element->setAttribute('type', $this->getContext()->getType($propertyType));
 
             // If the default value is null, then this property is nillable.
             if ($defaultProperties[$propertyName] === null) {

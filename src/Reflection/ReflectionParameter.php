@@ -11,6 +11,9 @@ namespace Cline\Soap\Reflection;
 
 use ReflectionParameter as NativeReflectionParameter;
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class ReflectionParameter
 {
     protected int $position = 0;

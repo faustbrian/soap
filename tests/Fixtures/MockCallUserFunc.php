@@ -11,6 +11,7 @@ namespace Tests\Fixtures;
 
 /**
  * Allows mocking of call_user_func.
+ * @author Brian Faust <brian@cline.sh>
  */
 final class MockCallUserFunc
 {

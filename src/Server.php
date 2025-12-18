@@ -68,6 +68,9 @@ use function restore_error_handler;
 use function set_error_handler;
 use function sprintf;
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class Server implements ServerInterface
 {
     /**
@@ -75,161 +78,161 @@ final class Server implements ServerInterface
      *
      * @var string URI
      */
-    protected $actor;
+    protected ?string $actor = null;
 
     /**
      * Class registered with this server
      *
      * @var string
      */
-    protected $class;
+    protected ?string $class = null;
 
     /**
      * Server instance
      *
      * @var SoapServer
      */
-    protected $server;
+    protected ?SoapServer $server = null;
 
     /**
      * Arguments to pass to {@link $class} constructor
      *
      * @var array
      */
-    protected $classArgs = [];
+    protected array $classArgs = [];
 
     /**
      * Array of SOAP type => PHP class pairings for handling return/incoming values
      *
      * @var array
      */
-    protected $classmap;
+    protected ?array $classmap = null;
 
     /**
      * Encoding
      *
      * @var string
      */
-    protected $encoding;
+    protected ?string $encoding = null;
 
     /**
      * Registered fault exceptions
      *
      * @var array
      */
-    protected $faultExceptions = [];
+    protected array $faultExceptions = [];
 
     /**
      * Container for caught exception during business code execution
      *
      * @var Exception
      */
-    protected $caughtException;
+    protected ?Exception $caughtException = null;
 
     /**
      * SOAP Server Features
      *
      * @var int
      */
-    protected $features;
+    protected ?int $features = null;
 
     /**
      * Functions registered with this server; may be either an array or the SOAP_FUNCTIONS_ALL constant
      *
      * @var array|int
      */
-    protected $functions = [];
+    protected array|int $functions = [];
 
     /**
      * Object registered with this server
      *
      * @var object
      */
-    protected $object;
+    protected ?object $object = null;
 
     /**
      * Informs if the soap server is in debug mode
      *
      * @var bool
      */
-    protected $debug = false;
+    protected bool $debug = false;
 
     /**
      * Persistence mode; should be one of the SOAP persistence constants
      *
      * @var int
      */
-    protected $persistence;
+    protected ?int $persistence = null;
 
     /**
      * Request XML
      *
      * @var string
      */
-    protected $request;
+    protected ?string $request = null;
 
     /**
      * Response XML
      *
      * @var string
      */
-    protected $response;
+    protected ?string $response = null;
 
     /**
      * Flag: whether or not {@link handle()} should return a response instead of automatically emitting it.
      *
      * @var bool
      */
-    protected $returnResponse = false;
+    protected bool $returnResponse = false;
 
     /**
      * SOAP version to use; SOAP_1_2 by default, to allow processing of headers
      *
      * @var int
      */
-    protected $soapVersion = SOAP_1_2;
+    protected int $soapVersion = SOAP_1_2;
 
     /**
      * Array of type mappings
      *
      * @var array
      */
-    protected $typemap;
+    protected ?array $typemap = null;
 
     /**
      * URI namespace for SOAP server
      *
      * @var string URI
      */
-    protected $uri;
+    protected ?string $uri = null;
 
     /**
      * URI or path to WSDL
      *
      * @var string
      */
-    protected $wsdl;
+    protected ?string $wsdl = null;
 
     /**
      * WSDL Caching Options of SOAP Server
      *
      * @var mixed
      */
-    protected $wsdlCache;
+    protected bool|int|string|null $wsdlCache = null;
 
     /**
      * The send_errors Options of SOAP Server
      *
      * @var bool
      */
-    protected $sendErrors;
+    protected ?bool $sendErrors = null;
 
     /**
      * Allows LIBXML_PARSEHUGE Options of DOMDocument->loadXML( string $source [, int $options = 0 ] ) to be set
      *
      * @var bool
      */
-    protected $parseHuge;
+    protected ?bool $parseHuge = null;
 
     /**
      * Constructor
@@ -244,7 +247,7 @@ final class Server implements ServerInterface
      * @param  string                      $wsdl
      * @throws ExtensionNotLoadedException
      */
-    public function __construct($wsdl = null, ?array $options = null)
+    public function __construct(?string $wsdl = null, ?array $options = null)
     {
         if (!extension_loaded('soap')) {
             throw new ExtensionNotLoadedException('SOAP extension is not loaded.');
@@ -269,7 +272,7 @@ final class Server implements ServerInterface
      * @param  array|Traversable $options
      * @return self
      */
-    public function setOptions($options)
+    public function setOptions(array|Traversable $options): static
     {
         if ($options instanceof Traversable) {
             $options = iterator_to_array($options);
@@ -348,7 +351,7 @@ final class Server implements ServerInterface
      *
      * @return array
      */
-    public function getOptions()
+    public function getOptions(): array
     {
         $options = [];
 
@@ -402,12 +405,8 @@ final class Server implements ServerInterface
      * @throws InvalidArgumentException With invalid encoding argument.
      * @return self
      */
-    public function setEncoding($encoding)
+    public function setEncoding(string $encoding): static
     {
-        if (!is_string($encoding)) {
-            throw new InvalidArgumentException('Invalid encoding specified');
-        }
-
         $this->encoding = $encoding;
 
         return $this;
@@ -418,7 +417,7 @@ final class Server implements ServerInterface
      *
      * @return string
      */
-    public function getEncoding()
+    public function getEncoding(): ?string
     {
         return $this->encoding;
     }
@@ -430,7 +429,7 @@ final class Server implements ServerInterface
      * @throws InvalidArgumentException With invalid soap version argument.
      * @return self
      */
-    public function setSoapVersion($version)
+    public function setSoapVersion(int $version): static
     {
         if (!in_array($version, [SOAP_1_1, SOAP_1_2], true)) {
             throw new InvalidArgumentException('Invalid soap version specified');
@@ -446,7 +445,7 @@ final class Server implements ServerInterface
      *
      * @return int
      */
-    public function getSoapVersion()
+    public function getSoapVersion(): int
     {
         return $this->soapVersion;
     }
@@ -458,7 +457,7 @@ final class Server implements ServerInterface
      * @throws InvalidArgumentException On invalid URN.
      * @return true
      */
-    public function validateUrn($urn)
+    public function validateUrn(string $urn): bool
     {
         $scheme = parse_url($urn, PHP_URL_SCHEME);
 
@@ -477,7 +476,7 @@ final class Server implements ServerInterface
      * @param  string $actor
      * @return self
      */
-    public function setActor($actor)
+    public function setActor(string $actor): static
     {
         $this->validateUrn($actor);
         $this->actor = $actor;
@@ -490,7 +489,7 @@ final class Server implements ServerInterface
      *
      * @return string
      */
-    public function getActor()
+    public function getActor(): ?string
     {
         return $this->actor;
     }
@@ -503,7 +502,7 @@ final class Server implements ServerInterface
      * @param  string $uri
      * @return self
      */
-    public function setUri($uri)
+    public function setUri(string $uri): static
     {
         $this->validateUrn($uri);
         $this->uri = $uri;
@@ -516,7 +515,7 @@ final class Server implements ServerInterface
      *
      * @return string
      */
-    public function getUri()
+    public function getUri(): ?string
     {
         return $this->uri;
     }
@@ -528,7 +527,7 @@ final class Server implements ServerInterface
      * @throws InvalidArgumentException For any invalid class in the class map.
      * @return self
      */
-    public function setClassmap($classmap)
+    public function setClassmap(array $classmap): static
     {
         if (!is_array($classmap)) {
             throw new InvalidArgumentException('Classmap must be an array');

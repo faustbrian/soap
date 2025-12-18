@@ -9,14 +9,17 @@
 
 namespace Cline\Soap\Contract;
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 interface ClientInterface
 {
     /**
      * Execute remote call.
      *
-     * @param  string $method Remote call name.
-     * @param  array  $params Call parameters.
-     * @return mixed  Remote call results.
+     * @param array<mixed> $params Call parameters.
+     *
+     * @return mixed Remote call results.
      */
-    public function call($method, $params = []);
+    public function call(string $method, array $params = []): mixed;
 }

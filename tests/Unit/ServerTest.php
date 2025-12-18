@@ -27,10 +27,10 @@ describe('Options', function (): void {
     test('setOptions sets and returns options', function (): void {
         $server = new Server();
 
-        expect($server->getOptions())->toBe(['soap_version' => SOAP_1_2]);
+        expect($server->getOptions())->toBe(['soap_version' => \SOAP_1_2]);
 
         $options = [
-            'soap_version' => SOAP_1_1,
+            'soap_version' => \SOAP_1_1,
             'actor' => 'https://example.com/test.php',
             'classmap' => [
                 'TestData1' => TestData1::class,
@@ -43,7 +43,7 @@ describe('Options', function (): void {
         $server->setOptions($options);
 
         $result = $server->getOptions();
-        expect($result['soap_version'])->toBe(SOAP_1_1);
+        expect($result['soap_version'])->toBe(\SOAP_1_1);
         expect($result['actor'])->toBe('https://example.com/test.php');
         expect($result['encoding'])->toBe('ISO-8859-1');
         expect($result['uri'])->toBe('https://example.com/test.php');
@@ -51,7 +51,7 @@ describe('Options', function (): void {
 
     test('setOptions via second constructor argument', function (): void {
         $options = [
-            'soap_version' => SOAP_1_1,
+            'soap_version' => \SOAP_1_1,
             'actor' => 'https://example.com/test.php',
             'classmap' => [
                 'TestData1' => TestData1::class,
@@ -64,7 +64,7 @@ describe('Options', function (): void {
         $server = new Server(null, $options);
 
         $result = $server->getOptions();
-        expect($result['soap_version'])->toBe(SOAP_1_1);
+        expect($result['soap_version'])->toBe(\SOAP_1_1);
         expect($result['actor'])->toBe('https://example.com/test.php');
         expect($result['encoding'])->toBe('ISO-8859-1');
         expect($result['uri'])->toBe('https://example.com/test.php');
@@ -72,10 +72,10 @@ describe('Options', function (): void {
 
     test('setOptions with features option', function (): void {
         $server = new Server(null, [
-            'features' => SOAP_SINGLE_ELEMENT_ARRAYS,
+            'features' => \SOAP_SINGLE_ELEMENT_ARRAYS,
         ]);
 
-        expect($server->getSoapFeatures())->toBe(SOAP_SINGLE_ELEMENT_ARRAYS);
+        expect($server->getSoapFeatures())->toBe(\SOAP_SINGLE_ELEMENT_ARRAYS);
     });
 
     test('setWsdl via options array', function (): void {
@@ -88,10 +88,10 @@ describe('Options', function (): void {
     test('getOptions returns current options', function (): void {
         $server = new Server();
 
-        expect($server->getOptions())->toBe(['soap_version' => SOAP_1_2]);
+        expect($server->getOptions())->toBe(['soap_version' => \SOAP_1_2]);
 
         $options = [
-            'soap_version' => SOAP_1_1,
+            'soap_version' => \SOAP_1_1,
             'uri' => 'https://example.com/test.php',
         ];
         $server->setOptions($options);
@@ -121,9 +121,9 @@ describe('SOAP Version', function (): void {
     test('can set and get soap version', function (): void {
         $server = new Server();
 
-        expect($server->getSoapVersion())->toBe(SOAP_1_2);
-        $server->setSoapVersion(SOAP_1_1);
-        expect($server->getSoapVersion())->toBe(SOAP_1_1);
+        expect($server->getSoapVersion())->toBe(\SOAP_1_2);
+        $server->setSoapVersion(\SOAP_1_1);
+        expect($server->getSoapVersion())->toBe(\SOAP_1_1);
     });
 
     test('throws exception for invalid soap version', function (): void {
@@ -278,10 +278,10 @@ describe('Functions', function (): void {
 
     test('SOAP_FUNCTIONS_ALL constant clears function list', function (): void {
         $server = new Server();
-        $server->addFunction(SOAP_FUNCTIONS_ALL);
+        $server->addFunction(\SOAP_FUNCTIONS_ALL);
         $server->addFunction('substr');
 
-        expect($server->getFunctions())->toBe([SOAP_FUNCTIONS_ALL]);
+        expect($server->getFunctions())->toBe([\SOAP_FUNCTIONS_ALL]);
     });
 
     test('getFunctions returns class methods when class attached', function (): void {
@@ -372,11 +372,11 @@ describe('Persistence', function (): void {
 
         expect($server->getPersistence())->toBeNull();
 
-        $server->setPersistence(SOAP_PERSISTENCE_SESSION);
-        expect($server->getPersistence())->toBe(SOAP_PERSISTENCE_SESSION);
+        $server->setPersistence(\SOAP_PERSISTENCE_SESSION);
+        expect($server->getPersistence())->toBe(\SOAP_PERSISTENCE_SESSION);
 
-        $server->setPersistence(SOAP_PERSISTENCE_REQUEST);
-        expect($server->getPersistence())->toBe(SOAP_PERSISTENCE_REQUEST);
+        $server->setPersistence(\SOAP_PERSISTENCE_REQUEST);
+        expect($server->getPersistence())->toBe(\SOAP_PERSISTENCE_REQUEST);
     });
 
     test('throws exception for invalid persistence', function (): void {
@@ -677,6 +677,11 @@ describe('Load Functions', function (): void {
 
 describe('Error Handling', function (): void {
     test('error handling throws SoapFault in handle mode', function (): void {
+        // PHP 8.4+ triggers fatal for E_USER_ERROR which cannot be handled
+        if (\PHP_VERSION_ID >= 80_400) {
+            $this->markTestSkipped('E_USER_ERROR causes fatal in PHP 8.4+');
+        }
+
         if (headers_sent()) {
             $this->markTestSkipped('Cannot run when headers have already been sent');
         }
@@ -704,6 +709,11 @@ describe('Error Handling', function (): void {
     });
 
     test('handlePhpErrors works correctly', function (): void {
+        // PHP 8.4+ triggers fatal for E_USER_ERROR which cannot be handled
+        if (\PHP_VERSION_ID >= 80_400) {
+            $this->markTestSkipped('E_USER_ERROR causes fatal in PHP 8.4+');
+        }
+
         if (headers_sent()) {
             $this->markTestSkipped('Cannot run when headers have already been sent');
         }
@@ -796,7 +806,7 @@ describe('Config Object', function (): void {
         }
 
         $options = [
-            'soap_version' => SOAP_1_1,
+            'soap_version' => \SOAP_1_1,
             'actor' => 'https://example.com/test.php',
             'classmap' => [
                 'TestData1' => TestData1::class,

@@ -20,6 +20,7 @@ use function ob_start;
  * with a provided Server object.
  *
  * Could be used for development or testing purposes.
+ * @author Brian Faust <brian@cline.sh>
  */
 final class Local extends SOAPClient
 {

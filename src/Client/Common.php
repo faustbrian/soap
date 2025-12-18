@@ -15,6 +15,9 @@ use SoapClient;
 use function is_callable;
 use function mb_ltrim;
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 final class Common extends SoapClient
 {
     /**
