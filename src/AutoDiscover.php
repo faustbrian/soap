@@ -13,6 +13,7 @@ use Cline\Soap\AutoDiscover\DiscoveryStrategy\DiscoveryStrategyInterface as Disc
 use Cline\Soap\AutoDiscover\DiscoveryStrategy\ReflectionDiscovery;
 use Cline\Soap\Exception\InvalidArgumentException;
 use Cline\Soap\Exception\RuntimeException;
+use Cline\Soap\Reflection\AbstractFunction;
 use Cline\Soap\Reflection\Reflection;
 use Cline\Soap\Wsdl;
 use Cline\Soap\Wsdl\ComplexTypeStrategy\ComplexTypeStrategyInterface as ComplexTypeStrategy;
@@ -42,7 +43,7 @@ use function sprintf;
  */
 final class AutoDiscover
 {
-    protected string $serviceName;
+    protected ?string $serviceName = null;
 
     protected Reflection $reflection;
 
@@ -54,9 +55,9 @@ final class AutoDiscover
     /**
      * Service class name
      */
-    protected string $class;
+    protected ?string $class = null;
 
-    protected ComplexTypeStrategy|bool $strategy;
+    protected ComplexTypeStrategy|bool|null $strategy = null;
 
     /**
      * Url where the WSDL file will be available at.
@@ -99,8 +100,8 @@ final class AutoDiscover
      */
     public function __construct(
         ?ComplexTypeStrategy $strategy = null,
-        string|Uri|null $endpointUri = null,
-        ?string $wsdlClass = null,
+        mixed $endpointUri = null,
+        mixed $wsdlClass = null,
         array $classMap = [],
     ) {
         $this->reflection = new Reflection();
@@ -212,7 +213,7 @@ final class AutoDiscover
      *
      * @throws InvalidArgumentException
      */
-    public function setUri(string|Uri $uri): self
+    public function setUri(mixed $uri): self
     {
         if (!is_string($uri) && !$uri instanceof Uri) {
             throw new InvalidArgumentException(
@@ -263,7 +264,7 @@ final class AutoDiscover
      *
      * @throws InvalidArgumentException
      */
-    public function setWsdlClass(string $wsdlClass): self
+    public function setWsdlClass(mixed $wsdlClass): self
     {
         if (!is_string($wsdlClass) && !is_subclass_of($wsdlClass, Wsdl::class)) {
             throw new InvalidArgumentException(
@@ -345,7 +346,7 @@ final class AutoDiscover
      *
      * @throws InvalidArgumentException
      */
-    public function addFunction(string|array $function): self
+    public function addFunction(mixed $function): self
     {
         if (is_array($function)) {
             foreach ($function as $row) {
@@ -474,13 +475,13 @@ final class AutoDiscover
     /**
      * Add a function to the WSDL document.
      *
-     * @param  Reflection\AbstractFunction $function function to add
-     * @param  Wsdl                        $wsdl     WSDL document
-     * @param  DOMElement                  $port     wsdl:portType
-     * @param  DOMElement                  $binding  wsdl:binding
+     * @param  AbstractFunction         $function function to add
+     * @param  Wsdl                     $wsdl     WSDL document
+     * @param  DOMElement               $port     wsdl:portType
+     * @param  DOMElement               $binding  wsdl:binding
      * @throws InvalidArgumentException
      */
-    protected function addFunctionToWsdl(Reflection\AbstractFunction $function, Wsdl $wsdl, DOMElement $port, DOMElement $binding): void
+    protected function addFunctionToWsdl(AbstractFunction $function, Wsdl $wsdl, DOMElement $port, DOMElement $binding): void
     {
         $uri = $this->getUri()->toString();
 

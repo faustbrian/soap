@@ -49,7 +49,7 @@ final class ReflectionDocumentation implements DocumentationStrategyInterface
             }
 
             // only include newlines if we've already got documentation
-            if (empty($documentation) && $line === '') {
+            if ($documentation === [] && $line === '') {
                 continue;
             }
 

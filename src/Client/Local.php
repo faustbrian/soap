@@ -20,6 +20,7 @@ use function ob_start;
  * with a provided Server object.
  *
  * Could be used for development or testing purposes.
+ *
  * @author Brian Faust <brian@cline.sh>
  */
 final class Local extends SOAPClient
@@ -27,18 +28,12 @@ final class Local extends SOAPClient
     /**
      * Local client constructor
      *
-     * @param string $wsdl
-     * @param array  $options
+     * @param null|array<string, mixed> $options
      */
     public function __construct(
-        /**
-         * Server object
-         *
-         * @var SOAPServer
-         */
         protected readonly SOAPServer $server,
-        $wsdl,
-        $options = null,
+        ?string $wsdl,
+        ?array $options = null,
     ) {
         // Use Server specified SOAP version as default
         $this->setSoapVersion($server->getSoapVersion());
@@ -49,15 +44,8 @@ final class Local extends SOAPClient
     /** @codingStandardsIgnoreStart */
     /**
      * Actual "do request" method.
-     *
-     * @param  string $request
-     * @param  string $location
-     * @param  string $action
-     * @param  int    $version
-     * @param  int    $oneWay
-     * @return mixed
      */
-    public function _doRequest(Common $client, $request, $location, $action, $version, $oneWay = null)
+    public function _doRequest(Common $client, string $request, string $location, string $action, int $version, bool $oneWay = false): mixed
     {
         // Perform request as is
         ob_start();

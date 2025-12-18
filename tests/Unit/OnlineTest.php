@@ -49,11 +49,8 @@ final class OnlineTest
 {
     /**
      * Simple test method.
-     *
-     * @param  string $input
-     * @return string
      */
-    public function testMethod($input)
+    public function testMethod(string $input): string
     {
         return 'Response: '.$input;
     }

@@ -17,11 +17,11 @@ use function str_starts_with;
 /**
  * @author Brian Faust <brian@cline.sh>
  */
-final class ReflectionClass
+final readonly class ReflectionClass
 {
     public function __construct(
-        protected readonly NativeReflectionClass $reflection,
-        protected readonly string $namespace = '',
+        private NativeReflectionClass $reflection,
+        private string $namespace = '',
     ) {}
 
     public function getName(): string
@@ -42,10 +42,12 @@ final class ReflectionClass
         $methods = [];
 
         foreach ($this->reflection->getMethods(NativeReflectionMethod::IS_PUBLIC) as $method) {
-            if ($method->isConstructor() || $method->isDestructor()) {
+            if ($method->isConstructor()) {
                 continue;
             }
-
+            if ($method->isDestructor()) {
+                continue;
+            }
             if (str_starts_with($method->getName(), '__')) {
                 continue;
             }

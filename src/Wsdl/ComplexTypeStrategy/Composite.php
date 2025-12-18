@@ -26,33 +26,28 @@ final class Composite implements ComplexTypeStrategyInterface
      *
      * @var array<string, ComplexTypeStrategyInterface|string>
      */
-    protected array $typeMap = [];
-
-    /**
-     * Default Strategy of this composite
-     */
-    protected ComplexTypeStrategyInterface|string $defaultStrategy;
+    private array $typeMap = [];
 
     /**
      * Context WSDL file that this composite serves
      */
-    protected ?Wsdl $context = null;
+    private ?Wsdl $context = null;
 
     /**
      * Construct Composite WSDL Strategy.
      *
      * @param array<string, ComplexTypeStrategyInterface|string> $typeMap
-     * @param ComplexTypeStrategyInterface|string                $defaultStrategy
      */
     public function __construct(
         array $typeMap = [],
-        ComplexTypeStrategyInterface|string $defaultStrategy = DefaultComplexType::class,
+        /**
+         * Default Strategy of this composite
+         */
+        private ComplexTypeStrategyInterface|string $defaultStrategy = DefaultComplexType::class,
     ) {
         foreach ($typeMap as $type => $strategy) {
             $this->connectTypeToStrategy($type, $strategy);
         }
-
-        $this->defaultStrategy = $defaultStrategy;
     }
 
     /**
@@ -79,12 +74,8 @@ final class Composite implements ComplexTypeStrategyInterface
         if (is_string($strategy) && class_exists($strategy)) {
             $strategy = new $strategy();
         }
+        throw_unless($strategy instanceof ComplexTypeStrategyInterface, InvalidArgumentException::class, 'Default Strategy for Complex Types is not a valid strategy object.');
 
-        if (!$strategy instanceof ComplexTypeStrategyInterface) {
-            throw new InvalidArgumentException(
-                'Default Strategy for Complex Types is not a valid strategy object.',
-            );
-        }
         $this->defaultStrategy = $strategy;
 
         return $strategy;
@@ -110,6 +101,7 @@ final class Composite implements ComplexTypeStrategyInterface
                     $type,
                 ));
             }
+
             $this->typeMap[$type] = $strategy;
         } else {
             $strategy = $this->getDefaultStrategy();

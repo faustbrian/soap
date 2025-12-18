@@ -10,10 +10,7 @@
 namespace Cline\Soap\Client;
 
 use Cline\Soap\Client as SOAPClient;
-use Cline\Soap\Client\Common as CommonClient;
-use Cline\Soap\Exception;
 use Cline\Soap\Exception\RuntimeException;
-use InvalidArgumentException;
 use Laminas\Http\Client\Adapter\Curl as CurlClient;
 use Laminas\Http\Response as HttpResponse;
 use Traversable;
@@ -28,6 +25,8 @@ use const SOAP_1_1;
 
 use function count;
 use function is_array;
+use function is_object;
+use function iterator_to_array;
 use function property_exists;
 use function reset;
 use function sprintf;
@@ -36,52 +35,44 @@ use function sprintf;
  * .NET SOAP client
  *
  * Class is intended to be used with .NET Web Services.
+ *
  * @author Brian Faust <brian@cline.sh>
  */
 final class DotNet extends SOAPClient
 {
     /**
      * Curl HTTP client adapter.
-     *
-     * @var CurlClient
      */
-    protected $curlClient;
+    protected ?CurlClient $curlClient = null;
 
     /**
      * The last request headers.
-     *
-     * @var string
      */
-    protected $lastRequestHeaders = '';
+    protected string $lastRequestHeaders = '';
 
     /**
      * The last response headers.
-     *
-     * @var string
      */
-    protected $lastResponseHeaders = '';
+    protected string $lastResponseHeaders = '';
 
     /**
      * SOAP client options.
      *
-     * @var array
+     * @var array<string, mixed>
      */
-    protected $options = [];
+    protected array $options = [];
 
     /**
      * Should NTLM authentication be used?
-     *
-     * @var bool
      */
-    protected $useNtlm = false;
+    protected bool $useNtlm = false;
 
     /**
      * Constructor
      *
-     * @param string $wsdl
-     * @param array  $options
+     * @param null|array<string, mixed> $options
      */
-    public function __construct($wsdl = null, $options = null)
+    public function __construct(?string $wsdl = null, ?array $options = null)
     {
         // Use SOAP 1.1 as default
         $this->setSoapVersion(SOAP_1_1);
@@ -93,15 +84,16 @@ final class DotNet extends SOAPClient
     /**
      * Do request proxy method.
      *
-     * @param  CommonClient $client   Actual SOAP client.
-     * @param  string       $request  The request body.
-     * @param  string       $location The SOAP URI.
-     * @param  string       $action   The SOAP action to call.
-     * @param  int          $version  The SOAP version to use.
-     * @param  int          $oneWay   (Optional) The number 1 if a response is not expected.
-     * @return string       The XML SOAP response.
+     * @param Common $client   Actual SOAP client.
+     * @param string $request  The request body.
+     * @param string $location The SOAP URI.
+     * @param string $action   The SOAP action to call.
+     * @param int    $version  The SOAP version to use.
+     * @param int    $oneWay   (Optional) The number 1 if a response is not expected.
+     *
+     * @return string The XML SOAP response.
      */
-    public function _doRequest(CommonClient $client, $request, $location, $action, $version, $oneWay = null)
+    public function _doRequest(Common $client, string $request, string $location, string $action, int $version, bool $oneWay = false): mixed
     {
         if (!$this->useNtlm) {
             return parent::_doRequest(
@@ -155,10 +147,8 @@ final class DotNet extends SOAPClient
 
     /**
      * Returns the cURL client that is being used.
-     *
-     * @return CurlClient
      */
-    public function getCurlClient()
+    public function getCurlClient(): CurlClient
     {
         if ($this->curlClient === null) {
             $this->curlClient = new CurlClient();
@@ -172,7 +162,7 @@ final class DotNet extends SOAPClient
      *
      * @return string Request headers.
      */
-    public function getLastRequestHeaders()
+    public function getLastRequestHeaders(): string
     {
         return $this->lastRequestHeaders;
     }
@@ -182,7 +172,7 @@ final class DotNet extends SOAPClient
      *
      * @return string Response headers.
      */
-    public function getLastResponseHeaders()
+    public function getLastResponseHeaders(): string
     {
         return $this->lastResponseHeaders;
     }
@@ -190,10 +180,9 @@ final class DotNet extends SOAPClient
     /**
      * Sets the cURL client to use.
      *
-     * @param  CurlClient $curlClient The cURL client.
-     * @return self
+     * @param CurlClient $curlClient The cURL client.
      */
-    public function setCurlClient(CurlClient $curlClient)
+    public function setCurlClient(CurlClient $curlClient): static
     {
         $this->curlClient = $curlClient;
 
@@ -205,18 +194,16 @@ final class DotNet extends SOAPClient
      *
      * Allows setting options as an associative array of option => value pairs.
      *
-     * @param  array|Traversable        $options Options.
-     * @throws InvalidArgumentException If an unsupported option is passed.
-     * @return self
+     * @param array<string, mixed>|Traversable<string, mixed> $options Options.
      */
-    public function setOptions($options)
+    public function setOptions(array|Traversable $options): static
     {
         if (isset($options['authentication']) && $options['authentication'] === 'ntlm') {
             $this->useNtlm = true;
             unset($options['authentication']);
         }
 
-        $this->options = $options;
+        $this->options = is_array($options) ? $options : iterator_to_array($options);
 
         return parent::setOptions($options);
     }
@@ -227,11 +214,13 @@ final class DotNet extends SOAPClient
      *
      * My be overridden in descendant classes
      *
-     * @param  array            $arguments
+     * @param array<mixed> $arguments
+     *
      * @throws RuntimeException
-     * @return array
+     *
+     * @return array<mixed>
      */
-    protected function _preProcessArguments($arguments)
+    protected function _preProcessArguments(array $arguments): array
     {
         if (count($arguments) > 1
             || (count($arguments) === 1 && !is_array(reset($arguments)))
@@ -252,12 +241,13 @@ final class DotNet extends SOAPClient
      * Perform result pre-processing
      *
      * My be overridden in descendant classes
-     *
-     * @param  object $result
-     * @return mixed
      */
-    protected function _preProcessResult($result)
+    protected function _preProcessResult(mixed $result): mixed
     {
+        if (!is_object($result)) {
+            return $result;
+        }
+
         $resultProperty = $this->getLastMethod().'Result';
 
         if (property_exists($result, $resultProperty)) {
@@ -271,10 +261,11 @@ final class DotNet extends SOAPClient
     /**
      * Flattens an HTTP headers array into a string.
      *
-     * @param  array  $headers The headers to flatten.
+     * @param array<string, string> $headers The headers to flatten.
+     *
      * @return string The headers string.
      */
-    protected function flattenHeaders(array $headers)
+    protected function flattenHeaders(array $headers): string
     {
         $result = '';
 

@@ -22,7 +22,7 @@ final class MyCalculatorService
      * @param  int $y
      * @return int
      */
-    public function add($x, $y)
+    public function add($x, $y): float|int|array
     {
         return $x + $y;
     }

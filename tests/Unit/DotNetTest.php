@@ -40,7 +40,6 @@ describe('DotNet Client', function (): void {
 
         $reflection = new ReflectionClass($client);
         $property = $reflection->getProperty('useNtlm');
-        $property->setAccessible(true);
 
         expect($property->getValue($client))->toBeTrue();
     });
@@ -55,7 +54,6 @@ describe('DotNet Client', function (): void {
 
         $reflection = new ReflectionClass($client);
         $property = $reflection->getProperty('useNtlm');
-        $property->setAccessible(true);
 
         expect($property->getValue($client))->toBeFalse();
     });
@@ -71,7 +69,7 @@ describe('DotNet Client', function (): void {
 
         $reflection = new ReflectionClass($client);
         $property = $reflection->getProperty('options');
-        $property->setAccessible(true);
+
         $storedOptions = $property->getValue($client);
 
         expect($storedOptions['login'])->toBe('testuser')
@@ -101,9 +99,8 @@ describe('DotNet Client', function (): void {
         // Access protected method via reflection
         $reflection = new ReflectionClass($client);
         $method = $reflection->getMethod('_preProcessArguments');
-        $method->setAccessible(true);
 
-        expect(fn () => $method->invoke($client, ['arg1', 'arg2']))
+        expect(fn (): mixed => $method->invoke($client, ['arg1', 'arg2']))
             ->toThrow(RuntimeException::class);
     });
 });

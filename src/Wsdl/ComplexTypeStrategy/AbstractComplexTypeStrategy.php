@@ -11,6 +11,7 @@ namespace Cline\Soap\Wsdl\ComplexTypeStrategy;
 
 use Cline\Soap\Wsdl;
 use Cline\Soap\Wsdl\DocumentationStrategy\DocumentationStrategyInterface;
+use RuntimeException;
 
 use function array_key_exists;
 
@@ -49,10 +50,10 @@ abstract class AbstractComplexTypeStrategy implements ComplexTypeStrategyInterfa
      */
     public function scanRegisteredTypes(string $phpType): ?string
     {
-        if (array_key_exists($phpType, $this->getContext()->getTypes())) {
-            $soapTypes = $this->getContext()->getTypes();
+        $context = $this->requireContext();
 
-            return $soapTypes[$phpType];
+        if (array_key_exists($phpType, $context->getTypes())) {
+            return $context->getTypes()[$phpType];
         }
 
         return null;
@@ -64,5 +65,19 @@ abstract class AbstractComplexTypeStrategy implements ComplexTypeStrategyInterfa
     public function setDocumentationStrategy(DocumentationStrategyInterface $documentationStrategy): void
     {
         $this->documentationStrategy = $documentationStrategy;
+    }
+
+    /**
+     * Get context or throw if not set.
+     *
+     * @throws RuntimeException When context is not set
+     */
+    protected function requireContext(): Wsdl
+    {
+        if ($this->context === null) {
+            throw new RuntimeException('WSDL context must be set before this operation');
+        }
+
+        return $this->context;
     }
 }

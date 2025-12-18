@@ -47,7 +47,7 @@ abstract class AbstractFunction
     {
         $name = $this->reflection->getName();
 
-        return $this->namespace ? $this->namespace.'.'.$name : $name;
+        return $this->namespace !== '' && $this->namespace !== '0' ? $this->namespace.'.'.$name : $name;
     }
 
     public function getDescription(): string
@@ -89,6 +89,7 @@ abstract class AbstractFunction
             } else {
                 $type = 'mixed';
             }
+
             $params[] = new ReflectionParameter($nativeParam, $type);
             ++$position;
         }
@@ -99,7 +100,7 @@ abstract class AbstractFunction
 
     protected function parseDescription(string $docComment): string
     {
-        if (empty($docComment)) {
+        if ($docComment === '' || $docComment === '0') {
             return '';
         }
 
@@ -108,12 +109,16 @@ abstract class AbstractFunction
 
         foreach ($lines as $line) {
             $line = mb_trim($line, " \t*");
-
-            if (str_starts_with($line, '/') || str_starts_with($line, '@')) {
+            if (str_starts_with($line, '/')) {
                 continue;
             }
-
-            if (empty($line)) {
+            if (str_starts_with($line, '@')) {
+                continue;
+            }
+            if ($line === '') {
+                continue;
+            }
+            if ($line === '0') {
                 continue;
             }
 
@@ -174,7 +179,7 @@ abstract class AbstractFunction
 
     protected function getNativeType(?ReflectionType $type): string
     {
-        if ($type === null) {
+        if (!$type instanceof \ReflectionType) {
             return 'mixed';
         }
 
@@ -190,7 +195,7 @@ abstract class AbstractFunction
 
         if ($type instanceof ReflectionUnionType) {
             $types = array_map(
-                fn ($t) => $t instanceof ReflectionNamedType ? $t->getName() : 'mixed',
+                fn (\ReflectionIntersectionType|\ReflectionNamedType $t) => $t instanceof ReflectionNamedType ? $t->getName() : 'mixed',
                 $type->getTypes(),
             );
 
@@ -211,10 +216,11 @@ abstract class AbstractFunction
         };
 
         // Resolve self/static to the declaring class name
-        if (mb_strtolower($normalized) === 'self' || mb_strtolower($normalized) === 'static') {
-            if ($this->reflection instanceof ReflectionMethod) {
-                return $this->reflection->getDeclaringClass()->getName();
-            }
+        if (mb_strtolower($normalized) !== 'self' && mb_strtolower($normalized) !== 'static') {
+            return $normalized;
+        }
+        if ($this->reflection instanceof ReflectionMethod) {
+            return $this->reflection->getDeclaringClass()->getName();
         }
 
         return $normalized;

@@ -52,45 +52,33 @@ class Client implements ClientInterface
 {
     /**
      * Array of SOAP type => PHP class pairings for handling return/incoming values
-     *
-     * @var array
      */
-    protected array|null $classmap = null;
+    protected ?array $classmap = null;
 
     /**
      * Encoding
-     *
-     * @var string
      */
     protected string $encoding = 'UTF-8';
 
     /**
      * Registered fault exceptions
-     *
-     * @var array
      */
     protected array $faultExceptions = [];
 
     /**
      * Last invoked method
-     *
-     * @var string
      */
     protected string $lastMethod = '';
 
     /**
      * Permanent SOAP request headers (shared between requests).
-     *
-     * @var array
      */
     protected array $permanentSoapInputHeaders = [];
 
     /**
      * SoapClient object
-     *
-     * @var SoapClient
      */
-    protected SoapClient|null $soapClient = null;
+    protected ?SoapClient $soapClient = null;
 
     /**
      * Array of SoapHeader objects
@@ -101,105 +89,80 @@ class Client implements ClientInterface
 
     /**
      * Array of SoapHeader objects
-     *
-     * @var array
      */
     protected array $soapOutputHeaders = [];
 
     /**
      * SOAP version to use; SOAP_1_2 by default, to allow processing of headers
-     *
-     * @var int
      */
     protected int $soapVersion = SOAP_1_2;
 
-    /** @var array */
-    protected array|null $typemap = null;
+    protected ?array $typemap = null;
 
     /**
      * WSDL used to access server
      * It also defines Client working mode (WSDL vs non-WSDL)
-     *
-     * @var string
      */
-    protected string|null $wsdl = null;
+    protected ?string $wsdl = null;
 
     /**
      * Whether to send the "Connection: Keep-Alive" header (true) or "Connection: close" header (false)
      * Available since PHP 5.4.0
-     *
-     * @var bool
      */
-    protected bool|null $keepAlive = null;
+    protected ?bool $keepAlive = null;
 
     /**
      * One of SOAP_SSL_METHOD_TLS, SOAP_SSL_METHOD_SSLv2, SOAP_SSL_METHOD_SSLv3 or SOAP_SSL_METHOD_SSLv23
      * Available since PHP 5.5.0
-     *
-     * @var int
      */
-    protected int|null $sslMethod = null;
+    protected ?int $sslMethod = null;
 
     /** @var string */
     protected string|int|null $connectionTimeout = null;
 
-    /** @var string */
-    protected string|null $localCert = null;
+    protected ?string $localCert = null;
+
+    protected ?string $location = null;
+
+    protected ?string $login = null;
+
+    protected ?string $passphrase = null;
+
+    protected ?string $password = null;
+
+    protected ?string $proxyHost = null;
+
+    protected ?string $proxyLogin = null;
+
+    protected ?string $proxyPassword = null;
 
     /** @var string */
-    protected string|null $location = null;
+    protected ?int $proxyPort = null;
 
-    /** @var string */
-    protected string|null $login = null;
-
-    /** @var string */
-    protected string|null $passphrase = null;
-
-    /** @var string */
-    protected string|null $password = null;
-
-    /** @var string */
-    protected string|null $proxyHost = null;
-
-    /** @var string */
-    protected string|null $proxyLogin = null;
-
-    /** @var string */
-    protected string|null $proxyPassword = null;
-
-    /** @var string */
-    protected int|null $proxyPort = null;
-
-    /** @var string */
     protected mixed $streamContext = null;
 
     /** @var string */
-    protected int|null $style = null;
+    protected ?int $style = null;
+
+    protected ?string $uri = null;
 
     /** @var string */
-    protected string|null $uri = null;
+    protected ?int $use = null;
 
-    /** @var string */
-    protected int|null $use = null;
+    protected ?string $userAgent = null;
 
-    /** @var string */
-    protected string|null $userAgent = null;
+    protected ?int $cacheWsdl = null;
 
-    /** @var int */
-    protected int|null $cacheWsdl = null;
-
-    /** @var int */
-    protected int|null $compression = null;
+    protected ?int $compression = null;
 
     /** @var int */
     protected int|string|null $features = null;
 
     /**
-     * @param  string                      $wsdl
      * @param  array|Traversable           $options
      * @throws ExtensionNotLoadedException
      */
-    public function __construct(string|null $wsdl = null, array|Traversable|null $options = null)
+    public function __construct(?string $wsdl = null, array|Traversable|null $options = null)
     {
         if (!extension_loaded('soap')) {
             throw new ExtensionNotLoadedException('SOAP extension is not loaded.');
@@ -218,12 +181,8 @@ class Client implements ClientInterface
 
     /**
      * Perform a SOAP call
-     *
-     * @param  string $name
-     * @param  array  $arguments
-     * @return mixed
      */
-    public function __call($name, $arguments)
+    public function __call(string $name, array $arguments): mixed
     {
         if (!is_array($arguments)) {
             $arguments = [$arguments];
@@ -249,11 +208,8 @@ class Client implements ClientInterface
 
     /**
      * Set wsdl
-     *
-     * @param  string $wsdl
-     * @return self
      */
-    public function setWSDL($wsdl)
+    public function setWSDL(string $wsdl): self
     {
         $this->wsdl = $wsdl;
         $this->soapClient = null;
@@ -263,10 +219,8 @@ class Client implements ClientInterface
 
     /**
      * Get wsdl
-     *
-     * @return string
      */
-    public function getWSDL()
+    public function getWSDL(): ?string
     {
         return $this->wsdl;
     }
@@ -276,11 +230,9 @@ class Client implements ClientInterface
      *
      * Allows setting options as an associative array of option => value pairs.
      *
-     * @param  array|Traversable        $options
      * @throws InvalidArgumentException
-     * @return self
      */
-    public function setOptions($options)
+    public function setOptions(array|Traversable $options): self
     {
         if ($options instanceof Traversable) {
             $options = iterator_to_array($options);
@@ -437,10 +389,8 @@ class Client implements ClientInterface
 
     /**
      * Return array of options suitable for using with SoapClient constructor
-     *
-     * @return array
      */
-    public function getOptions()
+    public function getOptions(): array
     {
         $options = [];
 
@@ -494,9 +444,8 @@ class Client implements ClientInterface
      *
      * @param  int                      $version One of the SOAP_1_1 or SOAP_1_2 constants
      * @throws InvalidArgumentException With invalid soap version argument.
-     * @return self
      */
-    public function setSoapVersion($version)
+    public function setSoapVersion(int $version): self
     {
         if (!in_array($version, [SOAP_1_1, SOAP_1_2], true)) {
             throw new InvalidArgumentException(
@@ -512,10 +461,8 @@ class Client implements ClientInterface
 
     /**
      * Get SOAP version
-     *
-     * @return int
      */
-    public function getSoapVersion()
+    public function getSoapVersion(): int
     {
         return $this->soapVersion;
     }
@@ -524,9 +471,8 @@ class Client implements ClientInterface
      * Set classmap
      *
      * @throws InvalidArgumentException For any invalid class in the class map.
-     * @return self
      */
-    public function setClassmap(array $classmap)
+    public function setClassmap(array $classmap): self
     {
         foreach ($classmap as $class) {
             if (!class_exists($class)) {
@@ -545,7 +491,7 @@ class Client implements ClientInterface
      *
      * @return mixed
      */
-    public function getClassmap()
+    public function getClassmap(): ?array
     {
         return $this->classmap;
     }
@@ -554,9 +500,8 @@ class Client implements ClientInterface
      * Set typemap with xml to php type mappings with appropriate validation.
      *
      * @throws InvalidArgumentException
-     * @return self
      */
-    public function setTypemap(array $typeMap)
+    public function setTypemap(array $typeMap): self
     {
         foreach ($typeMap as $type) {
             if (!is_callable($type['from_xml'])) {
@@ -582,10 +527,8 @@ class Client implements ClientInterface
 
     /**
      * Retrieve typemap
-     *
-     * @return array
      */
-    public function getTypemap()
+    public function getTypemap(): ?array
     {
         return $this->typemap;
     }
@@ -593,11 +536,9 @@ class Client implements ClientInterface
     /**
      * Set encoding
      *
-     * @param  string                   $encoding
      * @throws InvalidArgumentException With invalid encoding argument.
-     * @return self
      */
-    public function setEncoding($encoding)
+    public function setEncoding(string $encoding): self
     {
         if (!is_string($encoding)) {
             throw new InvalidArgumentException('Invalid encoding specified');
@@ -611,10 +552,8 @@ class Client implements ClientInterface
 
     /**
      * Get encoding
-     *
-     * @return string
      */
-    public function getEncoding()
+    public function getEncoding(): string
     {
         return $this->encoding;
     }
@@ -622,11 +561,9 @@ class Client implements ClientInterface
     /**
      * Check for valid URN
      *
-     * @param  string                   $urn
      * @throws InvalidArgumentException On invalid URN.
-     * @return bool
      */
-    public function validateUrn($urn)
+    public function validateUrn(string $urn): bool
     {
         $scheme = parse_url($urn, PHP_URL_SCHEME);
 
@@ -642,11 +579,9 @@ class Client implements ClientInterface
      *
      * URI in Web Service the target namespace
      *
-     * @param  string                   $uri
      * @throws InvalidArgumentException With invalid uri argument.
-     * @return self
      */
-    public function setUri($uri)
+    public function setUri(string $uri): self
     {
         $this->validateUrn($uri);
         $this->uri = $uri;
@@ -657,10 +592,8 @@ class Client implements ClientInterface
 
     /**
      * Retrieve URI
-     *
-     * @return string
      */
-    public function getUri()
+    public function getUri(): ?string
     {
         return $this->uri;
     }
@@ -670,11 +603,9 @@ class Client implements ClientInterface
      *
      * URI in Web Service the target namespace
      *
-     * @param  string                   $location
      * @throws InvalidArgumentException With invalid uri argument.
-     * @return self
      */
-    public function setLocation($location)
+    public function setLocation(string $location): self
     {
         $this->validateUrn($location);
         $this->location = $location;
@@ -685,10 +616,8 @@ class Client implements ClientInterface
 
     /**
      * Retrieve URI
-     *
-     * @return string
      */
-    public function getLocation()
+    public function getLocation(): ?string
     {
         return $this->location;
     }
@@ -698,9 +627,8 @@ class Client implements ClientInterface
      *
      * @param  int                      $style One of the SOAP_RPC or SOAP_DOCUMENT constants
      * @throws InvalidArgumentException With invalid style argument.
-     * @return self
      */
-    public function setStyle($style)
+    public function setStyle(int $style): self
     {
         if (!in_array($style, [SOAP_RPC, SOAP_DOCUMENT], true)) {
             throw new InvalidArgumentException(
@@ -716,10 +644,8 @@ class Client implements ClientInterface
 
     /**
      * Get request style
-     *
-     * @return int
      */
-    public function getStyle()
+    public function getStyle(): ?int
     {
         return $this->style;
     }
@@ -729,9 +655,8 @@ class Client implements ClientInterface
      *
      * @param  int                      $use One of the SOAP_ENCODED or SOAP_LITERAL constants
      * @throws InvalidArgumentException With invalid message encoding method argument.
-     * @return self
      */
-    public function setEncodingMethod($use)
+    public function setEncodingMethod(int $use): self
     {
         if (!in_array($use, [SOAP_ENCODED, SOAP_LITERAL], true)) {
             throw new InvalidArgumentException(
@@ -747,21 +672,16 @@ class Client implements ClientInterface
 
     /**
      * Get message encoding method
-     *
-     * @return int
      */
-    public function getEncodingMethod()
+    public function getEncodingMethod(): ?int
     {
         return $this->use;
     }
 
     /**
      * Set HTTP login
-     *
-     * @param  string $login
-     * @return self
      */
-    public function setHttpLogin($login)
+    public function setHttpLogin(string $login): self
     {
         $this->login = $login;
         $this->soapClient = null;
@@ -771,21 +691,16 @@ class Client implements ClientInterface
 
     /**
      * Retrieve HTTP Login
-     *
-     * @return string
      */
-    public function getHttpLogin()
+    public function getHttpLogin(): ?string
     {
         return $this->login;
     }
 
     /**
      * Set HTTP password
-     *
-     * @param  string $password
-     * @return self
      */
-    public function setHttpPassword($password)
+    public function setHttpPassword(string $password): self
     {
         $this->password = $password;
         $this->soapClient = null;
@@ -795,21 +710,16 @@ class Client implements ClientInterface
 
     /**
      * Retrieve HTTP Password
-     *
-     * @return string
      */
-    public function getHttpPassword()
+    public function getHttpPassword(): ?string
     {
         return $this->password;
     }
 
     /**
      * Set proxy host
-     *
-     * @param  string $proxyHost
-     * @return self
      */
-    public function setProxyHost($proxyHost)
+    public function setProxyHost(string $proxyHost): self
     {
         $this->proxyHost = $proxyHost;
         $this->soapClient = null;
@@ -819,21 +729,16 @@ class Client implements ClientInterface
 
     /**
      * Retrieve proxy host
-     *
-     * @return string
      */
-    public function getProxyHost()
+    public function getProxyHost(): ?string
     {
         return $this->proxyHost;
     }
 
     /**
      * Set proxy port
-     *
-     * @param  int  $proxyPort
-     * @return self
      */
-    public function setProxyPort($proxyPort)
+    public function setProxyPort(int $proxyPort): self
     {
         $this->proxyPort = (int) $proxyPort;
         $this->soapClient = null;
@@ -843,21 +748,16 @@ class Client implements ClientInterface
 
     /**
      * Retrieve proxy port
-     *
-     * @return int
      */
-    public function getProxyPort()
+    public function getProxyPort(): ?int
     {
         return $this->proxyPort;
     }
 
     /**
      * Set proxy login
-     *
-     * @param  string $proxyLogin
-     * @return self
      */
-    public function setProxyLogin($proxyLogin)
+    public function setProxyLogin(string $proxyLogin): self
     {
         $this->proxyLogin = $proxyLogin;
         $this->soapClient = null;
@@ -867,21 +767,16 @@ class Client implements ClientInterface
 
     /**
      * Retrieve proxy login
-     *
-     * @return string
      */
-    public function getProxyLogin()
+    public function getProxyLogin(): ?string
     {
         return $this->proxyLogin;
     }
 
     /**
      * Set proxy password
-     *
-     * @param  string $proxyPassword
-     * @return self
      */
-    public function setProxyPassword($proxyPassword)
+    public function setProxyPassword(string $proxyPassword): self
     {
         $this->proxyPassword = $proxyPassword;
         $this->soapClient = null;
@@ -894,9 +789,8 @@ class Client implements ClientInterface
      *
      * @param  string                   $localCert local certificate path
      * @throws InvalidArgumentException With invalid local certificate path argument.
-     * @return self
      */
-    public function setHttpsCertificate($localCert)
+    public function setHttpsCertificate(string $localCert): self
     {
         if (!is_readable($localCert)) {
             throw new InvalidArgumentException('Invalid HTTPS client certificate path.');
@@ -910,21 +804,16 @@ class Client implements ClientInterface
 
     /**
      * Get HTTPS client certificate path
-     *
-     * @return string
      */
-    public function getHttpsCertificate()
+    public function getHttpsCertificate(): ?string
     {
         return $this->localCert;
     }
 
     /**
      * Set HTTPS client certificate passphrase
-     *
-     * @param  string $passphrase
-     * @return self
      */
-    public function setHttpsCertPassphrase($passphrase)
+    public function setHttpsCertPassphrase(string $passphrase): self
     {
         $this->passphrase = $passphrase;
         $this->soapClient = null;
@@ -934,21 +823,16 @@ class Client implements ClientInterface
 
     /**
      * Get HTTPS client certificate passphrase
-     *
-     * @return string
      */
-    public function getHttpsCertPassphrase()
+    public function getHttpsCertPassphrase(): ?string
     {
         return $this->passphrase;
     }
 
     /**
      * Set compression options
-     *
-     * @param  null|int $compressionOptions
-     * @return self
      */
-    public function setCompressionOptions($compressionOptions)
+    public function setCompressionOptions(?int $compressionOptions): self
     {
         if ($compressionOptions === null) {
             $this->compression = null;
@@ -962,20 +846,16 @@ class Client implements ClientInterface
 
     /**
      * Get Compression options
-     *
-     * @return int
      */
-    public function getCompressionOptions()
+    public function getCompressionOptions(): ?int
     {
         return $this->compression;
     }
 
     /**
      * Retrieve proxy password
-     *
-     * @return string
      */
-    public function getProxyPassword()
+    public function getProxyPassword(): ?string
     {
         return $this->proxyPassword;
     }
@@ -985,9 +865,8 @@ class Client implements ClientInterface
      *
      * @param  resource                 $context
      * @throws InvalidArgumentException
-     * @return self
      */
-    public function setStreamContext($context)
+    public function setStreamContext(mixed $context): self
     {
         if (!is_resource($context) || get_resource_type($context) !== 'stream-context') {
             throw new InvalidArgumentException('Invalid stream context resource given.');
@@ -1003,18 +882,15 @@ class Client implements ClientInterface
      *
      * @return resource
      */
-    public function getStreamContext()
+    public function getStreamContext(): mixed
     {
         return $this->streamContext;
     }
 
     /**
      * Set the SOAP Feature options.
-     *
-     * @param  int|string $feature
-     * @return self
      */
-    public function setSoapFeatures($feature)
+    public function setSoapFeatures(int|string $feature): self
     {
         $this->features = $feature;
         $this->soapClient = null;
@@ -1027,18 +903,15 @@ class Client implements ClientInterface
      *
      * @return int
      */
-    public function getSoapFeatures()
+    public function getSoapFeatures(): int|string|null
     {
         return $this->features;
     }
 
     /**
      * Set the SOAP WSDL Caching Options
-     *
-     * @param  null|bool|int|string $caching
-     * @return self
      */
-    public function setWSDLCache($caching)
+    public function setWSDLCache(null|bool|int|string $caching): self
     {
         // @todo check WSDL_CACHE_* constants?
         if ($caching === null) {
@@ -1052,21 +925,16 @@ class Client implements ClientInterface
 
     /**
      * Get current SOAP WSDL Caching option
-     *
-     * @return int
      */
-    public function getWSDLCache()
+    public function getWSDLCache(): ?int
     {
         return $this->cacheWsdl;
     }
 
     /**
      * Set the string to use in User-Agent header
-     *
-     * @param  null|string $userAgent
-     * @return self
      */
-    public function setUserAgent($userAgent)
+    public function setUserAgent(?string $userAgent): self
     {
         if ($userAgent === null) {
             $this->userAgent = null;
@@ -1079,20 +947,16 @@ class Client implements ClientInterface
 
     /**
      * Get current string to use in User-Agent header
-     *
-     * @return null|string
      */
-    public function getUserAgent()
+    public function getUserAgent(): ?string
     {
         return $this->userAgent;
     }
 
     /**
      * Retrieve request XML
-     *
-     * @return string
      */
-    public function getLastRequest()
+    public function getLastRequest(): string
     {
         if ($this->soapClient !== null) {
             return $this->soapClient->__getLastRequest();
@@ -1103,10 +967,8 @@ class Client implements ClientInterface
 
     /**
      * Get response XML
-     *
-     * @return string
      */
-    public function getLastResponse()
+    public function getLastResponse(): string
     {
         if ($this->soapClient !== null) {
             return $this->soapClient->__getLastResponse();
@@ -1117,10 +979,8 @@ class Client implements ClientInterface
 
     /**
      * Retrieve request headers
-     *
-     * @return string
      */
-    public function getLastRequestHeaders()
+    public function getLastRequestHeaders(): string
     {
         if ($this->soapClient !== null) {
             return $this->soapClient->__getLastRequestHeaders();
@@ -1131,10 +991,8 @@ class Client implements ClientInterface
 
     /**
      * Retrieve response headers (as string)
-     *
-     * @return string
      */
-    public function getLastResponseHeaders()
+    public function getLastResponseHeaders(): string
     {
         if ($this->soapClient !== null) {
             return $this->soapClient->__getLastResponseHeaders();
@@ -1145,10 +1003,8 @@ class Client implements ClientInterface
 
     /**
      * Retrieve last invoked method
-     *
-     * @return string
      */
-    public function getLastMethod()
+    public function getLastMethod(): string
     {
         return $this->lastMethod;
     }
@@ -1158,25 +1014,10 @@ class Client implements ClientInterface
      * Do request proxy method.
      *
      * May be overridden in subclasses
-     *
-     * @param  string $request
-     * @param  string $location
-     * @param  string $action
-     * @param  int    $version
-     * @param  int    $oneWay
-     * @return mixed
      */
-    public function _doRequest(Common $client, $request, $location, $action, $version, $oneWay = null)
+    public function _doRequest(Common $client, string $request, string $location, string $action, int $version, bool $oneWay = false): mixed
     {
         // Perform request as is
-        if ($oneWay === null) {
-            return $client->parentDoRequest(
-                $request,
-                $location,
-                $action,
-                $version,
-            );
-        }
 
         return $client->parentDoRequest(
             $request,
@@ -1190,11 +1031,8 @@ class Client implements ClientInterface
 
     /**
      * Add SOAP input header
-     *
-     * @param  bool $permanent
-     * @return self
      */
-    public function addSoapInputHeader(SoapHeader $header, $permanent = false)
+    public function addSoapInputHeader(SoapHeader $header, bool $permanent = false): self
     {
         if ($permanent) {
             $this->permanentSoapInputHeaders[] = $header;
@@ -1207,10 +1045,8 @@ class Client implements ClientInterface
 
     /**
      * Reset SOAP input headers
-     *
-     * @return self
      */
-    public function resetSoapInputHeaders()
+    public function resetSoapInputHeaders(): self
     {
         $this->permanentSoapInputHeaders = [];
         $this->soapInputHeaders = [];
@@ -1220,10 +1056,8 @@ class Client implements ClientInterface
 
     /**
      * Get last SOAP output headers
-     *
-     * @return array
      */
-    public function getLastSoapOutputHeaderObjects()
+    public function getLastSoapOutputHeaderObjects(): array
     {
         return $this->soapOutputHeaders;
     }
@@ -1235,7 +1069,7 @@ class Client implements ClientInterface
      * @param  array  $params List of parameters for the method.
      * @return mixed  Returned results.
      */
-    public function call($method, $params = [])
+    public function call(string $method, array $params = []): mixed
     {
         return call_user_func_array([$this, '__call'], [$method, $params]);
     }
@@ -1244,9 +1078,8 @@ class Client implements ClientInterface
      * Return a list of available functions
      *
      * @throws UnexpectedValueException
-     * @return array
      */
-    public function getFunctions()
+    public function getFunctions(): array
     {
         if ($this->getWSDL() === null) {
             throw new UnexpectedValueException(sprintf(
@@ -1264,9 +1097,8 @@ class Client implements ClientInterface
      * Return a list of SOAP types
      *
      * @throws UnexpectedValueException
-     * @return array
      */
-    public function getTypes()
+    public function getTypes(): array
     {
         if ($this->getWSDL() === null) {
             throw new UnexpectedValueException(sprintf(
@@ -1282,10 +1114,8 @@ class Client implements ClientInterface
 
     /**
      * Set SoapClient object
-     *
-     * @return self
      */
-    public function setSoapClient(SoapClient $soapClient)
+    public function setSoapClient(SoapClient $soapClient): self
     {
         $this->soapClient = $soapClient;
 
@@ -1294,10 +1124,8 @@ class Client implements ClientInterface
 
     /**
      * Get SoapClient object
-     *
-     * @return SoapClient
      */
-    public function getSoapClient()
+    public function getSoapClient(): SoapClient
     {
         if ($this->soapClient === null) {
             $this->initSoapClientObject();
@@ -1308,12 +1136,8 @@ class Client implements ClientInterface
 
     /**
      * Set cookie
-     *
-     * @param  string $cookieName
-     * @param  string $cookieValue
-     * @return self
      */
-    public function setCookie($cookieName, $cookieValue = null)
+    public function setCookie(string $cookieName, ?string $cookieValue = null): self
     {
         $soapClient = $this->getSoapClient();
         $soapClient->__setCookie($cookieName, $cookieValue);
@@ -1321,38 +1145,24 @@ class Client implements ClientInterface
         return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function getKeepAlive()
+    public function getKeepAlive(): ?bool
     {
         return $this->keepAlive;
     }
 
-    /**
-     * @param  bool $keepAlive
-     * @return self
-     */
-    public function setKeepAlive($keepAlive)
+    public function setKeepAlive(bool $keepAlive): self
     {
         $this->keepAlive = (bool) $keepAlive;
 
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getSslMethod()
+    public function getSslMethod(): ?int
     {
         return $this->sslMethod;
     }
 
-    /**
-     * @param  int  $sslMethod
-     * @return self
-     */
-    public function setSslMethod($sslMethod)
+    public function setSslMethod(int $sslMethod): self
     {
         $this->sslMethod = $sslMethod;
 
@@ -1397,11 +1207,8 @@ class Client implements ClientInterface
      * Perform arguments pre-processing
      *
      * My be overridden in descendant classes
-     *
-     * @param  array $arguments
-     * @return array
      */
-    protected function _preProcessArguments($arguments)
+    protected function _preProcessArguments(array $arguments): array
     {
         // Do nothing
         return $arguments;
@@ -1418,7 +1225,7 @@ class Client implements ClientInterface
      * @param  array $result
      * @return array
      */
-    protected function _preProcessResult($result)
+    protected function _preProcessResult(mixed $result): mixed
     {
         // Do nothing
         return $result;

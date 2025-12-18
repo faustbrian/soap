@@ -18,13 +18,13 @@ use function func_get_args;
  *
  * @return mixed Return value.
  */
-function call_user_func()
+function call_user_func(...$args)
 {
     if (!MockCallUserFunc::$mock) {
         return \call_user_func(...func_get_args());
     }
 
-    MockCallUserFunc::$params = func_get_args();
+    MockCallUserFunc::$params = $args;
 
     $result = '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">'
         .'<s:Body>';
@@ -35,8 +35,5 @@ function call_user_func()
         .'</TestMethodResult>'
         .'</TestMethodResponse>';
 
-    $result .= '</s:Body>'
-        .'</s:Envelope>';
-
-    return $result;
+    return $result . ('</s:Body>' . '</s:Envelope>');
 }

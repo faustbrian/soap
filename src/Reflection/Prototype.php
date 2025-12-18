@@ -12,15 +12,15 @@ namespace Cline\Soap\Reflection;
 /**
  * @author Brian Faust <brian@cline.sh>
  */
-final class Prototype
+final readonly class Prototype
 {
     /**
      * @param array<ReflectionParameter> $params
      */
     public function __construct(
-        protected readonly ReflectionReturnValue $return,
+        private ReflectionReturnValue $return,
         /** @var array<ReflectionParameter> */
-        protected readonly array $params = [],
+        private array $params = [],
     ) {}
 
     public function getReturnType(): string

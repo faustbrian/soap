@@ -10,6 +10,7 @@
 use Cline\CodingStandard\EasyCodingStandard\Factory;
 use PhpCsFixer\Fixer\ClassNotation\FinalClassFixer;
 use PhpCsFixer\Fixer\Import\FullyQualifiedStrictTypesFixer;
+use PhpCsFixerCustomFixers\Fixer\NoNullableBooleanTypeFixer;
 
 return Factory::create(
     paths: [__DIR__.'/src', __DIR__.'/tests'],
@@ -22,6 +23,11 @@ return Factory::create(
         // Keep FQN in docblocks for test fixtures (needed for reflection-based type resolution)
         FullyQualifiedStrictTypesFixer::class => [
             __DIR__.'/tests/Fixtures/commontypes.php',
+        ],
+        // These classes use ?bool for optional configuration (null = not set)
+        NoNullableBooleanTypeFixer::class => [
+            __DIR__.'/src/Client.php',
+            __DIR__.'/src/Server.php',
         ],
     ],
 );

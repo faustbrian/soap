@@ -67,13 +67,13 @@ final class ArrayOfTypeSequence extends DefaultComplexType
     {
         if ($level === 0) {
             // This is not an Array anymore, return the xsd simple type
-            return $this->getContext()->getType($singularType);
+            return $this->requireContext()->getType($singularType);
         }
 
         return Wsdl::TYPES_NS
             .':'
             .str_repeat('ArrayOf', $level)
-            .ucfirst($this->getContext()->translateType($singularType));
+            .ucfirst($this->requireContext()->translateType($singularType));
     }
 
     /**
@@ -118,14 +118,14 @@ final class ArrayOfTypeSequence extends DefaultComplexType
         }
 
         // Register type here to avoid recursion
-        $this->getContext()->addType($phpArrayType, $arrayType);
+        $this->requireContext()->addType($phpArrayType, $arrayType);
 
-        $dom = $this->getContext()->toDomDocument();
+        $dom = $this->requireContext()->toDomDocument();
 
         $arrayTypeName = mb_substr($arrayType, mb_strpos($arrayType, ':') + 1);
 
         $complexType = $dom->createElementNS(Wsdl::XSD_NS_URI, 'complexType');
-        $this->getContext()->getSchema()->appendChild($complexType);
+        $this->requireContext()->getSchema()->appendChild($complexType);
 
         $complexType->setAttribute('name', $arrayTypeName);
 

@@ -68,20 +68,20 @@ final class ArrayOfTypeComplex extends DefaultComplexType
             return $soapType;
         }
 
-        $xsdComplexTypeName = 'ArrayOf'.$this->getContext()->translateType($singularType);
+        $xsdComplexTypeName = 'ArrayOf'.$this->requireContext()->translateType($singularType);
         $xsdComplexType = Wsdl::TYPES_NS.':'.$xsdComplexTypeName;
 
         // Register type here to avoid recursion
-        $this->getContext()->addType($type, $xsdComplexType);
+        $this->requireContext()->addType($type, $xsdComplexType);
 
         // Process singular type using DefaultComplexType strategy
         parent::addComplexType($singularType);
 
         // Add array type structure to WSDL document
-        $dom = $this->getContext()->toDomDocument();
+        $dom = $this->requireContext()->toDomDocument();
 
         $complexType = $dom->createElementNS(Wsdl::XSD_NS_URI, 'complexType');
-        $this->getContext()->getSchema()->appendChild($complexType);
+        $this->requireContext()->getSchema()->appendChild($complexType);
 
         $complexType->setAttribute('name', $xsdComplexTypeName);
 
@@ -99,7 +99,7 @@ final class ArrayOfTypeComplex extends DefaultComplexType
         $xsdAttribute->setAttributeNS(
             Wsdl::WSDL_NS_URI,
             'arrayType',
-            Wsdl::TYPES_NS.':'.$this->getContext()->translateType($singularType).'[]',
+            Wsdl::TYPES_NS.':'.$this->requireContext()->translateType($singularType).'[]',
         );
 
         return $xsdComplexType;

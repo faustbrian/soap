@@ -71,5 +71,5 @@ interface ServerInterface
     /**
      * Return last produced response.
      */
-    public function getResponse(): string;
+    public function getResponse(): ?string;
 }

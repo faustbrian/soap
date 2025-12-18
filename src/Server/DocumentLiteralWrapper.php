@@ -9,7 +9,6 @@
 
 namespace Cline\Soap\Server;
 
-use Cline\Soap\Exception;
 use Cline\Soap\Exception\BadMethodCallException;
 use Cline\Soap\Exception\UnexpectedValueException;
 use ReflectionObject;
@@ -84,31 +83,23 @@ use function sprintf;
  */
 final class DocumentLiteralWrapper
 {
-    /** @var object */
-    protected $object;
-
-    /** @var ReflectionObject */
-    protected $reflection;
+    protected ReflectionObject $reflection;
 
     /**
      * Pass Service object to the constructor
-     *
-     * @param object $object
      */
-    public function __construct($object)
-    {
-        $this->object = $object;
+    public function __construct(
+        protected readonly object $object,
+    ) {
         $this->reflection = new ReflectionObject($this->object);
     }
 
     /**
      * Proxy method that does the heavy document/literal decomposing.
      *
-     * @param  string $method
-     * @param  array  $args
-     * @return mixed
+     * @param array<mixed> $args
      */
-    public function __call($method, $args)
+    public function __call(string $method, array $args): mixed
     {
         $this->assertOnlyOneArgument($args);
         $this->assertServiceDelegateHasMethod($method);
@@ -123,12 +114,11 @@ final class DocumentLiteralWrapper
      * Parse the document/literal wrapper into arguments to call the real
      * service.
      *
-     * @param  string                   $method
-     * @param  object                   $document
      * @throws UnexpectedValueException
-     * @return array
+     *
+     * @return array<int, mixed>
      */
-    protected function parseArguments($method, $document)
+    protected function parseArguments(string $method, object $document): array
     {
         $reflMethod = $this->reflection->getMethod($method);
         $params = [];
@@ -157,20 +147,17 @@ final class DocumentLiteralWrapper
     /**
      * Returns result message content
      *
-     * @param  string $method
-     * @param  mixed  $ret
-     * @return array
+     * @return array<string, mixed>
      */
-    protected function getResultMessage($method, $ret)
+    protected function getResultMessage(string $method, mixed $ret): array
     {
         return [$method.'Result' => $ret];
     }
 
     /**
-     * @param  string                 $method
      * @throws BadMethodCallException
      */
-    protected function assertServiceDelegateHasMethod($method): void
+    protected function assertServiceDelegateHasMethod(string $method): void
     {
         if (!$this->reflection->hasMethod($method)) {
             throw new BadMethodCallException(sprintf(
@@ -182,6 +169,8 @@ final class DocumentLiteralWrapper
     }
 
     /**
+     * @param array<mixed> $args
+     *
      * @throws UnexpectedValueException
      */
     protected function assertOnlyOneArgument(array $args): void

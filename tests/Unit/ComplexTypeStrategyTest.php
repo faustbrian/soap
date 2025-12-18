@@ -519,13 +519,13 @@ describe('Composite Strategy', function (): void {
     });
 
     describe('Sad Paths', function (): void {
-        test('throws exception when connecting invalid type to strategy', function (): void {
+        test('throws TypeError when connecting invalid type to strategy', function (): void {
             // Arrange
             $strategy = new Composite();
 
-            // Act & Assert
+            // Act & Assert - TypeError is thrown due to strict type hint (string $type)
             expect(fn () => $strategy->connectTypeToStrategy([], 'strategy'))
-                ->toThrow(InvalidArgumentException::class, 'Invalid type given to Composite Type Map');
+                ->toThrow(TypeError::class);
         });
 
         test('throws exception when retrieving strategy with invalid strategy definition', function (): void {

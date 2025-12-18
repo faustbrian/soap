@@ -502,7 +502,7 @@ describe('Client', function (): void {
             $client = new Local($server, fixturesPath('wsdl_example.wsdl'));
 
             // Act
-            $result = $client->call('testFunc2', 'World');
+            $result = $client->call('testFunc2', ['World']);
 
             // Assert
             expect($result)->toBe('Hello World!');

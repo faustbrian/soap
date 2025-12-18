@@ -1,0 +1,1453 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to an undefined method object\:\:addBinding\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
+			message: '#^Call to an undefined method object\:\:addPortType\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
+			message: '#^Call to an undefined method object\:\:addSchemaTypeSection\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
+			message: '#^Call to an undefined method object\:\:addService\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
+			message: '#^Call to an undefined method object\:\:addSoapBinding\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
+			message: '#^Method Cline\\Soap\\AutoDiscover\:\:__construct\(\) has parameter \$classMap with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
+			message: '#^Method Cline\\Soap\\AutoDiscover\:\:generateWsdl\(\) has parameter \$reflectionMethods with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
+			message: '#^Method Cline\\Soap\\AutoDiscover\:\:generateWsdl\(\) should return Cline\\Soap\\Wsdl but returns object\.$#'
+			identifier: return.type
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
+			message: '#^Method Cline\\Soap\\AutoDiscover\:\:getClassMap\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
+			message: '#^Method Cline\\Soap\\AutoDiscover\:\:setBindingStyle\(\) has parameter \$bindingStyle with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
+			message: '#^Method Cline\\Soap\\AutoDiscover\:\:setOperationBodyStyle\(\) has parameter \$operationStyle with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
+			message: '#^Parameter \#1 \$class of method Cline\\Soap\\Reflection\\Reflection\:\:reflectClass\(\) expects object\|string, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
+			message: '#^Parameter \#1 \$function of method Cline\\Soap\\AutoDiscover\:\:addFunctionToWsdl\(\) expects Cline\\Soap\\Reflection\\AbstractFunction, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
+			message: '#^Parameter \#1 \$function of method Cline\\Soap\\Reflection\\Reflection\:\:reflectFunction\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
+			message: '#^Parameter \#1 \$object_or_class of function is_subclass_of expects object\|string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
+			message: '#^Parameter \#2 \$wsdl of method Cline\\Soap\\AutoDiscover\:\:addFunctionToWsdl\(\) expects Cline\\Soap\\Wsdl, object given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
+			message: '#^Parameter \#3 \$port of method Cline\\Soap\\AutoDiscover\:\:addFunctionToWsdl\(\) expects DOMElement, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
+			message: '#^Parameter \#4 \$binding of method Cline\\Soap\\AutoDiscover\:\:addFunctionToWsdl\(\) expects DOMElement, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
+			message: '#^Property Cline\\Soap\\AutoDiscover\:\:\$bindingStyle type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
+			message: '#^Property Cline\\Soap\\AutoDiscover\:\:\$classMap type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
+			message: '#^Property Cline\\Soap\\AutoDiscover\:\:\$functions type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
+			message: '#^Property Cline\\Soap\\AutoDiscover\:\:\$operationBodyStyle type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
+			message: '#^Property Cline\\Soap\\AutoDiscover\:\:\$wsdlClass \(string\) does not accept Cline\\Soap\\Wsdl\|string\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/AutoDiscover.php
+
+		-
+			message: '#^Binary operation "\." between ''Invalid class in…'' and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Cannot access offset ''from_xml'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Cannot access offset ''to_xml'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Cannot access offset ''type_name'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:__call\(\) has parameter \$arguments with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:__construct\(\) has parameter \$options with no value type specified in iterable type Traversable\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:__construct\(\) has parameter \$options with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:_preProcessArguments\(\) has parameter \$arguments with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:_preProcessArguments\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:_preProcessResult\(\) has parameter \$result with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:_preProcessResult\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:call\(\) has parameter \$params with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:getClassmap\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:getFunctions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:getFunctions\(\) should return array but returns array\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:getLastRequest\(\) should return string but returns string\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:getLastRequestHeaders\(\) should return string but returns string\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:getLastResponse\(\) should return string but returns string\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:getLastResponseHeaders\(\) should return string but returns string\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:getLastSoapOutputHeaderObjects\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:getOptions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:getSoapClient\(\) should return SoapClient but returns SoapClient\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:getStreamContext\(\) should return resource but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:getTypemap\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:getTypes\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:getTypes\(\) should return array but returns array\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:setClassmap\(\) has parameter \$classmap with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:setOptions\(\) has parameter \$options with no value type specified in iterable type Traversable\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:setOptions\(\) has parameter \$options with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:setOptions\(\) has parameter \$options with no value type specified in iterable type array\|Traversable\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\:\:setTypemap\(\) has parameter \$typeMap with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^PHPDoc tag @return with type mixed is not subtype of native type array\|null\.$#'
+			identifier: return.phpDocType
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^PHPDoc tag @throws with type Cline\\Soap\\Exception\\ExceptionInterface is not subtype of Throwable$#'
+			identifier: throws.notThrowable
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^PHPDoc tag @var for property Cline\\Soap\\Client\:\:\$proxyPort with type string is incompatible with native type int\|null\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^PHPDoc tag @var for property Cline\\Soap\\Client\:\:\$style with type string is incompatible with native type int\|null\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^PHPDoc tag @var for property Cline\\Soap\\Client\:\:\$use with type string is incompatible with native type int\|null\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$caching of method Cline\\Soap\\Client\:\:setWSDLCache\(\) expects bool\|int\|string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$class of function class_exists expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$classmap of method Cline\\Soap\\Client\:\:setClassmap\(\) expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$compressionOptions of method Cline\\Soap\\Client\:\:setCompressionOptions\(\) expects int\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$context of method Cline\\Soap\\Client\:\:setStreamContext\(\) expects resource, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$encoding of method Cline\\Soap\\Client\:\:setEncoding\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$feature of method Cline\\Soap\\Client\:\:setSoapFeatures\(\) expects int\|string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$keepAlive of method Cline\\Soap\\Client\:\:setKeepAlive\(\) expects bool, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$localCert of method Cline\\Soap\\Client\:\:setHttpsCertificate\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$location of method Cline\\Soap\\Client\:\:setLocation\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$login of method Cline\\Soap\\Client\:\:setHttpLogin\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$passphrase of method Cline\\Soap\\Client\:\:setHttpsCertPassphrase\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$password of method Cline\\Soap\\Client\:\:setHttpPassword\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$proxyHost of method Cline\\Soap\\Client\:\:setProxyHost\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$proxyLogin of method Cline\\Soap\\Client\:\:setProxyLogin\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$proxyPassword of method Cline\\Soap\\Client\:\:setProxyPassword\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$proxyPort of method Cline\\Soap\\Client\:\:setProxyPort\(\) expects int, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$result of method Cline\\Soap\\Client\:\:_preProcessResult\(\) expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$sslMethod of method Cline\\Soap\\Client\:\:setSslMethod\(\) expects int, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$style of method Cline\\Soap\\Client\:\:setStyle\(\) expects int, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$typeMap of method Cline\\Soap\\Client\:\:setTypemap\(\) expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$uri of method Cline\\Soap\\Client\:\:setUri\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$use of method Cline\\Soap\\Client\:\:setEncodingMethod\(\) expects int, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$userAgent of method Cline\\Soap\\Client\:\:setUserAgent\(\) expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$version of method Cline\\Soap\\Client\:\:setSoapVersion\(\) expects int, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#1 \$wsdl of method Cline\\Soap\\Client\:\:setWSDL\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#2 \$wsdl of class Cline\\Soap\\Client\\Common constructor expects string, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Parameter \#2 \.\.\.\$values of function sprintf expects bool\|float\|int\|string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Client.php
+
+		-
+			message: '#^Property Cline\\Soap\\Client\:\:\$classmap type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Property Cline\\Soap\\Client\:\:\$connectionTimeout \(int\|string\|null\) does not accept mixed\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Property Cline\\Soap\\Client\:\:\$faultExceptions type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Property Cline\\Soap\\Client\:\:\$permanentSoapInputHeaders type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Property Cline\\Soap\\Client\:\:\$soapOutputHeaders \(array\) does not accept mixed\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Property Cline\\Soap\\Client\:\:\$soapOutputHeaders type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Property Cline\\Soap\\Client\:\:\$typemap type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client.php
+
+		-
+			message: '#^Call to function is_callable\(\) with callable\(\)\: mixed will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Client/Common.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\\Common\:\:__construct\(\) has parameter \$options with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client/Common.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\\Common\:\:__doRequest\(\) should return string\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Client/Common.php
+
+		-
+			message: '#^PHPDoc tag @param for parameter \$oneWay with type int is incompatible with native type bool\.$#'
+			identifier: parameter.phpDocType
+			count: 1
+			path: src/Client/Common.php
+
+		-
+			message: '#^PHPDoc tag @return with type mixed is not subtype of native type string\|null\.$#'
+			identifier: return.phpDocType
+			count: 1
+			path: src/Client/Common.php
+
+		-
+			message: '#^Call to function is_object\(\) with array will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: src/Client/DotNet.php
+
+		-
+			message: '#^Cannot access offset ''authentication'' on array\<string, mixed\>\|Traversable\<string, mixed\>\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Client/DotNet.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\\DotNet\:\:_doRequest\(\) should return string but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Client/DotNet.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\\DotNet\:\:_preProcessResult\(\) has parameter \$result with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client/DotNet.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\\DotNet\:\:_preProcessResult\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Client/DotNet.php
+
+		-
+			message: '#^Method Cline\\Soap\\Client\\DotNet\:\:setOptions\(\) should return Cline\\Soap\\Client\\DotNet but returns Cline\\Soap\\Client\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Client/DotNet.php
+
+		-
+			message: '#^PHPDoc tag @param for parameter \$oneWay with type int is incompatible with native type bool\.$#'
+			identifier: parameter.phpDocType
+			count: 1
+			path: src/Client/DotNet.php
+
+		-
+			message: '#^Parameter \#1 \$host of method Laminas\\Http\\Client\\Adapter\\Curl\:\:connect\(\) expects string, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client/DotNet.php
+
+		-
+			message: '#^Parameter \#2 \$options \(array\|null\) of method Cline\\Soap\\Client\\DotNet\:\:__construct\(\) is not contravariant with parameter \#2 \$options \(array\|Traversable\|null\) of method Cline\\Soap\\Client\:\:__construct\(\)\.$#'
+			identifier: method.childParameterType
+			count: 1
+			path: src/Client/DotNet.php
+
+		-
+			message: '#^Parameter \#2 \$port of method Laminas\\Http\\Client\\Adapter\\Curl\:\:connect\(\) expects int, int\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client/DotNet.php
+
+		-
+			message: '#^Parameter \#2 \$uri of method Laminas\\Http\\Client\\Adapter\\Curl\:\:write\(\) expects Laminas\\Uri\\Uri, Uri\\Rfc3986\\Uri given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client/DotNet.php
+
+		-
+			message: '#^Parameter \#2 \.\.\.\$values of function sprintf expects bool\|float\|int\|string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client/DotNet.php
+
+		-
+			message: '#^Parameter \#3 \.\.\.\$values of function sprintf expects bool\|float\|int\|string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Client/DotNet.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: src/Client/DotNet.php
+
+		-
+			message: '#^Parameter \#1 \$server \(Cline\\Soap\\Server\) of method Cline\\Soap\\Client\\Local\:\:__construct\(\) is not contravariant with parameter \#1 \$wsdl \(string\|null\) of method Cline\\Soap\\Client\:\:__construct\(\)\.$#'
+			identifier: method.childParameterType
+			count: 1
+			path: src/Client/Local.php
+
+		-
+			message: '#^Parameter \#1 \$server of method Cline\\Soap\\Client\\Local\:\:__construct\(\) is required but parameter \#1 \$wsdl of method Cline\\Soap\\Client\:\:__construct\(\) is optional\.$#'
+			identifier: parameter.notOptional
+			count: 1
+			path: src/Client/Local.php
+
+		-
+			message: '#^Parameter \#2 \$wsdl \(string\|null\) of method Cline\\Soap\\Client\\Local\:\:__construct\(\) is not contravariant with parameter \#2 \$options \(array\|Traversable\|null\) of method Cline\\Soap\\Client\:\:__construct\(\)\.$#'
+			identifier: method.childParameterType
+			count: 1
+			path: src/Client/Local.php
+
+		-
+			message: '#^Parameter \#2 \$wsdl of method Cline\\Soap\\Client\\Local\:\:__construct\(\) is required but parameter \#2 \$options of method Cline\\Soap\\Client\:\:__construct\(\) is optional\.$#'
+			identifier: parameter.notOptional
+			count: 1
+			path: src/Client/Local.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between string and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Client/Local.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string\|false and null will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: src/Client/Local.php
+
+		-
+			message: '#^Parameter \#1 \$objectOrClass of class ReflectionClass constructor expects class\-string\<T of object\>\|T of object, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Reflection/Reflection.php
+
+		-
+			message: '#^Method Cline\\Soap\\Reflection\\ReflectionClass\:\:__construct\(\) has parameter \$reflection with generic class ReflectionClass but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Reflection/ReflectionClass.php
+
+		-
+			message: '#^Binary operation "\." between ''Invalid to_xml…'' and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 3
+			path: src/Server.php
+
+		-
+			message: '#^Cannot access an offset on array\|int\<min, 998\>\|int\<1000, max\>\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Server.php
+
+		-
+			message: '#^Cannot access offset ''from_xml'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Cannot access offset ''to_xml'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Cannot access offset ''type_name'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Server.php
+
+		-
+			message: '#^Cannot call method __toString\(\) on stdClass\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Cannot call method saveXML\(\) on DOMDocument\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Method Cline\\Soap\\Server\:\:__construct\(\) has parameter \$options with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Method Cline\\Soap\\Server\:\:addFunction\(\) has parameter \$function with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Method Cline\\Soap\\Server\:\:getClassmap\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Method Cline\\Soap\\Server\:\:getFaultExceptions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Method Cline\\Soap\\Server\:\:getOptions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Method Cline\\Soap\\Server\:\:getTypemap\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Method Cline\\Soap\\Server\:\:handle\(\) never returns void so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Method Cline\\Soap\\Server\:\:handle\(\) should return string\|void but returns SoapFault\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Method Cline\\Soap\\Server\:\:initializeSoapErrorContext\(\) should return string but returns string\|false\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Method Cline\\Soap\\Server\:\:loadFunctions\(\) has parameter \$definition with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Method Cline\\Soap\\Server\:\:registerFaultException\(\) has parameter \$class with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Method Cline\\Soap\\Server\:\:setClass\(\) has parameter \$argv with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Method Cline\\Soap\\Server\:\:setClassmap\(\) has parameter \$classmap with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Method Cline\\Soap\\Server\:\:setEncoding\(\) has Cline\\Soap\\Exception\\InvalidArgumentException in PHPDoc @throws tag but it''s not thrown\.$#'
+			identifier: throws.unusedType
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Method Cline\\Soap\\Server\:\:setOptions\(\) has parameter \$options with no value type specified in iterable type Traversable\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Method Cline\\Soap\\Server\:\:setOptions\(\) has parameter \$options with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Method Cline\\Soap\\Server\:\:setOptions\(\) has parameter \$options with no value type specified in iterable type array\|Traversable\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Method Cline\\Soap\\Server\:\:setTypemap\(\) has parameter \$typeMap with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^PHPDoc tag @return with type bool is incompatible with native type string\.$#'
+			identifier: return.phpDocType
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^PHPDoc tag @return with type mixed is not subtype of native type array\|null\.$#'
+			identifier: return.phpDocType
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^PHPDoc tag @var for property Cline\\Soap\\Server\:\:\$wsdlCache with type mixed is not subtype of native type bool\|int\|string\|null\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Parameter \#1 \$actor of method Cline\\Soap\\Server\:\:setActor\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Parameter \#1 \$callback of function set_error_handler expects \(callable\(int, string, string, int\)\: bool\)\|null, array\{\$this\(Cline\\Soap\\Server\), ''handlePhpErrors''\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Parameter \#1 \$class of function class_exists expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Parameter \#1 \$class of method Cline\\Soap\\Server\:\:registerFaultException\(\) expects array\|string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Parameter \#1 \$classmap of method Cline\\Soap\\Server\:\:setClassmap\(\) expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Parameter \#1 \$code of method SoapServer\:\:fault\(\) expects string, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Parameter \#1 \$encoding of method Cline\\Soap\\Server\:\:setEncoding\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Parameter \#1 \$feature of method Cline\\Soap\\Server\:\:setSoapFeatures\(\) expects int\|string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Parameter \#1 \$objectOrClass of class ReflectionClass constructor expects class\-string\<T of object\>\|T of object, object\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Parameter \#1 \$options of method Cline\\Soap\\Server\:\:setWSDLCache\(\) expects bool\|int\|string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Parameter \#1 \$parseHuge of method Cline\\Soap\\Server\:\:setParseHuge\(\) expects bool, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Parameter \#1 \$request of method Cline\\Soap\\Server\:\:setRequest\(\) expects DOMNode\|SimpleXMLElement\|stdClass\|string, DOMNode\|SimpleXMLElement\|stdClass\|string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Parameter \#1 \$sendErrors of method Cline\\Soap\\Server\:\:setSendErrors\(\) expects bool, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Parameter \#1 \$string of function mb_trim expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Parameter \#1 \$typeMap of method Cline\\Soap\\Server\:\:setTypemap\(\) expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Parameter \#1 \$uri of method Cline\\Soap\\Server\:\:setUri\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Parameter \#1 \$version of method Cline\\Soap\\Server\:\:setSoapVersion\(\) expects int, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Parameter \#1 \$wsdl of method Cline\\Soap\\Server\:\:setWSDL\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Parameter \#2 \.\.\.\$values of function sprintf expects bool\|float\|int\|string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Property Cline\\Soap\\Server\:\:\$classArgs type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Property Cline\\Soap\\Server\:\:\$classmap type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Property Cline\\Soap\\Server\:\:\$faultExceptions type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Property Cline\\Soap\\Server\:\:\$features \(int\|null\) does not accept int\|string\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Property Cline\\Soap\\Server\:\:\$functions \(array\|int\) does not accept mixed\.$#'
+			identifier: assign.propertyType
+			count: 2
+			path: src/Server.php
+
+		-
+			message: '#^Property Cline\\Soap\\Server\:\:\$functions type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Property Cline\\Soap\\Server\:\:\$request \(string\|null\) does not accept string\|false\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Property Cline\\Soap\\Server\:\:\$response \(string\) does not accept string\|false\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Property Cline\\Soap\\Server\:\:\$typemap type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between null and int will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Server.php
+
+		-
+			message: '#^Parameter \#1 \$callback of function call_user_func_array expects callable\(\)\: mixed, array\{object, string\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Server/DocumentLiteralWrapper.php
+
+		-
+			message: '#^Parameter \#2 \$document of method Cline\\Soap\\Server\\DocumentLiteralWrapper\:\:parseArguments\(\) expects object, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Server/DocumentLiteralWrapper.php
+
+		-
+			message: '#^Access to an undefined property DOMNameSpaceNode\|DOMNode\:\:\$childNodes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Argument of an invalid type DOMNodeList\<DOMNameSpaceNode\|DOMNode\>\|false supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Binary operation "\." between ''tns\:'' and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Call to an undefined method DOMNameSpaceNode\|DOMNode\:\:replaceChild\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Cannot access property \$documentElement on DOMDocument\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Cannot access property \$firstChild on Cline\\Soap\\Wsdl\|DOMElement\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Cannot access property \$namespaceURI on Cline\\Soap\\Wsdl\|DOMElement\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Cannot call method addComplexType\(\) on Cline\\Soap\\Wsdl\\ComplexTypeStrategy\\ComplexTypeStrategyInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Cannot call method appendChild\(\) on Cline\\Soap\\Wsdl\|DOMElement\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Cannot call method createAttribute\(\) on DOMDocument\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Cannot call method createElementNS\(\) on DOMDocument\|null\.$#'
+			identifier: method.nonObject
+			count: 27
+			path: src/Wsdl.php
+
+		-
+			message: '#^Cannot call method createTextNode\(\) on DOMDocument\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: src/Wsdl.php
+
+		-
+			message: '#^Cannot call method hasChildNodes\(\) on Cline\\Soap\\Wsdl\|DOMElement\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Cannot call method importNode\(\) on DOMDocument\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: src/Wsdl.php
+
+		-
+			message: '#^Cannot call method insertBefore\(\) on Cline\\Soap\\Wsdl\|DOMElement\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Cannot call method normalizeDocument\(\) on DOMDocument\|null\.$#'
+			identifier: method.nonObject
+			count: 3
+			path: src/Wsdl.php
+
+		-
+			message: '#^Cannot call method saveXML\(\) on DOMDocument\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Cannot call method setAttributeNS\(\) on DOMElement\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Cannot call method setContext\(\) on Cline\\Soap\\Wsdl\\ComplexTypeStrategy\\ComplexTypeStrategyInterface\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Instanceof between \*NEVER\* and DOMDocumentFragment will always evaluate to false\.$#'
+			identifier: instanceof.alwaysFalse
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Instanceof between \*NEVER\* and DOMElement will always evaluate to false\.$#'
+			identifier: instanceof.alwaysFalse
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Instanceof between DOMNode and DOMNode will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Method Cline\\Soap\\Wsdl\:\:__construct\(\) has parameter \$classMap with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Method Cline\\Soap\\Wsdl\:\:addBindingOperation\(\) has parameter \$fault with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Method Cline\\Soap\\Wsdl\:\:addBindingOperation\(\) has parameter \$input with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Method Cline\\Soap\\Wsdl\:\:addBindingOperation\(\) has parameter \$output with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Method Cline\\Soap\\Wsdl\:\:addComplexType\(\) should return string but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Method Cline\\Soap\\Wsdl\:\:addElement\(\) has parameter \$element with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Method Cline\\Soap\\Wsdl\:\:addMessage\(\) has parameter \$parts with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Method Cline\\Soap\\Wsdl\:\:arrayToAttributes\(\) has parameter \$attributes with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Method Cline\\Soap\\Wsdl\:\:getClassMap\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Method Cline\\Soap\\Wsdl\:\:getSchema\(\) should return DOMElement but returns DOMElement\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Method Cline\\Soap\\Wsdl\:\:getTargetNamespace\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Method Cline\\Soap\\Wsdl\:\:getTypes\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Method Cline\\Soap\\Wsdl\:\:parseElement\(\) has parameter \$element with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Method Cline\\Soap\\Wsdl\:\:sanitizeAttributeValueByName\(\) should return string but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Method Cline\\Soap\\Wsdl\:\:setClassMap\(\) has parameter \$classMap with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Method Cline\\Soap\\Wsdl\:\:toDomDocument\(\) should return DOMDocument but returns DOMDocument\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Method Cline\\Soap\\Wsdl\:\:toXML\(\) should return string but returns string\|false\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Method Cline\\Soap\\Wsdl\:\:translateType\(\) should return string but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^PHPDoc tag @param for parameter \$classMap with type array\|null is not subtype of native type array\.$#'
+			identifier: parameter.phpDocType
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Parameter \#1 \$element of method Cline\\Soap\\Wsdl\:\:parseElement\(\) expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Parameter \#1 \$filename of function file_put_contents expects string, string\|true given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Parameter \#1 \$search of function str_replace expects array\<string\>\|string, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Parameter \#1 \$uri of method Cline\\Soap\\Wsdl\:\:sanitizeUri\(\) expects string\|Uri\\Rfc3986\\Uri, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Parameter \#1 \$uri of method Cline\\Soap\\Wsdl\:\:sanitizeUri\(\) expects string\|Uri\\Rfc3986\\Uri, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Parameter \#2 \$value of method DOMElement\:\:setAttribute\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Parameter \#3 \$subject of function str_replace expects array\<string\>\|string, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Property Cline\\Soap\\Wsdl\:\:\$includedTypes type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Property Cline\\Soap\\Wsdl\:\:\$wsdl \(DOMElement\) does not accept DOMElement\|null\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Result of \|\| is always true\.$#'
+			identifier: booleanOr.alwaysTrue
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between DOMElement and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Wsdl.php
+
+		-
+			message: '#^Method Cline\\Soap\\Wsdl\\ComplexTypeStrategy\\AbstractComplexTypeStrategy\:\:scanRegisteredTypes\(\) should return string\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Wsdl/ComplexTypeStrategy/AbstractComplexTypeStrategy.php
+
+		-
+			message: '#^Method Cline\\Soap\\Wsdl\\ComplexTypeStrategy\\Composite\:\:connectTypeToStrategy\(\) has Cline\\Soap\\Exception\\InvalidArgumentException in PHPDoc @throws tag but it''s not thrown\.$#'
+			identifier: throws.unusedType
+			count: 1
+			path: src/Wsdl/ComplexTypeStrategy/Composite.php
+
+		-
+			message: '#^Method Cline\\Soap\\Wsdl\\ComplexTypeStrategy\\DefaultComplexType\:\:addComplexTypeDocumentation\(\) has parameter \$class with generic class ReflectionClass but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Wsdl/ComplexTypeStrategy/DefaultComplexType.php
+
+		-
+			message: '#^Parameter \#2 \$subject of function preg_match_all expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Wsdl/ComplexTypeStrategy/DefaultComplexType.php
+
+		-
+			message: '#^Method Cline\\Soap\\Wsdl\\DocumentationStrategy\\DocumentationStrategyInterface\:\:getComplexTypeDocumentation\(\) has parameter \$class with generic class ReflectionClass but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Wsdl/DocumentationStrategy/DocumentationStrategyInterface.php
+
+		-
+			message: '#^Method Cline\\Soap\\Wsdl\\DocumentationStrategy\\ReflectionDocumentation\:\:getComplexTypeDocumentation\(\) has parameter \$class with generic class ReflectionClass but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Wsdl/DocumentationStrategy/ReflectionDocumentation.php
+
+		-
+			message: '#^Parameter \#1 \$string of function mb_trim expects string, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Wsdl/DocumentationStrategy/ReflectionDocumentation.php

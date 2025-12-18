@@ -669,10 +669,10 @@ describe('Wsdl', function (): void {
     });
 
     describe('Sad Paths', function (): void {
-        test('addElement throws RuntimeException for invalid element structure', function (): void {
-            // Act & Assert
+        test('addElement throws TypeError for invalid element type', function (): void {
+            // Act & Assert - TypeError is thrown because of strict type hint
             expect(fn () => $this->wsdl->addElement(1))
-                ->toThrow(RuntimeException::class);
+                ->toThrow(TypeError::class);
         });
     });
 });

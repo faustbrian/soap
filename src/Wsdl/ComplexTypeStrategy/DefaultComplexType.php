@@ -9,7 +9,6 @@
 
 namespace Cline\Soap\Wsdl\ComplexTypeStrategy;
 
-use Cline\Soap\Exception;
 use Cline\Soap\Exception\InvalidArgumentException;
 use Cline\Soap\Wsdl;
 use Cline\Soap\Wsdl\DocumentationStrategy\DocumentationStrategyInterface;
@@ -52,12 +51,12 @@ class DefaultComplexType extends AbstractComplexTypeStrategy
             return $soapType;
         }
 
-        $dom = $this->getContext()->toDomDocument();
-        $soapTypeName = $this->getContext()->translateType($phpType);
+        $dom = $this->requireContext()->toDomDocument();
+        $soapTypeName = $this->requireContext()->translateType($phpType);
         $soapType = Wsdl::TYPES_NS.':'.$soapTypeName;
 
         // Register type here to avoid recursion
-        $this->getContext()->addType($phpType, $soapType);
+        $this->requireContext()->addType($phpType, $soapType);
 
         $defaultProperties = $class->getDefaultProperties();
 
@@ -67,10 +66,12 @@ class DefaultComplexType extends AbstractComplexTypeStrategy
         $all = $dom->createElementNS(Wsdl::XSD_NS_URI, 'all');
 
         foreach ($class->getProperties() as $property) {
-            if (!$property->isPublic() || !preg_match_all('/@var\s+([^\s]+)/m', $property->getDocComment(), $matches)) {
+            if (!$property->isPublic()) {
                 continue;
             }
-
+            if (!preg_match_all('/@var\s+([^\s]+)/m', $property->getDocComment(), $matches)) {
+                continue;
+            }
             /**
              * @todo check if 'xsd:element' must be used here (it may not be
              * compatible with using 'complexType' node for describing other
@@ -85,7 +86,7 @@ class DefaultComplexType extends AbstractComplexTypeStrategy
                 $propertyType = $phpType;
             }
 
-            $element->setAttribute('type', $this->getContext()->getType($propertyType));
+            $element->setAttribute('type', $this->requireContext()->getType($propertyType));
 
             // If the default value is null, then this property is nillable.
             if ($defaultProperties[$propertyName] === null) {
@@ -98,7 +99,7 @@ class DefaultComplexType extends AbstractComplexTypeStrategy
 
         $complexType->appendChild($all);
         $this->addComplexTypeDocumentation($class, $complexType);
-        $this->getContext()->getSchema()->appendChild($complexType);
+        $this->requireContext()->getSchema()->appendChild($complexType);
 
         return $soapType;
     }
@@ -111,11 +112,11 @@ class DefaultComplexType extends AbstractComplexTypeStrategy
 
         $documentation = $this->documentationStrategy->getPropertyDocumentation($property);
 
-        if (!$documentation) {
+        if ($documentation === '' || $documentation === '0') {
             return;
         }
 
-        $this->getContext()->addDocumentation($element, $documentation);
+        $this->requireContext()->addDocumentation($element, $documentation);
     }
 
     private function addComplexTypeDocumentation(ReflectionClass $class, DOMElement $element): void
@@ -126,10 +127,10 @@ class DefaultComplexType extends AbstractComplexTypeStrategy
 
         $documentation = $this->documentationStrategy->getComplexTypeDocumentation($class);
 
-        if (!$documentation) {
+        if ($documentation === '' || $documentation === '0') {
             return;
         }
 
-        $this->getContext()->addDocumentation($element, $documentation);
+        $this->requireContext()->addDocumentation($element, $documentation);
     }
 }

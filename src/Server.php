@@ -82,120 +82,86 @@ final class Server implements ServerInterface
 
     /**
      * Class registered with this server
-     *
-     * @var string
      */
     protected ?string $class = null;
 
     /**
      * Server instance
-     *
-     * @var SoapServer
      */
     protected ?SoapServer $server = null;
 
     /**
      * Arguments to pass to {@link $class} constructor
-     *
-     * @var array
      */
     protected array $classArgs = [];
 
     /**
      * Array of SOAP type => PHP class pairings for handling return/incoming values
-     *
-     * @var array
      */
     protected ?array $classmap = null;
 
     /**
      * Encoding
-     *
-     * @var string
      */
     protected ?string $encoding = null;
 
     /**
      * Registered fault exceptions
-     *
-     * @var array
      */
     protected array $faultExceptions = [];
 
     /**
      * Container for caught exception during business code execution
-     *
-     * @var Exception
      */
     protected ?Exception $caughtException = null;
 
     /**
      * SOAP Server Features
-     *
-     * @var int
      */
     protected ?int $features = null;
 
     /**
      * Functions registered with this server; may be either an array or the SOAP_FUNCTIONS_ALL constant
-     *
-     * @var array|int
      */
     protected array|int $functions = [];
 
     /**
      * Object registered with this server
-     *
-     * @var object
      */
     protected ?object $object = null;
 
     /**
      * Informs if the soap server is in debug mode
-     *
-     * @var bool
      */
     protected bool $debug = false;
 
     /**
      * Persistence mode; should be one of the SOAP persistence constants
-     *
-     * @var int
      */
     protected ?int $persistence = null;
 
     /**
      * Request XML
-     *
-     * @var string
      */
     protected ?string $request = null;
 
     /**
      * Response XML
-     *
-     * @var string
      */
-    protected ?string $response = null;
+    protected string $response = '';
 
     /**
      * Flag: whether or not {@link handle()} should return a response instead of automatically emitting it.
-     *
-     * @var bool
      */
     protected bool $returnResponse = false;
 
     /**
      * SOAP version to use; SOAP_1_2 by default, to allow processing of headers
-     *
-     * @var int
      */
     protected int $soapVersion = SOAP_1_2;
 
     /**
      * Array of type mappings
-     *
-     * @var array
      */
     protected ?array $typemap = null;
 
@@ -208,8 +174,6 @@ final class Server implements ServerInterface
 
     /**
      * URI or path to WSDL
-     *
-     * @var string
      */
     protected ?string $wsdl = null;
 
@@ -222,15 +186,11 @@ final class Server implements ServerInterface
 
     /**
      * The send_errors Options of SOAP Server
-     *
-     * @var bool
      */
     protected ?bool $sendErrors = null;
 
     /**
      * Allows LIBXML_PARSEHUGE Options of DOMDocument->loadXML( string $source [, int $options = 0 ] ) to be set
-     *
-     * @var bool
      */
     protected ?bool $parseHuge = null;
 
@@ -244,7 +204,6 @@ final class Server implements ServerInterface
      * If $wsdl is provided, it is passed on to {@link setWSDL()}; if any
      * options are specified, they are passed on to {@link setOptions()}.
      *
-     * @param  string                      $wsdl
      * @throws ExtensionNotLoadedException
      */
     public function __construct(?string $wsdl = null, ?array $options = null)
@@ -269,7 +228,6 @@ final class Server implements ServerInterface
      *
      * Allows setting options as an associative array of option => value pairs.
      *
-     * @param  array|Traversable $options
      * @return self
      */
     public function setOptions(array|Traversable $options): static
@@ -348,8 +306,6 @@ final class Server implements ServerInterface
 
     /**
      * Return array of options suitable for using with SoapServer constructor
-     *
-     * @return array
      */
     public function getOptions(): array
     {
@@ -401,7 +357,6 @@ final class Server implements ServerInterface
     /**
      * Set encoding
      *
-     * @param  string                   $encoding
      * @throws InvalidArgumentException With invalid encoding argument.
      * @return self
      */
@@ -414,8 +369,6 @@ final class Server implements ServerInterface
 
     /**
      * Get encoding
-     *
-     * @return string
      */
     public function getEncoding(): ?string
     {
@@ -442,8 +395,6 @@ final class Server implements ServerInterface
 
     /**
      * Get SOAP version
-     *
-     * @return int
      */
     public function getSoapVersion(): int
     {
@@ -453,7 +404,6 @@ final class Server implements ServerInterface
     /**
      * Check for valid URN
      *
-     * @param  string                   $urn
      * @throws InvalidArgumentException On invalid URN.
      * @return true
      */
@@ -473,7 +423,6 @@ final class Server implements ServerInterface
      *
      * Actor is the actor URI for the server.
      *
-     * @param  string $actor
      * @return self
      */
     public function setActor(string $actor): static
@@ -486,8 +435,6 @@ final class Server implements ServerInterface
 
     /**
      * Retrieve actor
-     *
-     * @return string
      */
     public function getActor(): ?string
     {
@@ -499,7 +446,6 @@ final class Server implements ServerInterface
      *
      * URI in SoapServer is actually the target namespace, not a URI; $uri must begin with 'urn:'.
      *
-     * @param  string $uri
      * @return self
      */
     public function setUri(string $uri): static
@@ -512,8 +458,6 @@ final class Server implements ServerInterface
 
     /**
      * Retrieve URI
-     *
-     * @return string
      */
     public function getUri(): ?string
     {
@@ -523,16 +467,11 @@ final class Server implements ServerInterface
     /**
      * Set classmap
      *
-     * @param  array                    $classmap
      * @throws InvalidArgumentException For any invalid class in the class map.
      * @return self
      */
     public function setClassmap(array $classmap): static
     {
-        if (!is_array($classmap)) {
-            throw new InvalidArgumentException('Classmap must be an array');
-        }
-
         foreach ($classmap as $class) {
             if (!class_exists($class)) {
                 throw new InvalidArgumentException('Invalid class in class map');
@@ -549,7 +488,7 @@ final class Server implements ServerInterface
      *
      * @return mixed
      */
-    public function getClassmap()
+    public function getClassmap(): ?array
     {
         return $this->classmap;
     }
@@ -557,16 +496,11 @@ final class Server implements ServerInterface
     /**
      * Set typemap with xml to php type mappings with appropriate validation.
      *
-     * @param  array                    $typeMap
      * @throws InvalidArgumentException
      * @return self
      */
-    public function setTypemap($typeMap)
+    public function setTypemap(array $typeMap): static
     {
-        if (!is_array($typeMap)) {
-            throw new InvalidArgumentException('Typemap must be an array');
-        }
-
         foreach ($typeMap as $type) {
             if (!is_callable($type['from_xml'])) {
                 throw new InvalidArgumentException(sprintf(
@@ -587,10 +521,8 @@ final class Server implements ServerInterface
 
     /**
      * Retrieve typemap
-     *
-     * @return array
      */
-    public function getTypemap()
+    public function getTypemap(): ?array
     {
         return $this->typemap;
     }
@@ -601,7 +533,7 @@ final class Server implements ServerInterface
      * @param  string $wsdl URI or path to a WSDL
      * @return self
      */
-    public function setWSDL($wsdl)
+    public function setWSDL(string $wsdl): static
     {
         $this->wsdl = $wsdl;
 
@@ -610,10 +542,8 @@ final class Server implements ServerInterface
 
     /**
      * Retrieve wsdl
-     *
-     * @return string
      */
-    public function getWSDL()
+    public function getWSDL(): ?string
     {
         return $this->wsdl;
     }
@@ -621,10 +551,9 @@ final class Server implements ServerInterface
     /**
      * Set the SOAP Feature options.
      *
-     * @param  int|string $feature
      * @return self
      */
-    public function setSoapFeatures($feature)
+    public function setSoapFeatures(int|string $feature): static
     {
         $this->features = $feature;
 
@@ -633,10 +562,8 @@ final class Server implements ServerInterface
 
     /**
      * Return current SOAP Features options
-     *
-     * @return int
      */
-    public function getSoapFeatures()
+    public function getSoapFeatures(): ?int
     {
         return $this->features;
     }
@@ -644,10 +571,9 @@ final class Server implements ServerInterface
     /**
      * Set the SOAP WSDL Caching Options
      *
-     * @param  bool|int|string $options
      * @return self
      */
-    public function setWSDLCache($options)
+    public function setWSDLCache(bool|int|string $options): static
     {
         $this->wsdlCache = $options;
 
@@ -656,10 +582,8 @@ final class Server implements ServerInterface
 
     /**
      * Get current SOAP WSDL Caching option
-     *
-     * @return null|bool|int|string
      */
-    public function getWSDLCache()
+    public function getWSDLCache(): bool|int|string|null
     {
         return $this->wsdlCache;
     }
@@ -667,10 +591,9 @@ final class Server implements ServerInterface
     /**
      * Set the SOAP send_errors Option
      *
-     * @param  bool $sendErrors
      * @return self
      */
-    public function setSendErrors($sendErrors)
+    public function setSendErrors(bool $sendErrors): static
     {
         $this->sendErrors = (bool) $sendErrors;
 
@@ -679,10 +602,8 @@ final class Server implements ServerInterface
 
     /**
      * Get current SOAP send_errors option
-     *
-     * @return bool
      */
-    public function getSendErrors()
+    public function getSendErrors(): ?bool
     {
         return $this->sendErrors;
     }
@@ -690,10 +611,9 @@ final class Server implements ServerInterface
     /**
      * Set flag to allow DOMDocument->loadXML() to parse huge nodes
      *
-     * @param  bool $parseHuge
      * @return self
      */
-    public function setParseHuge($parseHuge)
+    public function setParseHuge(bool $parseHuge): static
     {
         $this->parseHuge = (bool) $parseHuge;
 
@@ -702,10 +622,8 @@ final class Server implements ServerInterface
 
     /**
      * Get flag to allow DOMDocument->loadXML() to parse huge nodes
-     *
-     * @return bool
      */
-    public function getParseHuge()
+    public function getParseHuge(): ?bool
     {
         return $this->parseHuge;
     }
@@ -719,7 +637,7 @@ final class Server implements ServerInterface
      * @throws InvalidArgumentException On invalid functions.
      * @return self
      */
-    public function addFunction($function, $namespace = '')
+    public function addFunction(array|int|string $function, string $namespace = ''): static
     {
         // Bail early if set to SOAP_FUNCTIONS_ALL
         if ($this->functions === SOAP_FUNCTIONS_ALL) {
@@ -757,14 +675,13 @@ final class Server implements ServerInterface
      *
      * See {@link setObject()} to set pre-configured object instances as request handlers.
      *
-     * @param  object|string            $class     Class name or object instance which executes
-     *                                             SOAP Requests at endpoint.
-     * @param  string                   $namespace
+     * @param  object|string            $class Class name or object instance which executes
+     *                                         SOAP Requests at endpoint.
      * @param  null|array               $argv
      * @throws InvalidArgumentException If called more than once, or if class does not exist.
      * @return self
      */
-    public function setClass($class, $namespace = '', $argv = null)
+    public function setClass(object|string $class, string $namespace = '', mixed $argv = null): static
     {
         if (isset($this->class)) {
             throw new InvalidArgumentException(
@@ -805,19 +722,11 @@ final class Server implements ServerInterface
      *
      * Accepts an instantiated object to use when handling requests.
      *
-     * @param  object                   $object
      * @throws InvalidArgumentException
      * @return self
      */
-    public function setObject($object)
+    public function setObject(object $object): static
     {
-        if (!is_object($object)) {
-            throw new InvalidArgumentException(sprintf(
-                'Invalid object argument (%s)',
-                gettype($object),
-            ));
-        }
-
         if (isset($this->object)) {
             throw new InvalidArgumentException(
                 'An object has already been registered with this soap server instance',
@@ -835,10 +744,8 @@ final class Server implements ServerInterface
      * Returns a list of all functions registered with {@link addFunction()},
      * merged with all public methods of the class set with {@link setClass()}
      * (if any).
-     *
-     * @return array
      */
-    public function getFunctions()
+    public function getFunctions(): array
     {
         $functions = [];
 
@@ -869,7 +776,7 @@ final class Server implements ServerInterface
      * @throws InvalidArgumentException
      * @return self
      */
-    public function setPersistence($mode)
+    public function setPersistence(int $mode): static
     {
         if (!in_array($mode, [SOAP_PERSISTENCE_SESSION, SOAP_PERSISTENCE_REQUEST], true)) {
             throw new InvalidArgumentException('Invalid persistence mode specified');
@@ -882,20 +789,16 @@ final class Server implements ServerInterface
 
     /**
      * Get server persistence
-     *
-     * @return int
      */
-    public function getPersistence()
+    public function getPersistence(): ?int
     {
         return $this->persistence;
     }
 
     /**
      * Retrieve request XML
-     *
-     * @return string
      */
-    public function getLastRequest()
+    public function getLastRequest(): ?string
     {
         return $this->request;
     }
@@ -908,10 +811,9 @@ final class Server implements ServerInterface
      *
      * The response is always available via {@link getResponse()}.
      *
-     * @param  bool $flag
      * @return self
      */
-    public function setReturnResponse($flag = true)
+    public function setReturnResponse(bool $flag = true): static
     {
         $this->returnResponse = (bool) $flag;
 
@@ -920,20 +822,16 @@ final class Server implements ServerInterface
 
     /**
      * Retrieve return response flag
-     *
-     * @return bool
      */
-    public function getReturnResponse()
+    public function getReturnResponse(): bool
     {
         return $this->returnResponse;
     }
 
     /**
      * Get response XML
-     *
-     * @return string
      */
-    public function getResponse()
+    public function getResponse(): string
     {
         return $this->response;
     }
@@ -944,10 +842,8 @@ final class Server implements ServerInterface
      * Uses {@link $wsdl} and return value of {@link getOptions()} to instantiate
      * SoapServer object, and then registers any functions or class with it, as
      * well as persistence.
-     *
-     * @return SoapServer
      */
-    public function getSoap()
+    public function getSoap(): SoapServer
     {
         if ($this->server instanceof SoapServer) {
             return $this->server;
@@ -984,7 +880,6 @@ final class Server implements ServerInterface
      *
      * @see _getSoap
     }
-     * @param  null|mixed $request
      * @return SoapServer the soapServer instance
      */
 
@@ -1007,7 +902,7 @@ final class Server implements ServerInterface
      * @param  DOMDocument|DOMNode|SimpleXMLElement|stdClass|string $request Optional request
      * @return string|void
      */
-    public function handle($request = null)
+    public function handle(mixed $request = null): mixed
     {
         if (null === $request) {
             $request = file_get_contents('php://input');
@@ -1051,14 +946,14 @@ final class Server implements ServerInterface
         if ($fault instanceof SoapFault && !$this->returnResponse) {
             $soap->fault($fault->faultcode, $fault->getMessage());
 
-            return;
+            return null;
         }
 
         // Echo the response, if we're not returning it
         if (!$this->returnResponse) {
             echo $this->response;
 
-            return;
+            return null;
         }
 
         // Return a fault, if we have it
@@ -1074,10 +969,9 @@ final class Server implements ServerInterface
      * Set the debug mode.
      * In debug mode, all exceptions are send to the client.
      *
-     * @param  bool $debug
      * @return self
      */
-    public function setDebugMode($debug)
+    public function setDebugMode(bool $debug): static
     {
         $this->debug = $debug;
 
@@ -1091,7 +985,7 @@ final class Server implements ServerInterface
      * @throws InvalidArgumentException
      * @return self
      */
-    public function registerFaultException($class)
+    public function registerFaultException(array|string $class): static
     {
         if (is_array($class)) {
             foreach ($class as $row) {
@@ -1119,10 +1013,9 @@ final class Server implements ServerInterface
     /**
      * Checks if provided fault name is registered as valid in this server.
      *
-     * @param  string $fault Name of a fault class
-     * @return bool
+     * @param string $fault Name of a fault class
      */
-    public function isRegisteredAsFaultException($fault)
+    public function isRegisteredAsFaultException(object|string $fault): bool
     {
         if ($this->debug) {
             return true;
@@ -1136,11 +1029,8 @@ final class Server implements ServerInterface
 
     /**
      * Deregister a fault exception from the fault exception stack
-     *
-     * @param  string $class
-     * @return bool
      */
-    public function deregisterFaultException($class)
+    public function deregisterFaultException(string $class): bool
     {
         if (in_array($class, $this->faultExceptions, true)) {
             $index = array_search($class, $this->faultExceptions, true);
@@ -1154,10 +1044,8 @@ final class Server implements ServerInterface
 
     /**
      * Return fault exceptions list
-     *
-     * @return array
      */
-    public function getFaultExceptions()
+    public function getFaultExceptions(): array
     {
         return $this->faultExceptions;
     }
@@ -1167,7 +1055,7 @@ final class Server implements ServerInterface
      *
      * @return null|Exception caught exception
      */
-    public function getException()
+    public function getException(): ?Exception
     {
         return $this->caughtException;
     }
@@ -1183,11 +1071,10 @@ final class Server implements ServerInterface
      *
      * @see   http://www.w3.org/TR/soap12-part1/#faultcodes
      *
-     * @param  Exception|string $fault
-     * @param  string           $code  SOAP Fault Codes
-     * @return SoapFault
+     * @param Exception|string $fault
+     * @param string           $code  SOAP Fault Codes
      */
-    public function fault($fault = null, $code = 'Receiver')
+    public function fault(Exception|string|null $fault = null, string $code = 'Receiver'): SoapFault
     {
         $this->caughtException = is_string($fault) ? new Exception($fault) : $fault;
 
@@ -1224,11 +1111,9 @@ final class Server implements ServerInterface
     /**
      * Throw PHP errors as SoapFaults
      *
-     * @param  int       $errno
-     * @param  string    $errstr
      * @throws SoapFault
      */
-    public function handlePhpErrors($errno, $errstr): void
+    public function handlePhpErrors(int $errno, string $errstr): void
     {
         throw $this->fault($errstr, 'Receiver');
     }
@@ -1247,7 +1132,7 @@ final class Server implements ServerInterface
      * @throws InvalidArgumentException
      * @return self
      */
-    protected function setRequest($request)
+    protected function setRequest(mixed $request): static
     {
         $xml = null;
 
@@ -1303,7 +1188,7 @@ final class Server implements ServerInterface
      *
      * @return bool display_errors original value
      */
-    protected function initializeSoapErrorContext()
+    protected function initializeSoapErrorContext(): string
     {
         $displayErrorsOriginalState = ini_get('display_errors');
         ini_set('display_errors', '0');
@@ -1319,11 +1204,8 @@ final class Server implements ServerInterface
      * disabled with a flag.
      *
      * If we are using libxml >= 2.9, XML entity loading is disabled by default.
-     *
-     * @param  bool $flag
-     * @return bool
      */
-    private function disableEntityLoader($flag = true)
+    private function disableEntityLoader(bool $flag = true): bool
     {
         if (LIBXML_VERSION < 20_900) {
             return libxml_disable_entity_loader($flag);

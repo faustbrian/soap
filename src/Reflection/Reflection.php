@@ -28,11 +28,7 @@ final class Reflection
      */
     public function reflectClass(string|object $class, string $namespace = ''): ReflectionClass
     {
-        if (is_object($class)) {
-            $reflection = new ReflectionObject($class);
-        } else {
-            $reflection = new NativeReflectionClass($class);
-        }
+        $reflection = is_object($class) ? new ReflectionObject($class) : new NativeReflectionClass($class);
 
         return new ReflectionClass($reflection, $namespace);
     }
