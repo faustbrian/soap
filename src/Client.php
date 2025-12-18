@@ -2,7 +2,7 @@
 
 namespace Cline\Soap;
 
-use Laminas\Server\Client as ServerClient;
+use Cline\Soap\Contract\ClientInterface;
 use SoapClient;
 use SoapHeader;
 use Traversable;
@@ -31,7 +31,7 @@ use const SOAP_ENCODED;
 use const SOAP_LITERAL;
 use const SOAP_RPC;
 
-class Client implements ServerClient
+class Client implements ClientInterface
 {
     /**
      * Array of SOAP type => PHP class pairings for handling return/incoming values

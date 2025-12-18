@@ -5,7 +5,7 @@ namespace Cline\Soap;
 use DOMDocument;
 use DOMNode;
 use Exception;
-use Laminas\Server\Server as LaminasServerServer;
+use Cline\Soap\Contract\ServerInterface;
 use Cline\Soap\Exception\ExtensionNotLoadedException;
 use Cline\Soap\Exception\InvalidArgumentException;
 use Cline\Soap\Exception\RuntimeException;
@@ -60,7 +60,7 @@ use const SOAP_PERSISTENCE_REQUEST;
 use const SOAP_PERSISTENCE_SESSION;
 use const XML_DOCUMENT_TYPE_NODE;
 
-class Server implements LaminasServerServer
+class Server implements ServerInterface
 {
     /**
      * Actor URI
