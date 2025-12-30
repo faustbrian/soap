@@ -85,16 +85,16 @@ The MIT License. Please see [License File](LICENSE.md) for more information.
 
 This package contains code derived from laminas/laminas-soap which is licensed under the BSD-3-Clause License.
 
-[ico-tests]: https://github.com/faustbrian/soap/actions/workflows/quality-assurance.yaml/badge.svg
+[ico-tests]: https://git.cline.sh/faustbrian/soap/actions/workflows/quality-assurance.yaml/badge.svg
 [ico-version]: https://img.shields.io/packagist/v/cline/soap.svg
 [ico-license]: https://img.shields.io/badge/License-MIT-green.svg
 [ico-downloads]: https://img.shields.io/packagist/dt/cline/soap.svg
 
-[link-tests]: https://github.com/faustbrian/soap/actions
+[link-tests]: https://git.cline.sh/faustbrian/soap/actions
 [link-packagist]: https://packagist.org/packages/cline/soap
 [link-downloads]: https://packagist.org/packages/cline/soap
-[link-security]: https://github.com/faustbrian/soap/security
-[link-maintainer]: https://github.com/faustbrian
+[link-security]: https://git.cline.sh/faustbrian/soap/security
+[link-maintainer]: https://git.cline.sh/faustbrian
 [link-contributors]: ../../contributors
 [link-original]: https://github.com/laminas/laminas-soap
 [link-original-contributors]: https://github.com/laminas/laminas-soap/graphs/contributors
